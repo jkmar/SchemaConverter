@@ -38,6 +38,18 @@ type SchemaRoot struct {
 
 var objectStore = map[string]Object{}
 
+var typeMapping = map[string]string{
+	"integer": "int",
+	"number":  "float64",
+}
+
+func mapType(typeName string) string {
+	if mappedName, ok := typeMapping[typeName]; ok {
+		return mappedName
+	}
+	return typeName
+}
+
 func parseArray(name string, node map[interface{}]interface{}) Array {
 	a := Array{}
 
@@ -120,12 +132,12 @@ func generateStruct(suffix, annotation string, o Object) string {
 			if property.Array.ItemType == "object" {
 				code += toGoName(suffix, property.Array.Object.Name)
 			} else {
-				code += property.Array.ItemType
+				code += mapType(property.Array.ItemType)
 			}
 		} else if property.Type == "object" {
 			code += toGoName(suffix, property.Object.Name)
 		} else {
-			code += property.Type
+			code += mapType(property.Type)
 		}
 		code += " `" + annotation + ":\"" + property.Name + "\"`\n"
 	}
