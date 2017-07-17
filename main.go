@@ -41,6 +41,7 @@ var objectStore = map[string]Object{}
 var typeMapping = map[string]string{
 	"integer": "int",
 	"number":  "float64",
+	"boolean": "bool",
 }
 
 func mapType(typeName string) string {
