@@ -13,6 +13,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+/*
 type Array struct {
 	ItemType string
 	Object   Object
@@ -29,6 +30,7 @@ type Object struct {
 	Name       string
 	Properties []Property
 }
+*/
 
 type SchemaRoot struct {
 	Prefix  string
@@ -39,8 +41,8 @@ type SchemaRoot struct {
 var objectStore = map[string]Object{}
 
 var typeMapping = map[string]string{
-	"integer": "int",
-	"number":  "float64",
+	"integer": "int64",
+	"number":  "int64",
 	"boolean": "bool",
 }
 
@@ -64,10 +66,12 @@ func parseArray(name string, node map[interface{}]interface{}) Array {
 	return a
 }
 
+/*
 func toGoName(suffix, name string) string {
 	name = strings.Replace(name+suffix, "-", "_", -1)
 	return snaker.SnakeToCamel(name)
 }
+*/
 
 func parseObject(name string, obj map[interface{}]interface{}) Object {
 	o := Object{Name: name}
@@ -103,6 +107,7 @@ func parseType(t interface{}) string {
 	panic(fmt.Sprintf("unsupported type: %T", t))
 }
 
+/*
 func parseProperties(obj map[interface{}]interface{}) []Property {
 	properties := []Property{}
 	for property, definition := range obj {
@@ -114,6 +119,7 @@ func parseProperties(obj map[interface{}]interface{}) []Property {
 	}
 	return properties
 }
+*/
 
 func parseSchemaRoot(s interface{}) SchemaRoot {
 	root := s.(map[interface{}]interface{})
@@ -166,6 +172,7 @@ func main() {
 	if err != nil {
 		panic("Cannot parse given schema")
 	}
+	fmt.Println(schema)
 
 	for _, schema := range schema["schemas"].([]interface{}) {
 		root := parseSchemaRoot(schema)
