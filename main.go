@@ -66,12 +66,10 @@ func parseArray(name string, node map[interface{}]interface{}) Array {
 	return a
 }
 
-/*
 func toGoName(suffix, name string) string {
 	name = strings.Replace(name+suffix, "-", "_", -1)
 	return snaker.SnakeToCamel(name)
 }
-*/
 
 func parseObject(name string, obj map[interface{}]interface{}) Object {
 	o := Object{Name: name}
@@ -82,7 +80,7 @@ func parseObject(name string, obj map[interface{}]interface{}) Object {
 		if objProperty.Type == "object" {
 			objProperty.Object = parseObject(name+"_"+objProperty.Name, node)
 		}
-		if objProperty.Type == "array" {
+		if objProperty.Type == "item" {
 			objProperty.Array = parseArray(name+"_"+objProperty.Name, node)
 		}
 		o.Properties[i] = objProperty
@@ -134,7 +132,7 @@ func generateStruct(suffix, annotation string, o Object) string {
 	code := "type " + toGoName(suffix, o.Name) + " struct {\n"
 	for _, property := range o.Properties {
 		code += "    " + toGoName("", property.Name) + " "
-		if property.Type == "array" {
+		if property.Type == "item" {
 			code += "[]"
 			if property.Array.ItemType == "object" {
 				code += toGoName(suffix, property.Array.Object.Name)

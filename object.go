@@ -1,15 +1,14 @@
+/*
 package main
 
 import (
 	"strings"
 	"github.com/serenize/snaker"
+	"fmt"
 )
 
-func CreateProperty(name, itemType string) *Property {
-	return &Property{
-		name,
-		CreateItem(itemType),
-	}
+func CreateProperty(name string) *Property {
+	return &Property{Name: name}
 }
 
 func CreateItem(itemType interface{}) Item {
@@ -18,24 +17,66 @@ func CreateItem(itemType interface{}) Item {
 
 func CreateItemFromString(itemType string) Item {
 	switch itemType {
-	case "array":
+	case "item":
 		return &Array{}
 	case "object":
 		return &Object{}
 	default:
-		return PlainItem{}
+		return &PlainItem{}
 	}
 }
 
 type Item interface {
 	Type() string
 	Parse(map[interface{}]interface{})
-	Collect(string, map[string]*Property)
+	//Collect(string, map[string]*Property)
+	GenerateStruct(string) string
+	GenerateProperty(string, string) string
 }
 
 type Property struct {
+	FullName string
 	Name string
 	Item Item
+}
+
+func (item *Property) Type() string {
+	return item.FullName
+}
+
+func (item *Property) Parse(object map[interface{}]interface{}) {
+	item.Item = CreateItem(object["type"])
+	item.Parse(object)
+}
+
+func (item *Property) GenerateStruct(annotation,  string) string {
+	if item.Item.Type() != "object" {
+		return ""
+	}
+	code := "type" + toGoName(item.Type()) + " struct {\n"
+
+}
+
+func (item *Property) GenerateProperty(fullName, annotation string) string {
+	return fmt.Sprintf(
+		"\t%s %s `%s:\"%s\"`\n",
+		item.Name,
+		item.Item.GenerateProperty(fullName + item.Type(), annotation),
+		annotation,
+		item.Name,
+	)
+}
+
+func (item *PlainItem) GenerateProperty(fullName, annotation string) string {
+	return item.Type()
+}
+
+func (item *Array) GenerateProperty(fullName, annotation string) string {
+	return "[]" + item.Item.GenerateProperty(fullName, annotation)
+}
+
+func (item *Object) GenerateProperty(fullName, annotation string) string {
+	return fullName
 }
 
 type PlainItem struct {
@@ -57,10 +98,11 @@ type Object struct {
 	Properties []*Property
 }
 
-func (object Object) Type() string {
+func (object *Object) Type() string {
 	return "object"
 }
 
+/*
 func (item Object) Parse(object map[interface{}]interface{}) {
 	properties := object["properties"].(map[interface{}]interface{})
 	item.Properties = parseProperties(object["properties"].(map[interface{}]interface{}))
@@ -68,39 +110,30 @@ func (item Object) Parse(object map[interface{}]interface{}) {
 		property.Item.Parse(properties[property.Name].(map[interface{}]interface{}))
 	}
 }
+*/
 
-func (object Object) Collect(prefix string, objects map[string]*Property) {
-	for _, property := range object.Properties {
-
+/*
+func (item *Object) Parse(object map[interface{}]interface{}) {
+	next := object["properties"].(map[interface{}]interface{})
+	item.Properties = []*Property{}
+	for property, definition := range next {
+		item.Properties = append(item.Properties, CreateProperty(property.(string)))
+		item.Properties[len(item.Properties)-1].Parse(definition.(map[interface{}]interface{}))
 	}
-}
-
-func parseProperties(object map[interface{}]interface{}) []*Property {
-	properties := []*Property{}
-	for property, definition := range object {
-		itemType := parseType(definition.(map[interface{}]interface{})["type"])
-		properties = append(properties, CreateProperty(property.(string), itemType))
-	}
-	return properties
 }
 
 type Array struct {
 	Item Item
 }
 
-func (array Array) Type() string {
-	return "array"
+func (array *Array) Type() string {
+	return "item"
 }
 
-func (array Array) Parse(object map[interface{}]interface{}) {
-	items := object["items"].(map[interface{}]interface{})
-	array.Item = CreateItem(parseType(items["type"]))
-	array.Item.Parse(items)
-}
-
-func (property *Property) Collect(prefix string, objects map[string]interface{}) {
-	objects[prefix+property.Name] = property.Item
-	property.Item.Collect(prefix+property.Name, objects)
+func (array *Array) Parse(object map[interface{}]interface{}) {
+	next := object["items"].(map[interface{}]interface{})
+	array.Item = CreateItem(next["type"])
+	array.Item.Parse(next)
 }
 
 func toGoName(suffix, name string) string {
@@ -108,16 +141,3 @@ func toGoName(suffix, name string) string {
 	return snaker.SnakeToCamel(name)
 }
 
-type ByName []*Property
-
-func (array ByName) Len() int {
-	return len(array)
-}
-
-func (array ByName) Swap(i, j int) {
-	array[i], array[j] = array[j], array[i]
-}
-
-func (array ByName) Less(i, j int) bool {
-	return array[i].Name < array[j].Name
-}
