@@ -6,8 +6,12 @@ type Array struct {
 	Item Item
 }
 
-func (item *Array) Type() string {
-	return "[]" + item.Item.Type()
+func (item *Array) Type(suffix string) string {
+	return "[]" + item.Item.Type(suffix)
+}
+
+func (item *Array) IsObject() bool {
+	return false
 }
 
 func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err error) {
@@ -30,4 +34,8 @@ func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err
 		return fmt.Errorf("invalid schema: array %s - %v", prefix, err)
 	}
 	return item.Item.Parse(prefix, next)
+}
+
+func (item *Array) Collect(depth int) []*Object {
+	return item.Item.Collect(depth)
 }

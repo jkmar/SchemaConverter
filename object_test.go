@@ -12,9 +12,16 @@ var _ = Describe("object tests", func() {
 		It("Should return correct object type", func() {
 			itemType := "ab"
 			object := Object{objectType: itemType}
-			expected := itemType
-			result := object.Type()
+			expected := toGoName(itemType, "")
+			result := object.Type("")
 			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("is object tests", func() {
+		It("Should return true for is object query", func() {
+			item := &Object{}
+			Expect(item.IsObject()).To(BeTrue())
 		})
 	})
 
@@ -106,15 +113,87 @@ var _ = Describe("object tests", func() {
 				names[i] = property.Name
 				switch names[i] {
 				case "a":
-					Expect(property.Item.Type()).To(Equal("string"))
+					Expect(property.Item.Type("")).To(Equal("string"))
 				case "b":
-					Expect(property.Item.Type()).To(Equal("[]string"))
+					Expect(property.Item.Type("")).To(Equal("[]string"))
 				case "c":
-					Expect(property.Item.Type()).To(Equal(addName(prefix, "c")))
+					Expect(property.Item.Type("")).To(Equal("AbcC"))
 				}
 			}
 			sort.Strings(names)
 			Expect(names).To(Equal([]string{"a", "b", "c"}))
+		})
+	})
+
+	Describe("collect tests", func() {
+		var (
+			names = []string{"A", "B", "C"}
+			nested = &Object{
+				names[0],
+				[]*Property{
+					&Property{
+						"1",
+						&Object{
+							names[1],
+							[]*Property{
+								&Property{
+									"2",
+									&Object{
+										names[2],
+										nil,
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+		)
+
+		It("Should return nil for non positive depth", func() {
+			item := &Object{"", nil}
+			Expect(item.Collect(0)).To(BeNil())
+		})
+
+		It("Should return correct objects", func() {
+			item := nested
+			result := item.Collect(2)
+			Expect(len(result)).To(Equal(2))
+			Expect(result[0].Type("")).To(Equal(names[0]))
+			Expect(result[1].Type("")).To(Equal(names[1]))
+		})
+
+		It("Should return all objects for negative depth", func() {
+			item := nested
+			result := item.Collect(-1)
+			Expect(len(result)).To(Equal(3))
+			Expect(result[0].Type("")).To(Equal(names[0]))
+			Expect(result[1].Type("")).To(Equal(names[1]))
+			Expect(result[2].Type("")).To(Equal(names[2]))
+		})
+	})
+
+	Describe("generate struct tests", func() {
+		It("Should generate correct struct", func() {
+			annotate := func(name string) string {
+				return fmt.Sprintf("`annotation:\"%s\"`", name)
+			}
+
+			item := Object{
+				"abc_def",
+				[]*Property{
+					&Property{"id", &PlainItem{"string"}},
+					&Property{"ip", &Array{&PlainItem{"int64"}}},
+					&Property{"abc", &Object{"xyz", []*Property{}}}},
+			}
+			expected := `type AbcDefSuffix struct {
+	ID string ` + annotate("id") + `
+	IP []int64 ` + annotate("ip") + `
+	Abc XyzSuffix ` + annotate("abc") + `
+}
+`
+			result := item.GenerateStruct("suffix", "annotation")
+			Expect(result).To(Equal(expected))
 		})
 	})
 })

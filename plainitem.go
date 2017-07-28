@@ -6,8 +6,12 @@ type PlainItem struct {
 	ItemType string
 }
 
-func (item *PlainItem) Type() string {
+func (item *PlainItem) Type(suffix string) string {
 	return item.ItemType
+}
+
+func (item *PlainItem) IsObject() bool {
+	return false
 }
 
 func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) (err error) {
@@ -27,4 +31,8 @@ func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) 
 		)
 	}
 	return
+}
+
+func (item *PlainItem) Collect(depth int) []*Object {
+	return nil
 }

@@ -12,15 +12,15 @@ var typeMapping = map[string]string{
 	"boolean": "bool",
 }
 
-func addName(prefix, sufix string) string {
+func addName(prefix, suffix string) string {
 	if prefix == "" {
-		return sufix
+		return suffix
 	}
-	return prefix + "_" + sufix
+	return prefix + "_" + suffix
 }
 
 func toGoName(prefix, suffix string) string {
-	name := strings.Replace(prefix+suffix, "-", "_", -1)
+	name := strings.Replace(addName(prefix, suffix), "-", "_", -1)
 	return snaker.SnakeToCamel(name)
 }
 

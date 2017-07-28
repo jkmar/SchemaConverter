@@ -12,8 +12,15 @@ var _ = Describe("plain item tests", func() {
 			itemType := "int64"
 			item := PlainItem{itemType}
 			expected := itemType
-			result := item.Type()
+			result := item.Type("")
 			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("is object tests", func() {
+		It("Should return false for is object query", func() {
+			item := &PlainItem{}
+			Expect(item.IsObject()).To(BeFalse())
 		})
 	})
 
@@ -56,7 +63,14 @@ var _ = Describe("plain item tests", func() {
 			expected := typeMapping[object["type"].(string)]
 			err := item.Parse(prefix, object)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(item.Type()).To(Equal(expected))
+			Expect(item.Type("")).To(Equal(expected))
+		})
+	})
+
+	Describe("collect tests", func() {
+		It("Should return nil for plain item", func() {
+			item := &PlainItem{}
+			Expect(item.Collect(1)).To(BeNil())
 		})
 	})
 })

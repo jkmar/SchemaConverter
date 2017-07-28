@@ -75,7 +75,84 @@ var _ = Describe("property tests", func() {
 			expected := "[]" + itemType.(string)
 			err := item.Parse(prefix, object)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(item.Item.Type()).To(Equal(expected))
+			Expect(item.Item.Type("")).To(Equal(expected))
+		})
+	})
+
+	Describe("collect tests", func() {
+		It("Should collect object", func() {
+			object := &Object{"abc", nil}
+			item := &Property{"", object}
+			expected := []*Object{object}
+			result := item.Collect(1)
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate property tests", func() {
+		var (
+			prefix = "abc"
+			suffix = "xyz"
+			annotation = "123"
+			item *Property
+			object map[interface{}]interface{}
+		)
+
+		BeforeEach(func() {
+			item = &Property{Name:"def_id"}
+		})
+
+		It("Should generate correct property for plain item", func() {
+			object = map[interface{}]interface{}{
+				"type": "boolean",
+			}
+			err := item.Parse(prefix, object)
+			Expect(err).ToNot(HaveOccurred())
+			expected := fmt.Sprintf(
+				"\tDefID bool `%s:\"%s\"`\n",
+				annotation,
+				item.Name,
+			)
+			result := item.GenerateProperty(suffix, annotation)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct property for array", func() {
+			object = map[interface{}]interface{}{
+				"type": "array",
+				"items": map[interface{}]interface{}{
+					"type": "integer",
+				},
+			}
+			err := item.Parse(prefix, object)
+			Expect(err).ToNot(HaveOccurred())
+			expected := fmt.Sprintf(
+				"\tDefID []int64 `%s:\"%s\"`\n",
+				annotation,
+				item.Name,
+			)
+			result := item.GenerateProperty(suffix, annotation)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct property for object", func() {
+			object = map[interface{}]interface{}{
+				"type": "object",
+				"properties": map[interface{}]interface{}{
+					"test": map[interface{}]interface{}{
+						"type": "string",
+					},
+				},
+			}
+			err := item.Parse(prefix, object)
+			Expect(err).ToNot(HaveOccurred())
+			expected := fmt.Sprintf(
+				"\tDefID AbcDefIDXyz `%s:\"%s\"`\n",
+				annotation,
+				item.Name,
+			)
+			result := item.GenerateProperty(suffix, annotation)
+			Expect(result).To(Equal(expected))
 		})
 	})
 })

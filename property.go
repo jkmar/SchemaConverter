@@ -30,3 +30,17 @@ func (item *Property) Parse(prefix string, object map[interface{}]interface{}) (
 	}
 	return item.Item.Parse(addName(prefix, item.Name), object)
 }
+
+func (item *Property) Collect(depth int) []*Object {
+	return item.Item.Collect(depth)
+}
+
+func (item *Property) GenerateProperty(suffix, annotation string) string {
+	return fmt.Sprintf(
+		"\t%s %s `%s:\"%s\"`\n",
+		toGoName(item.Name, ""),
+		item.Item.Type(suffix),
+		annotation,
+		item.Name,
+	)
+}

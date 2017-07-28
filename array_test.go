@@ -12,7 +12,7 @@ var _ = Describe("array tests", func() {
 			itemType := "int64"
 			array := Array{&PlainItem{itemType}}
 			expected := "[]" + itemType
-			result := array.Type()
+			result := array.Type("")
 			Expect(result).To(Equal(expected))
 		})
 
@@ -21,8 +21,15 @@ var _ = Describe("array tests", func() {
 			nested := Array{&PlainItem{itemType}}
 			array := Array{&nested}
 			expected := "[][]" + itemType
-			result := array.Type()
+			result := array.Type("")
 			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("is object tests", func() {
+		It("Should return false for is object query", func() {
+			item := &Array{}
+			Expect(item.IsObject()).To(BeFalse())
 		})
 	})
 
@@ -89,7 +96,22 @@ var _ = Describe("array tests", func() {
 			expected := "[]" + itemType.(string)
 			err := item.Parse(prefix, object)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(item.Type()).To(Equal(expected))
+			Expect(item.Type("")).To(Equal(expected))
+		})
+
+		Describe("collect tests", func() {
+			It("Should return nil for array of plain items", func() {
+				item := &Array{&PlainItem{}}
+				Expect(item.Collect(1)).To(BeNil())
+			})
+
+			It("Should return object for array of objects", func() {
+				name := "Test"
+				item := &Array{&Object{name, nil}}
+				result := item.Collect(1)
+				Expect(len(result)).To(Equal(1))
+				Expect(result[0].Type("")).To(Equal(name))
+			})
 		})
 	})
 })

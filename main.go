@@ -1,5 +1,10 @@
 package main
 
+import (
+	"flag"
+	"fmt"
+)
+
 //import (
 //	"fmt"
 //	"io/ioutil"
@@ -116,35 +121,32 @@ package main
 //	return code
 //}
 //
-//func main() {
-//	inputSchema := flag.String("schema", "", "path to yaml with schema")
-//	suffix := flag.String("suffix", "", "suffix appended to struct names")
-//	flag.Parse()
-//
-//	if *inputSchema == "" {
-//		Log.Info("Missing input schema")
-//		return
-//	}
-//
-//	inputContent, err := ioutil.ReadFile(*inputSchema)
-//	if err != nil {
-//		panic(fmt.Sprintf("Failed to open %s file", *inputSchema))
-//	}
-//	schema := map[string]interface{}{}
-//
-//	err = yaml.Unmarshal(inputContent, &schema)
-//	if err != nil {
-//		panic("Cannot parse given schema")
-//	}
-//	fmt.Println(schema)
-//
-//	for _, schema := range schema["schemas"].([]interface{}) {
-//		root := parseSchemaRoot(schema)
-//		fmt.Println(generateStruct(*suffix, "db", root.Schema))
-//	}
-//
-//	for _, obj := range objectStore {
-//		fmt.Println(generateStruct(*suffix, "json", obj))
-//	}
-//
-//}
+func main() {
+	inputSchema := flag.String("schema", "", "path to yaml with schema")
+	suffix := flag.String("suffix", "", "suffix appended to struct names")
+	flag.Parse()
+
+	objects, err := ReadSchemasFromFile(*inputSchema)
+	if err != nil {
+		panic(err)
+	}
+
+
+	schemas := make([]*Schema, len(objects))
+	for i, object := range objects {
+		schemas[i] = &Schema{}
+		err := schemas[i].Parse(object)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	toOutput := []*Object{}
+	for _, schema := range schemas {
+		toOutput = append(toOutput, schema.Collect(-1)...)
+	}
+
+	for _, output := range toOutput {
+		fmt.Println(output.GenerateStruct(*suffix, "db"))
+	}
+}

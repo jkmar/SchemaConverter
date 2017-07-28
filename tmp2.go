@@ -1,16 +1,13 @@
 package main
 
+
 //import (
 //	"fmt"
 //)
 //
 //
 //
-//type Schema struct {
-//	Parent string
-//	Extends []string
-//	Schema *Property
-//}
+
 //
 //func (schema *Schema) Name() string {
 //	return schema.Schema.Name
@@ -27,16 +24,7 @@ package main
 //	item.Parse(prefix+item.Name, object)
 //}
 //
-//func (item *Property) GenerateProperty(sufix, annotation string) string {
-//	return fmt.Sprintf(
-//		"\t%s %s `%s:\"%s\"`\n",
-//		toGoName(item.Name, ""),
-//		toGoName(item.Item.Type(), sufix),
-//		sufix,
-//		annotation,
-//		item.Name,
-//	)
-//}
+
 //
 //
 //

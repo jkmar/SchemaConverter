@@ -7,8 +7,12 @@ type Object struct {
 	Properties []*Property
 }
 
-func (item *Object) Type() string {
-	return item.objectType
+func (item *Object) Type(suffix string) string {
+	return toGoName(item.objectType, suffix)
+}
+
+func (item *Object) IsObject() bool {
+	return true
 }
 
 func (item *Object) Parse(prefix string, object map[interface{}]interface{}) (err error) {
@@ -39,10 +43,21 @@ func (item *Object) Parse(prefix string, object map[interface{}]interface{}) (er
 	return
 }
 
-//func (item *Object) GenerateStruct(sufix, annotation string) string {
-//	code := "type " + toGoName(item.Type(), sufix) + " struct {\n"
-//	for _, propery := range item.Properties {
-//		code += propery.GenerateProperty(sufix, annotation)
-//	}
-//	return code + "}\n"
-//}
+func (item *Object) Collect(depth int) []*Object {
+	if depth == 0 {
+		return nil
+	}
+	result := []*Object{item}
+	for _, property := range item.Properties {
+		result = append(result, property.Collect(depth - 1)...)
+	}
+	return result
+}
+
+func (item *Object) GenerateStruct(sufix, annotation string) string {
+	code := "type " + item.Type(sufix) + " struct {\n"
+	for _, propery := range item.Properties {
+		code += propery.GenerateProperty(sufix, annotation)
+	}
+	return code + "}\n"
+}

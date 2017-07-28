@@ -1,8 +1,10 @@
 package main
 
 type Item interface {
-	Type() string
+	Type(string) string
+	IsObject() bool
 	Parse(string, map[interface{}]interface{}) error
+	Collect(int) []*Object
 }
 
 func CreateItem(itemType interface{}) (Item, error) {
