@@ -96,7 +96,7 @@ func (schema *Schema) Parse(object map[interface{}]interface{}) error {
 	}
 	err := schema.addParent()
 	if err != nil {
-		return fmt.Errorf("invalid schema %s: v",
+		return fmt.Errorf("invalid schema %s: %v",
 			schema.Name(),
 			err,
 		)
