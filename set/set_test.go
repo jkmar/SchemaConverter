@@ -42,6 +42,27 @@ var _ = Describe("set tests", func() {
 		})
 	})
 
+	Describe("any tests", func() {
+		It("Should return nil for an empty set", func() {
+			set := New()
+			Expect(set.Any()).To(BeNil())
+		})
+
+		It("Should return first value of set with one value", func() {
+			var elem test = "test"
+			set := New()
+			set.Insert(elem)
+			result := set.Any()
+			Expect(result).To(Equal(elem))
+		})
+
+		It("Should return any element of given set", func() {
+			var set Set = map[string]Element{"a": test("a"), "b": test("b")}
+			result := set.Any()
+			Expect(set.Contains(result)).To(BeTrue())
+		})
+	})
+
 	Describe("contains tests", func() {
 		const elem test = "1"
 

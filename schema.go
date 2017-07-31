@@ -17,6 +17,10 @@ func (schema *Schema) Name() string {
 	return schema.schema.Name()
 }
 
+func (schema *Schema) Bases() []string {
+	return schema.extends
+}
+
 func (schema *Schema) getName(object map[interface{}]interface{}) error {
 	id, ok := object["id"].(string)
 	if !ok {
@@ -124,10 +128,10 @@ func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
 	return result, nil
 }
 
-func (schema *Schema) Join(edges []*Node) error {
+func (schema *Schema) Join(edges []*node) error {
 	properties := set.New()
 	for _, node := range edges {
-		newProperties, err := node.Schema.CollectProperties(2, 1)
+		newProperties, err := node.schema.CollectProperties(2, 1)
 		if err != nil {
 			return fmt.Errorf(
 				"error on joining schema %s: %v",
@@ -142,6 +146,29 @@ func (schema *Schema) Join(edges []*Node) error {
 			)
 		}
 	}
-	schema.schema.AddProperties(properties, false)
+	err := schema.schema.AddProperties(properties, false)
+	if err != nil {
+		return fmt.Errorf(
+			"schema %s should be a an object",
+			schema.Name(),
+		)
+	}
 	return nil
+}
+
+func ParseAll(objects []map[interface{}]interface{}) (set.Set, error) {
+	set := set.New()
+	for _, object := range objects {
+		schema := &Schema{}
+		if err := schema.Parse(object); err != nil {
+			return nil, err
+		}
+		if err := set.SafeInsert(schema); err != nil {
+			return nil, fmt.Errorf(
+				"multiple schemas with the same name: %s",
+				schema.Name(),
+			)
+		}
+	}
+	return set, nil
 }

@@ -22,6 +22,13 @@ func (set Set) Size() int {
 	return len(set)
 }
 
+func (set Set) Any() Element {
+	for _, value := range set {
+		return value
+	}
+	return nil
+}
+
 func (set Set) Contains(element Element) bool {
 	if set == nil {
 		return false

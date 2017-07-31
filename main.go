@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zimnx/YamlSchemaToGoStruct/set"
-	"github.com/zimnx/YamlSchemaToGoStruct/item"
 )
 
 //import (
@@ -40,7 +38,7 @@ import (
 //type SchemaRoot struct {
 //	Prefix  string
 //	Extends []string
-//	Schema  Object
+//	schema  Object
 //}
 //
 //var objectStore = map[string]Object{}
@@ -96,7 +94,7 @@ import (
 //	root := s.(map[interface{}]interface{})
 //	yamlSchema := root["schema"].(map[interface{}]interface{})
 //	schema := SchemaRoot{
-//		Schema: parseObject(root["id"].(string), yamlSchema),
+//		schema: parseObject(root["id"].(string), yamlSchema),
 //	}
 //	return schema
 //}
@@ -133,50 +131,11 @@ func main() {
 		panic(err)
 	}
 
-
-	allSchemas = map[string]*Schema{}
-	schemas := make([]*Schema, len(objects))
-	for i, object := range objects {
-		schemas[i] = &Schema{}
-		err := schemas[i].Parse(object)
-		if err != nil {
-			panic(err)
-		}
-		allSchemas[schemas[i].Name()] = schemas[i]
-	}
-
-	//toOutput1 := set.New()
-	//for _, schema := range schemas {
-	//	tmp, err := schema.CollectObjects(-1, 0)
-	//	if err != nil {
-	//		schema.CollectObjects(-1, 0)
-	//	}
-	//	toOutput1.SafeInsertAll(tmp)
-	//}
-
-	//for _, output := range toOutput1 {
-	//	fmt.Println(output.(*Object).GenerateStruct(*suffix, "db"))
-	//}
-
-	nodes, err := sort(schemas)
+	tmp, err := Convert(nil, objects, "db", "json", *suffix)
 	if err != nil {
 		panic(err)
 	}
-
-	if err = updateSchemas(nodes); err != nil {
-		panic(err)
-	}
-
-	toOutput := set.New()
-	for _, node := range nodes {
-		tmp, err := node.Schema.CollectObjects(-1, 0)
-		if err != nil {
-			panic(err)
-		}
-		toOutput.InsertAll(tmp)
-	}
-
-	for _, output := range toOutput {
-		fmt.Println(output.(*item.Object).GenerateStruct(*suffix, "db"))
+	for _, x := range tmp {
+		fmt.Println(x)
 	}
 }
