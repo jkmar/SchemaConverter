@@ -1,46 +1,87 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
+)
 
 type Property struct {
-	Name string
-	Item Item
+	name string
+	item Item
 }
 
 func CreateProperty(name string) *Property {
-	return &Property{Name: name}
+	return &Property{name: name}
+}
+
+func CreatePropertyWithType(name, itemType string) *Property {
+	return &Property{name, CreateItemFromString(itemType)}
+}
+
+func (item *Property) Name() string {
+	return item.name
+}
+
+func (item *Property) IsObject() bool {
+	return item.item.IsObject()
 }
 
 func (item *Property) Parse(prefix string, object map[interface{}]interface{}) (err error) {
 	objectType, ok := object["type"]
 	if !ok {
 		return fmt.Errorf(
-			"invalid schema: property %s does not have a type",
-			addName(prefix, item.Name),
+			"property %s does not have a type",
+			addName(prefix, item.name),
 		)
 	}
-	item.Item, err = CreateItem(objectType)
+	item.item, err = CreateItem(objectType)
 	if err != nil {
-		err = fmt.Errorf(
-			"invalid schema: property %s - %v",
-			addName(prefix, item.Name),
+		return fmt.Errorf(
+			"property %s: %v",
+			addName(prefix, item.name),
 			err,
 		)
-		return
 	}
-	return item.Item.Parse(addName(prefix, item.Name), object)
+	return item.item.Parse(addName(prefix, item.name), object)
 }
 
-func (item *Property) Collect(depth int) []*Object {
-	return item.Item.Collect(depth)
+func (item *Property) AddProperties(set set.Set, safe bool) error {
+	return item.item.AddProperties(set, safe)
+}
+
+func (item *Property) CollectObjects(limit, offset int) (set.Set, error) {
+	return item.item.CollectObjects(limit, offset)
+}
+
+func (item *Property) CollectProperties(limit, offset int) (set.Set, error) {
+	if limit == 0 {
+		return nil, nil
+	}
+	result, err := item.item.CollectProperties(limit - 1, offset - 1)
+	if err != nil {
+		return nil, err
+	}
+	if offset <= 0 {
+		if result == nil {
+			result = set.New()
+		}
+		err = result.SafeInsert(item)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"multiple properties with the same name: %s",
+				item.name,
+			)
+		}
+	}
+	return result, nil
 }
 
 func (item *Property) GenerateProperty(suffix, annotation string) string {
 	return fmt.Sprintf(
 		"\t%s %s `%s:\"%s\"`\n",
-		toGoName(item.Name, ""),
-		item.Item.Type(suffix),
+		toGoName(item.name, ""),
+		item.item.Type(suffix),
 		annotation,
-		item.Name,
+		item.name,
 	)
 }

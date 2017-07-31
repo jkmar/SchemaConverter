@@ -9,21 +9,21 @@ import (
 var _ = Describe("item tests", func() {
 	Describe("item creation tests", func() {
 		Describe("CreateItemFromString tests", func() {
-			It("Should create array", func() {
+			It("Should create an array", func() {
 				typeName := "array"
 				expected := &Array{}
 				result := CreateItemFromString(typeName)
 				Expect(result).To(Equal(expected))
 			})
 
-			It("Should create object", func() {
+			It("Should create an object", func() {
 				typeName := "object"
 				expected := &Object{}
 				result := CreateItemFromString(typeName)
 				Expect(result).To(Equal(expected))
 			})
 
-			It("Should create plain item", func() {
+			It("Should create a plain item", func() {
 				typeName := "string"
 				expected := &PlainItem{}
 				result := CreateItemFromString(typeName)
@@ -34,7 +34,7 @@ var _ = Describe("item tests", func() {
 		Describe("CreateItem", func() {
 			var itemType interface{}
 
-			It("Should return error for invalid type", func() {
+			It("Should return error for an invalid type", func() {
 				itemType = 1
 				expected := fmt.Errorf("unsupported type: %T", itemType)
 				_, err := CreateItem(itemType)
@@ -42,7 +42,7 @@ var _ = Describe("item tests", func() {
 				Expect(err).To(MatchError(expected))
 			})
 
-			It("Should create item with correct type", func() {
+			It("Should create item with a correct type", func() {
 				itemType = []interface{}{"null", 1, "object", "array"}
 				expected := &Object{}
 				result, err := CreateItem(itemType)

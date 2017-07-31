@@ -40,7 +40,7 @@ var _ = Describe("schema tests", func() {
 			}
 			err := schema.getName(object)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(schema.Schema.Name).To(Equal(name))
+			Expect(schema.Schema.name).To(Equal(name))
 		})
 	})
 
@@ -140,11 +140,27 @@ var _ = Describe("schema tests", func() {
 			Expect(err).To(MatchError(expected))
 		})
 
+		It("Should return error for schema with no schema", func() {
+			name := "test"
+			object := map[interface{}]interface{}{
+				"id":         name,
+			}
+			expected := fmt.Errorf(
+				"invalid schema %s: schema does not have a \"schema\"",
+				name,
+			)
+			err := schema.Parse(object)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
 		It("Should return error for invalid schema", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
 				"id":         name,
-				"properties": 1,
+				"schema": map[interface{}]interface{}{
+					"properties": 1,
+				},
 			}
 			expected := fmt.Errorf(
 				"%s - invalid schema: property %s does not have a type",
@@ -160,7 +176,9 @@ var _ = Describe("schema tests", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
 				"id":   name,
-				"type": "string",
+				"schema": map[interface{}]interface{}{
+					"type": "string",
+				},
 			}
 			expected := fmt.Errorf(
 				"invalid schema %s: schema should be an object",
@@ -175,18 +193,20 @@ var _ = Describe("schema tests", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
 				"id":   name,
-				"type": "object",
-				"properties": map[interface{}]interface{}{
-					"a": map[interface{}]interface{}{
-						"type": "string",
+				"schema": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"a": map[interface{}]interface{}{
+							"type": "string",
+						},
 					},
 				},
 			}
 			err := schema.Parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(schema.Schema.Name).To(Equal(name))
-			Expect(schema.Schema.Item.IsObject()).To(BeTrue())
-			Expect(schema.Schema.Item.Type("")).To(Equal("Test"))
+			Expect(schema.Schema.name).To(Equal(name))
+			Expect(schema.Schema.item.IsObject()).To(BeTrue())
+			Expect(schema.Schema.item.Type("")).To(Equal("Test"))
 		})
 	})
 
@@ -196,37 +216,39 @@ var _ = Describe("schema tests", func() {
 			names := []string{"A", "B", "C"}
 			object := map[interface{}]interface{}{
 				"id":   names[0],
-				"type": "object",
-				"properties": map[interface{}]interface{}{
-					names[1]: map[interface{}]interface{}{
-						"type": "object",
-						"properties": map[interface{}]interface{}{
-							"a": map[interface{}]interface{}{
-								"type": "string",
-							},
-							names[2]: map[interface{}]interface{}{
-								"type": "object",
-								"properties": map[interface{}]interface{}{
-									"a": map[interface{}]interface{}{
-										"type": "number",
+				"schema": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						names[1]: map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "string",
+								},
+								names[2]: map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "number",
+										},
 									},
 								},
-							},
-							names[0]: map[interface{}]interface{}{
-								"type": "object",
-								"properties": map[interface{}]interface{}{
-									"a": map[interface{}]interface{}{
-										"type": "number",
+								names[0]: map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "number",
+										},
 									},
 								},
 							},
 						},
-					},
-					names[0]: map[interface{}]interface{}{
-						"type": "object",
-						"properties": map[interface{}]interface{}{
-							"a": map[interface{}]interface{}{
-								"type": "number",
+						names[0]: map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "number",
+								},
 							},
 						},
 					},

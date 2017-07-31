@@ -10,6 +10,7 @@ var typeMapping = map[string]string{
 	"integer": "int64",
 	"number":  "int64",
 	"boolean": "bool",
+	"abstract": "object",
 }
 
 func addName(prefix, suffix string) string {

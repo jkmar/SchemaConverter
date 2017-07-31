@@ -1,11 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
+)
 
 type Schema struct {
-	Parent string
-	Extends []string
-	Schema *Property
+	parent  string
+	extends []string
+	schema  *Property
+}
+
+func (schema *Schema) Name() string {
+	return schema.schema.Name()
 }
 
 func (schema *Schema) getName(object map[interface{}]interface{}) error {
@@ -13,12 +20,12 @@ func (schema *Schema) getName(object map[interface{}]interface{}) error {
 	if !ok {
 		return fmt.Errorf("schema does not have an id")
 	}
-	schema.Schema = CreateProperty(id)
+	schema.schema = CreateProperty(id)
 	return nil
 }
 
 func (schema *Schema) getParent(object map[interface{}]interface{}) {
-	schema.Parent, _ = object["parent"].(string)
+	schema.parent, _ = object["parent"].(string)
 }
 
 func (schema *Schema) getBaseSchemas(object map[interface{}]interface{}) error {
@@ -33,37 +40,84 @@ func (schema *Schema) getBaseSchemas(object map[interface{}]interface{}) error {
 			return fmt.Errorf("one of the base schemas is not a string")
 		}
 	}
-	schema.Extends = bases
+	schema.extends = bases
 	return nil
+}
+
+func (schema *Schema) addParent() error {
+	if schema.parent == "" {
+		return nil
+	}
+	set := set.New()
+	set.Insert(
+		CreatePropertyWithType(addName(schema.parent, "id"),
+		"string"),
+	)
+	return schema.schema.AddProperties(set, true)
 }
 
 func (schema *Schema) Parse(object map[interface{}]interface{}) error {
-	err := schema.getName(object)
-	if err != nil {
+	if err := schema.getName(object); err != nil {
 		return err
 	}
 	schema.getParent(object)
-	err = schema.getBaseSchemas(object)
-	if err != nil {
+	if err := schema.getBaseSchemas(object); err != nil {
 		return fmt.Errorf(
 			"invalid schema %s: %v",
-			schema.Schema.Name,
+			schema.schema.Name(),
 			err,
 		)
 	}
-	err = schema.Schema.Parse("", object)
-	if err != nil {
-		return fmt.Errorf("%s - %v", schema.Schema.Name, err)
+	next, ok := object["schema"].(map[interface{}]interface{})
+	if !ok {
+		return fmt.Errorf(
+			"invalid schema %s: schema does not have a \"schema\"",
+			schema.Name(),
+		)
 	}
-	if !schema.Schema.Item.IsObject() {
+	if err := schema.schema.Parse("", next); err != nil {
+		return fmt.Errorf(
+			"invalid schema %s: %v",
+			schema.Name(),
+			err,
+		)
+	}
+	if !schema.schema.IsObject() {
 		return fmt.Errorf(
 			"invalid schema %s: schema should be an object",
-			schema.Schema.Name,
+			schema.Name(),
+		)
+	}
+	err := schema.addParent()
+	if err != nil {
+		return fmt.Errorf("invalid schema %s: v",
+			schema.Name(),
+			err,
 		)
 	}
 	return nil
 }
 
-func (schema *Schema) Collect(depth int) []*Object {
-	return schema.Schema.Collect(depth)
+func (schema *Schema) CollectObjects(limit, offset int) (set.Set, error) {
+	result, err := schema.CollectObjects(limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"invalid schema %s: %v",
+			schema.Name(),
+			err,
+		)
+	}
+	return result, nil
+}
+
+func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
+	result, err := schema.CollectProperties(limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"invalid schema %s: %v",
+			schema.Name(),
+			err,
+		)
+	}
+	return result, nil
 }

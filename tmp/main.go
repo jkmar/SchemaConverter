@@ -19,20 +19,20 @@ import (
 //)
 //
 //type Array struct {
-//	ItemType string
+//	itemType string
 //	Object   Object
 //}
 //
 //type Property struct {
-//	Name   string
+//	name   string
 //	Type   string
 //	Object Object
 //	Array  Array
 //}
 //
 //type Object struct {
-//	Name       string
-//	Properties []Property
+//	name       string
+//	properties []Property
 //}
 //
 //type SchemaRoot struct {
@@ -49,9 +49,9 @@ import (
 //	a := Array{}
 //
 //	itemsNode := node["items"].(map[interface{}]interface{})
-//	a.ItemType = parseType(itemsNode["type"])
+//	a.itemType = parseType(itemsNode["type"])
 //
-//	if a.ItemType == "object" {
+//	if a.itemType == "object" {
 //		a.Object = parseObject(name, itemsNode)
 //	}
 //
@@ -60,18 +60,18 @@ import (
 //
 
 //func parseObject(name string, obj map[interface{}]interface{}) Object {
-//	o := Object{Name: name}
+//	o := Object{name: name}
 //	yamlProperties := obj["properties"].(map[interface{}]interface{})
-//	o.Properties = parseProperties(yamlProperties)
-//	for i, objProperty := range o.Properties {
-//		node := yamlProperties[objProperty.Name].(map[interface{}]interface{})
+//	o.properties = parseProperties(yamlProperties)
+//	for i, objProperty := range o.properties {
+//		node := yamlProperties[objProperty.name].(map[interface{}]interface{})
 //		if objProperty.Type == "object" {
-//			objProperty.Object = parseObject(name+"_"+objProperty.Name, node)
+//			objProperty.Object = parseObject(name+"_"+objProperty.name, node)
 //		}
 //		if objProperty.Type == "item" {
-//			objProperty.Array = parseArray(name+"_"+objProperty.Name, node)
+//			objProperty.Array = parseArray(name+"_"+objProperty.name, node)
 //		}
-//		o.Properties[i] = objProperty
+//		o.properties[i] = objProperty
 //	}
 //	objectStore[name] = o
 //	return o
@@ -82,7 +82,7 @@ import (
 //	properties := []Property{}
 //	for property, definition := range obj {
 //		p := Property{
-//			Name: property.(string),
+//			name: property.(string),
 //			Type: parseType(definition.(map[interface{}]interface{})["type"]),
 //		}
 //		properties = append(properties, p)
@@ -100,22 +100,22 @@ import (
 //}
 //
 //func generateStruct(suffix, annotation string, o Object) string {
-//	code := "type " + toGoName(suffix, o.Name) + " struct {\n"
-//	for _, property := range o.Properties {
-//		code += "    " + toGoName("", property.Name) + " "
+//	code := "type " + toGoName(suffix, o.name) + " struct {\n"
+//	for _, property := range o.properties {
+//		code += "    " + toGoName("", property.name) + " "
 //		if property.Type == "item" {
 //			code += "[]"
-//			if property.Array.ItemType == "object" {
-//				code += toGoName(suffix, property.Array.Object.Name)
+//			if property.Array.itemType == "object" {
+//				code += toGoName(suffix, property.Array.Object.name)
 //			} else {
-//				code += mapType(property.Array.ItemType)
+//				code += mapType(property.Array.itemType)
 //			}
 //		} else if property.Type == "object" {
-//			code += toGoName(suffix, property.Object.Name)
+//			code += toGoName(suffix, property.Object.name)
 //		} else {
 //			code += mapType(property.Type)
 //		}
-//		code += " `" + annotation + ":\"" + property.Name + "\"`\n"
+//		code += " `" + annotation + ":\"" + property.name + "\"`\n"
 //	}
 //	code += "}"
 //	return code

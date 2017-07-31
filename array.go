@@ -1,41 +1,52 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
+)
 
 type Array struct {
-	Item Item
+	item Item
 }
 
 func (item *Array) Type(suffix string) string {
-	return "[]" + item.Item.Type(suffix)
+	return "[]" + item.item.Type(suffix)
 }
 
 func (item *Array) IsObject() bool {
 	return false
 }
 
+func (item *Array) AddProperties(set set.Set, safe bool) error {
+	return fmt.Errorf("cannot add properties to an array")
+}
+
 func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err error) {
 	next, ok := object["items"].(map[interface{}]interface{})
 	if !ok {
 		return fmt.Errorf(
-			"invalid schema: array %s does not have items",
+			"array %s does not have items",
 			prefix,
 		)
 	}
 	objectType, ok := next["type"]
 	if !ok {
 		return fmt.Errorf(
-			"invalid schema: items of array %s do not have a type",
+			"items of array %s do not have a type",
 			prefix,
 		)
 	}
-	item.Item, err = CreateItem(objectType)
+	item.item, err = CreateItem(objectType)
 	if err != nil {
-		return fmt.Errorf("invalid schema: array %s - %v", prefix, err)
+		return fmt.Errorf("array %s: %v", prefix, err)
 	}
-	return item.Item.Parse(prefix, next)
+	return item.item.Parse(prefix, next)
 }
 
-func (item *Array) Collect(depth int) []*Object {
-	return item.Item.Collect(depth)
+func (item *Array) CollectObjects(limit, offset int) (set.Set, error) {
+	return item.item.CollectObjects(limit, offset)
+}
+
+func (item *Array) CollectProperties(limit, offset int) (set.Set, error) {
+	return item.item.CollectProperties(limit, offset)
 }

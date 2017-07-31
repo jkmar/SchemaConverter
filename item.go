@@ -1,10 +1,14 @@
 package main
 
+import "github.com/zimnx/YamlSchemaToGoStruct/set"
+
 type Item interface {
 	Type(string) string
 	IsObject() bool
+	AddProperties(set.Set, bool) error
 	Parse(string, map[interface{}]interface{}) error
-	Collect(int) []*Object
+	CollectObjects(int, int) (set.Set, error)
+	CollectProperties(int, int) (set.Set, error)
 }
 
 func CreateItem(itemType interface{}) (Item, error) {

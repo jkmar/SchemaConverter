@@ -1,31 +1,38 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
+)
 
 type PlainItem struct {
-	ItemType string
+	itemType string
 }
 
 func (item *PlainItem) Type(suffix string) string {
-	return item.ItemType
+	return item.itemType
 }
 
 func (item *PlainItem) IsObject() bool {
 	return false
 }
 
+func (item *PlainItem) AddProperties(set set.Set, safe bool) error {
+	return fmt.Errorf("cannot add properties to a plain item")
+}
+
 func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) (err error) {
 	objectType, ok := object["type"]
 	if !ok {
 		return fmt.Errorf(
-			"invalid schema: item %s does not have a type",
+			"item %s does not have a type",
 			prefix,
 		)
 	}
-	item.ItemType, err = parseType(objectType)
+	item.itemType, err = parseType(objectType)
 	if err != nil {
 		err = fmt.Errorf(
-			"invalid schema: item %s - %v",
+			"item %s: %v",
 			prefix,
 			err,
 		)
@@ -33,6 +40,10 @@ func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) 
 	return
 }
 
-func (item *PlainItem) Collect(depth int) []*Object {
-	return nil
+func (item *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
+	return nil, nil
+}
+
+func (item *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
+	return nil, nil
 }
