@@ -1,9 +1,9 @@
-package main
+package item
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"fmt"
 )
 
 var _ = Describe("array tests", func() {
@@ -46,7 +46,7 @@ var _ = Describe("array tests", func() {
 	Describe("parse tests", func() {
 		var (
 			prefix = "abc"
-			item *Array
+			item   *Array
 			object map[interface{}]interface{}
 		)
 

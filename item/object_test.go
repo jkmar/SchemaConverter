@@ -1,10 +1,11 @@
-package main
+package item
 
 import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 var _ = Describe("object tests", func() {
@@ -20,7 +21,7 @@ var _ = Describe("object tests", func() {
 		It("Should return a correct object type", func() {
 			itemType := "ab"
 			object := Object{objectType: itemType}
-			expected := toGoName(itemType, "")
+			expected := util.ToGoName(itemType, "")
 			result := object.Type("")
 			Expect(result).To(Equal(expected))
 		})
@@ -154,7 +155,7 @@ var _ = Describe("object tests", func() {
 			}
 			expected := fmt.Errorf(
 				"property %s does not have a type",
-				addName(prefix, "a"),
+				util.AddName(prefix, "a"),
 			)
 			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())

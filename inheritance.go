@@ -60,19 +60,16 @@ func sort(schemas []*Schema) ([]*Node, error) {
 	}
 	return result, nil
 }
-//
-//func join(first, second map[*Property]bool) map[*Property]bool {
-//	for key := range second {
-//		if first[key] {
-//			panic(fmt.Sprintf("deriving same property %s", key.Name))
-//		}
-//
-//	}
-//}
-//
-//func getProperties(node *Node) []*Property {
-//	if len(node.Edges) == 0 {
-//		return node.Schema.Properties
-//	}
-//
-//}
+
+func (node *Node) Join() error {
+	return node.Schema.Join(node.Edges)
+}
+
+func updateSchemas(schemas []*Node) error {
+	for i := len(schemas)-1; i >= 0; i-- {
+		if err := schemas[i].Join(); err != nil {
+			return err
+		}
+	}
+	return nil
+}

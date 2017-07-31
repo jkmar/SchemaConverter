@@ -1,9 +1,9 @@
-package main
+package item
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"fmt"
 )
 
 var _ = Describe("item tests", func() {

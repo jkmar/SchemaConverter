@@ -1,8 +1,9 @@
-package main
+package item
 
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 type Object struct {
@@ -15,7 +16,7 @@ func (item *Object) Name() string {
 }
 
 func (item *Object) Type(suffix string) string {
-	return toGoName(item.Name(), suffix)
+	return util.ToGoName(item.Name(), suffix)
 }
 
 func (item *Object) IsObject() bool {
@@ -42,7 +43,6 @@ func (item *Object) AddProperties(properties set.Set, safe bool) error {
 	}
 	return nil
 }
-
 
 func (item *Object) Parse(prefix string, object map[interface{}]interface{}) error {
 	next, ok := object["properties"].(map[interface{}]interface{})
@@ -88,7 +88,7 @@ func (item *Object) CollectObjects(limit, offset int) (set.Set, error) {
 		result.Insert(item)
 	}
 	for _, property := range item.properties {
-		other, err := property.(*Property).CollectObjects(limit - 1, offset -1)
+		other, err := property.(*Property).CollectObjects(limit-1, offset-1)
 		if err != nil {
 			return nil, err
 		}

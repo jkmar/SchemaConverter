@@ -1,8 +1,9 @@
-package main
+package item
 
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 type PlainItem struct {
@@ -29,7 +30,7 @@ func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) 
 			prefix,
 		)
 	}
-	item.itemType, err = parseType(objectType)
+	item.itemType, err = util.ParseType(objectType)
 	if err != nil {
 		err = fmt.Errorf(
 			"item %s: %v",

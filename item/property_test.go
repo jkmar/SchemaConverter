@@ -1,10 +1,11 @@
-package main
+package item
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 var _ = Describe("property tests", func() {
@@ -51,7 +52,7 @@ var _ = Describe("property tests", func() {
 	Describe("parse tests", func() {
 		var (
 			prefix = "abc"
-			item *Property
+			item   *Property
 			object map[interface{}]interface{}
 		)
 
@@ -63,7 +64,7 @@ var _ = Describe("property tests", func() {
 			object = map[interface{}]interface{}{}
 			expected := fmt.Errorf(
 				"property %s does not have a type",
-				addName(prefix, item.name),
+				util.AddName(prefix, item.name),
 			)
 			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())
@@ -76,7 +77,7 @@ var _ = Describe("property tests", func() {
 			}
 			expected := fmt.Errorf(
 				"property %s: unsupported type: %T",
-				addName(prefix, item.name),
+				util.AddName(prefix, item.name),
 				object["type"],
 			)
 			err := item.Parse(prefix, object)
@@ -90,7 +91,7 @@ var _ = Describe("property tests", func() {
 			}
 			expected := fmt.Errorf(
 				"array %s does not have items",
-				addName(prefix, item.name),
+				util.AddName(prefix, item.name),
 			)
 			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())
@@ -127,11 +128,11 @@ var _ = Describe("property tests", func() {
 
 	Describe("generate property tests", func() {
 		var (
-			prefix = "abc"
-			suffix = "xyz"
+			prefix     = "abc"
+			suffix     = "xyz"
 			annotation = "123"
-			item *Property
-			object map[interface{}]interface{}
+			item       *Property
+			object     map[interface{}]interface{}
 		)
 
 		BeforeEach(func() {

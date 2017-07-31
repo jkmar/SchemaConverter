@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"fmt"
@@ -13,15 +13,15 @@ var typeMapping = map[string]string{
 	"abstract": "object",
 }
 
-func addName(prefix, suffix string) string {
+func AddName(prefix, suffix string) string {
 	if prefix == "" {
 		return suffix
 	}
 	return prefix + "_" + suffix
 }
 
-func toGoName(prefix, suffix string) string {
-	name := strings.Replace(addName(prefix, suffix), "-", "_", -1)
+func ToGoName(prefix, suffix string) string {
+	name := strings.Replace(AddName(prefix, suffix), "-", "_", -1)
 	return snaker.SnakeToCamel(name)
 }
 
@@ -32,7 +32,7 @@ func mapType(typeName string) string {
 	return typeName
 }
 
-func parseType(itemType interface{}) (string, error) {
+func ParseType(itemType interface{}) (string, error) {
 	switch goType := itemType.(type) {
 	case string:
 		return mapType(goType), nil

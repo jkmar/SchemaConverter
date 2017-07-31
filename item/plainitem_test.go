@@ -1,9 +1,9 @@
-package main
+package item
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"fmt"
 )
 
 var _ = Describe("plain item tests", func() {
@@ -37,7 +37,7 @@ var _ = Describe("plain item tests", func() {
 	Describe("parse tests", func() {
 		var (
 			prefix = "abc"
-			item *PlainItem
+			item   *PlainItem
 			object map[interface{}]interface{}
 		)
 
@@ -70,7 +70,7 @@ var _ = Describe("plain item tests", func() {
 
 		It("Should parse a valid object", func() {
 			object = map[interface{}]interface{}{"type": "number"}
-			expected := typeMapping[object["type"].(string)]
+			expected := "int64"
 			err := item.Parse(prefix, object)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(item.Type("")).To(Equal(expected))

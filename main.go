@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/item"
 )
 
 //import (
@@ -49,7 +51,7 @@ import (
 //	a := Array{}
 //
 //	itemsNode := node["items"].(map[interface{}]interface{})
-//	a.itemType = parseType(itemsNode["type"])
+//	a.itemType = ParseType(itemsNode["type"])
 //
 //	if a.itemType == "object" {
 //		a.Object = parseObject(name, itemsNode)
@@ -83,7 +85,7 @@ import (
 //	for property, definition := range obj {
 //		p := Property{
 //			name: property.(string),
-//			Type: parseType(definition.(map[interface{}]interface{})["type"]),
+//			Type: ParseType(definition.(map[interface{}]interface{})["type"]),
 //		}
 //		properties = append(properties, p)
 //	}
@@ -100,18 +102,18 @@ import (
 //}
 //
 //func generateStruct(suffix, annotation string, o Object) string {
-//	code := "type " + toGoName(suffix, o.name) + " struct {\n"
+//	code := "type " + ToGoName(suffix, o.name) + " struct {\n"
 //	for _, property := range o.properties {
-//		code += "    " + toGoName("", property.name) + " "
+//		code += "    " + ToGoName("", property.name) + " "
 //		if property.Type == "item" {
 //			code += "[]"
 //			if property.Array.itemType == "object" {
-//				code += toGoName(suffix, property.Array.Object.name)
+//				code += ToGoName(suffix, property.Array.Object.name)
 //			} else {
 //				code += mapType(property.Array.itemType)
 //			}
 //		} else if property.Type == "object" {
-//			code += toGoName(suffix, property.Object.name)
+//			code += ToGoName(suffix, property.Object.name)
 //		} else {
 //			code += mapType(property.Type)
 //		}
@@ -132,6 +134,7 @@ func main() {
 	}
 
 
+	allSchemas = map[string]*Schema{}
 	schemas := make([]*Schema, len(objects))
 	for i, object := range objects {
 		schemas[i] = &Schema{}
@@ -139,14 +142,41 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		allSchemas[schemas[i].Name()] = schemas[i]
 	}
 
-	toOutput := []*Object{}
-	for _, schema := range schemas {
-		toOutput = append(toOutput, schema.Collect(-1)...)
+	//toOutput1 := set.New()
+	//for _, schema := range schemas {
+	//	tmp, err := schema.CollectObjects(-1, 0)
+	//	if err != nil {
+	//		schema.CollectObjects(-1, 0)
+	//	}
+	//	toOutput1.SafeInsertAll(tmp)
+	//}
+
+	//for _, output := range toOutput1 {
+	//	fmt.Println(output.(*Object).GenerateStruct(*suffix, "db"))
+	//}
+
+	nodes, err := sort(schemas)
+	if err != nil {
+		panic(err)
+	}
+
+	if err = updateSchemas(nodes); err != nil {
+		panic(err)
+	}
+
+	toOutput := set.New()
+	for _, node := range nodes {
+		tmp, err := node.Schema.CollectObjects(-1, 0)
+		if err != nil {
+			panic(err)
+		}
+		toOutput.InsertAll(tmp)
 	}
 
 	for _, output := range toOutput {
-		fmt.Println(output.GenerateStruct(*suffix, "db"))
+		fmt.Println(output.(*item.Object).GenerateStruct(*suffix, "db"))
 	}
 }

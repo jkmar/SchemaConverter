@@ -1,6 +1,9 @@
-package main
+package item
 
-import "github.com/zimnx/YamlSchemaToGoStruct/set"
+import (
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
+)
 
 type Item interface {
 	Type(string) string
@@ -12,7 +15,7 @@ type Item interface {
 }
 
 func CreateItem(itemType interface{}) (Item, error) {
-	strType, err := parseType(itemType)
+	strType, err := util.ParseType(itemType)
 	if err != nil {
 		return nil, err
 	}

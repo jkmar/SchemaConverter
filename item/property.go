@@ -1,8 +1,9 @@
-package main
+package item
 
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 type Property struct {
@@ -31,18 +32,18 @@ func (item *Property) Parse(prefix string, object map[interface{}]interface{}) (
 	if !ok {
 		return fmt.Errorf(
 			"property %s does not have a type",
-			addName(prefix, item.name),
+			util.AddName(prefix, item.name),
 		)
 	}
 	item.item, err = CreateItem(objectType)
 	if err != nil {
 		return fmt.Errorf(
 			"property %s: %v",
-			addName(prefix, item.name),
+			util.AddName(prefix, item.name),
 			err,
 		)
 	}
-	return item.item.Parse(addName(prefix, item.name), object)
+	return item.item.Parse(util.AddName(prefix, item.name), object)
 }
 
 func (item *Property) AddProperties(set set.Set, safe bool) error {
@@ -57,7 +58,7 @@ func (item *Property) CollectProperties(limit, offset int) (set.Set, error) {
 	if limit == 0 {
 		return nil, nil
 	}
-	result, err := item.item.CollectProperties(limit - 1, offset - 1)
+	result, err := item.item.CollectProperties(limit-1, offset-1)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (item *Property) CollectProperties(limit, offset int) (set.Set, error) {
 func (item *Property) GenerateProperty(suffix, annotation string) string {
 	return fmt.Sprintf(
 		"\t%s %s `%s:\"%s\"`\n",
-		toGoName(item.name, ""),
+		util.ToGoName(item.name, ""),
 		item.item.Type(suffix),
 		annotation,
 		item.name,

@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/item"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 type Schema struct {
 	parent  string
 	extends []string
-	schema  *Property
+	schema  *item.Property
 }
 
 func (schema *Schema) Name() string {
@@ -20,7 +22,7 @@ func (schema *Schema) getName(object map[interface{}]interface{}) error {
 	if !ok {
 		return fmt.Errorf("schema does not have an id")
 	}
-	schema.schema = CreateProperty(id)
+	schema.schema = item.CreateProperty(id)
 	return nil
 }
 
@@ -50,7 +52,7 @@ func (schema *Schema) addParent() error {
 	}
 	set := set.New()
 	set.Insert(
-		CreatePropertyWithType(addName(schema.parent, "id"),
+		item.CreatePropertyWithType(util.AddName(schema.parent, "id"),
 		"string"),
 	)
 	return schema.schema.AddProperties(set, true)
@@ -99,7 +101,7 @@ func (schema *Schema) Parse(object map[interface{}]interface{}) error {
 }
 
 func (schema *Schema) CollectObjects(limit, offset int) (set.Set, error) {
-	result, err := schema.CollectObjects(limit, offset)
+	result, err := schema.schema.CollectObjects(limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"invalid schema %s: %v",
@@ -111,7 +113,7 @@ func (schema *Schema) CollectObjects(limit, offset int) (set.Set, error) {
 }
 
 func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
-	result, err := schema.CollectProperties(limit, offset)
+	result, err := schema.schema.CollectProperties(limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"invalid schema %s: %v",
@@ -120,4 +122,26 @@ func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
 		)
 	}
 	return result, nil
+}
+
+func (schema *Schema) Join(edges []*Node) error {
+	properties := set.New()
+	for _, node := range edges {
+		newProperties, err := node.Schema.CollectProperties(2, 1)
+		if err != nil {
+			return fmt.Errorf(
+				"error on joining schema %s: %v",
+				schema.Name(),
+				err,
+			)
+		}
+		if err = properties.SafeInsertAll(newProperties); err != nil {
+			return fmt.Errorf(
+				"multiple properties with the same name in bases of schema %s",
+				schema.Name(),
+			)
+		}
+	}
+	schema.schema.AddProperties(properties, false)
+	return nil
 }
