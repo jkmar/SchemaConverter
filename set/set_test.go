@@ -8,6 +8,14 @@ import (
 
 type test string
 
+type test2 struct {
+	a string
+}
+
+func (elem *test2) Name() string {
+	return elem.a
+}
+
 func (test test) Name() string {
 	return string(test)
 }
@@ -238,7 +246,7 @@ var _ = Describe("set tests", func() {
 		It("Should return error for items with same name", func() {
 			var (
 				a test = "a"
-				b test = "a"
+				b = &test2{"a"}
 			)
 			Expect(set.Empty()).To(BeTrue())
 			err := set.SafeInsert(a)
@@ -249,6 +257,22 @@ var _ = Describe("set tests", func() {
 			err = set.SafeInsert(b)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
+			Expect(set.Size()).To(Equal(1))
+			Expect(set.Contains(a)).To(BeTrue())
+		})
+
+		It("Should do nothing when insearting item that already was in the set", func() {
+			var (
+				a test = "a"
+				b test = "a"
+			)
+			Expect(set.Empty()).To(BeTrue())
+			err := set.SafeInsert(a)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(set.Size()).To(Equal(1))
+			Expect(set.Contains(a)).To(BeTrue())
+			err = set.SafeInsert(b)
+			Expect(err).ToNot(HaveOccurred())
 			Expect(set.Size()).To(Equal(1))
 			Expect(set.Contains(a)).To(BeTrue())
 		})
@@ -283,7 +307,30 @@ var _ = Describe("set tests", func() {
 			Expect(set.Contains(b)).To(BeTrue())
 		})
 
-		It("Should override intersecting elements", func() {
+		It("Should return error for items with the same name", func() {
+			var (
+				a test = "a"
+				b test = "b"
+				c test = "c"
+				d = &test2{"b"}
+			)
+			set.Insert(a)
+			set.Insert(b)
+			other.Insert(d)
+			other.Insert(c)
+			Expect(set.Size()).To(Equal(2))
+			Expect(set.Contains(c)).To(BeFalse())
+			Expect(other.Size()).To(Equal(2))
+			Expect(other.Contains(a)).To(BeFalse())
+			expected := fmt.Errorf("the element with the name b already in the set")
+			err := set.SafeInsertAll(other)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+			Expect(set.Size()).To(Equal(2))
+			Expect(set.Contains(c)).To(BeFalse())
+		})
+
+		It("Should ignore the same items", func() {
 			var (
 				a test = "a"
 				b test = "b"
@@ -297,12 +344,10 @@ var _ = Describe("set tests", func() {
 			Expect(set.Contains(c)).To(BeFalse())
 			Expect(other.Size()).To(Equal(2))
 			Expect(other.Contains(a)).To(BeFalse())
-			expected := fmt.Errorf("the element with the name b already in the set")
 			err := set.SafeInsertAll(other)
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(expected))
-			Expect(set.Size()).To(Equal(2))
-			Expect(set.Contains(c)).To(BeFalse())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(set.Size()).To(Equal(3))
+			Expect(set.Contains(c)).To(BeTrue())
 		})
 	})
 

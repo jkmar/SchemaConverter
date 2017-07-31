@@ -131,15 +131,9 @@ func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
 func (schema *Schema) Join(edges []*node) error {
 	properties := set.New()
 	for _, node := range edges {
-		newProperties, err := node.schema.CollectProperties(2, 1)
-		if err != nil {
-			return fmt.Errorf(
-				"error on joining schema %s: %v",
-				schema.Name(),
-				err,
-			)
-		}
-		if err = properties.SafeInsertAll(newProperties); err != nil {
+		// Impossible to have error here
+		newProperties, _ := node.schema.CollectProperties(2, 1)
+		if err := properties.SafeInsertAll(newProperties); err != nil {
 			return fmt.Errorf(
 				"multiple properties with the same name in bases of schema %s",
 				schema.Name(),
@@ -149,7 +143,7 @@ func (schema *Schema) Join(edges []*node) error {
 	err := schema.schema.AddProperties(properties, false)
 	if err != nil {
 		return fmt.Errorf(
-			"schema %s should be a an object",
+			"schema %s should be an object",
 			schema.Name(),
 		)
 	}

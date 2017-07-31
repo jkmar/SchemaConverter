@@ -11,6 +11,10 @@ func New() Set {
 	return make(map[string]Element)
 }
 
+func (set Set) safeContains(element Element) bool {
+	return set.Contains(element) && set[element.Name()] != element
+}
+
 func (set Set) Empty() bool {
 	return set == nil || len(set) == 0
 }
@@ -57,8 +61,8 @@ func (set Set) InsertAll(other Set) {
 	}
 }
 
-func (set *Set) SafeInsert(element Element) error {
-	if set.Contains(element) {
+func (set Set) SafeInsert(element Element) error {
+	if set.safeContains(element) {
 		return fmt.Errorf(
 			"the element with the name %s already in the set",
 			element.Name(),
@@ -70,7 +74,7 @@ func (set *Set) SafeInsert(element Element) error {
 
 func (set Set) SafeInsertAll(other Set) error {
 	for _, value := range other {
-		if set.Contains(value) {
+		if set.safeContains(value) {
 			return fmt.Errorf(
 				"the element with the name %s already in the set",
 				value.Name(),

@@ -1,14 +1,41 @@
 package main
 
+/*
 import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"github.com/zimnx/YamlSchemaToGoStruct/item"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
 )
 
-var _ = Describe("schema tests", func() {
+var _ = Describe("inheritance tests", func() {
+	var (
+		createA := func() *Schema {
+			schema := &Schema{}
+			object := map[interface{}]interface{}{
+				"id": "a",
+				"parent": "pa",
+				"schema": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"a": map[interface{}]interface{}{
+							"type": "boolean",
+						},
+						"b": map[interface{}]interface{}{
+
+						},
+					},
+				},
+			}
+		}
+
+		getCorrect := func() set.Set {
+
+		}
+	)
+
 	Describe("get name tests", func() {
 		var schema *Schema
 
@@ -562,36 +589,13 @@ var _ = Describe("schema tests", func() {
 			Expect(err).To(MatchError(expected))
 		})
 
-		It("Should join schemas with the same properties", func() {
-			nodes := []*node{{schema: schema}, {schema: schema}}
-			err := schema.Join(nodes)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
 		It("Should return error when schemas in nodes share properties", func() {
-			other := &Schema{}
-			object := map[interface{}]interface{}{
-				"id": names[0],
-				"schema": map[interface{}]interface{}{
-					"type": "object",
-					"properties": map[interface{}]interface{}{
-						names[1]: map[interface{}]interface{}{
-							"type": "string",
-						},
-						names[2]: map[interface{}]interface{}{
-							"type": "number",
-						},
-					},
-				},
-			}
-			err := other.Parse(object)
-			Expect(err).ToNot(HaveOccurred())
-			nodes := []*node{{schema: schema}, {schema: other}}
+			nodes := []*node{{schema: schema}, {schema: schema}}
 			expected := fmt.Errorf(
 				"multiple properties with the same name in bases of schema %s",
 				names[0],
 			)
-			err = schema.Join(nodes)
+			err := schema.Join(nodes)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -632,3 +636,4 @@ var _ = Describe("schema tests", func() {
 		})
 	})
 })
+*/
