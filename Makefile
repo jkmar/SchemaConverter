@@ -6,17 +6,17 @@ WARN_COLOR=\033[33;01m
 all: format lint test install
 
 test:
-	@echo -e "$(OK_COLOR)==> Testing$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Testing$(NO_COLOR)"
 	./tools/test.sh
 
 format:
-	@echo -e "$(OK_COLOR)==> Formating$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Formating$(NO_COLOR)"
 	./tools/format.sh
 
 lint:
-	@echo -e "$(OK_COLOR)==> Linting$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Linting$(NO_COLOR)"
 	./tools/lint.sh
 
 install:
-	@echo -e "$(OK_COLOR)==> Installing$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Installing$(NO_COLOR)"
 	./tools/install.sh
