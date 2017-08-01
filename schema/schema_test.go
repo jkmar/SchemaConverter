@@ -1,11 +1,11 @@
-package main
+package schema
 
 import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"github.com/zimnx/YamlSchemaToGoStruct/item"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 var _ = Describe("schema tests", func() {
@@ -144,7 +144,7 @@ var _ = Describe("schema tests", func() {
 		It("Should return error for schema with no schema", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
-				"id":         name,
+				"id": name,
 			}
 			expected := fmt.Errorf(
 				"invalid schema %s: schema does not have a \"schema\"",
@@ -158,7 +158,7 @@ var _ = Describe("schema tests", func() {
 		It("Should return error for invalid schema", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
-				"id":         name,
+				"id": name,
 				"schema": map[interface{}]interface{}{
 					"properties": 1,
 				},
@@ -176,7 +176,7 @@ var _ = Describe("schema tests", func() {
 		It("Should return error for schema which is not an object", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
-				"id":   name,
+				"id": name,
 				"schema": map[interface{}]interface{}{
 					"type": "string",
 				},
@@ -194,7 +194,7 @@ var _ = Describe("schema tests", func() {
 			id := "test_schema"
 			name := "test"
 			object := map[interface{}]interface{}{
-				"id": id,
+				"id":     id,
 				"parent": name,
 				"schema": map[interface{}]interface{}{
 					"type": "object",
@@ -218,7 +218,7 @@ var _ = Describe("schema tests", func() {
 		It("Should parse correct schema", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
-				"id":   name,
+				"id": name,
 				"schema": map[interface{}]interface{}{
 					"type": "object",
 					"properties": map[interface{}]interface{}{
@@ -387,7 +387,7 @@ var _ = Describe("schema tests", func() {
 			schema := &Schema{}
 			names := []string{"A", "B", "C"}
 			object := map[interface{}]interface{}{
-				"id":   names[0],
+				"id": names[0],
 				"schema": map[interface{}]interface{}{
 					"type": "object",
 					"properties": map[interface{}]interface{}{
@@ -433,10 +433,10 @@ var _ = Describe("schema tests", func() {
 			Expect(len(result)).To(Equal(5))
 			array := result.ToArray()
 			Expect(util.ToGoName(array[0].Name(), "")).To(Equal(names[0]))
-			Expect(util.ToGoName(array[1].Name(), "")).To(Equal(names[0]+names[0]))
-			Expect(util.ToGoName(array[2].Name(), "")).To(Equal(names[0]+names[1]))
-			Expect(util.ToGoName(array[3].Name(), "")).To(Equal(names[0]+names[1]+names[0]))
-			Expect(util.ToGoName(array[4].Name(), "")).To(Equal(names[0]+names[1]+names[2]))
+			Expect(util.ToGoName(array[1].Name(), "")).To(Equal(names[0] + names[0]))
+			Expect(util.ToGoName(array[2].Name(), "")).To(Equal(names[0] + names[1]))
+			Expect(util.ToGoName(array[3].Name(), "")).To(Equal(names[0] + names[1] + names[0]))
+			Expect(util.ToGoName(array[4].Name(), "")).To(Equal(names[0] + names[1] + names[2]))
 		})
 	})
 
@@ -528,7 +528,7 @@ var _ = Describe("schema tests", func() {
 	Describe("join tests", func() {
 		var (
 			schema *Schema
-			names = []string{"a", "b", "c", "d"}
+			names  = []string{"a", "b", "c", "d"}
 		)
 
 		BeforeEach(func() {

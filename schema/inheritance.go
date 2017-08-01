@@ -1,4 +1,4 @@
-package main
+package schema
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type node struct {
 
 type schemaGraph struct {
 	allSchemas map[string]*Schema
-	schemas set.Set
+	schemas    set.Set
 }
 
 func createGraph(toConvert, other set.Set) (*schemaGraph, error) {
@@ -96,7 +96,7 @@ func (node *node) join() error {
 }
 
 func updateSchemas(schemas []*node) error {
-	for i := len(schemas)-1; i >= 0; i-- {
+	for i := len(schemas) - 1; i >= 0; i-- {
 		if err := schemas[i].join(); err != nil {
 			return err
 		}
@@ -115,4 +115,3 @@ func collectSchemas(toConvert, other set.Set) error {
 	}
 	return updateSchemas(nodes)
 }
-

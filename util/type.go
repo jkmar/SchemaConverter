@@ -2,14 +2,14 @@ package util
 
 import (
 	"fmt"
-	"strings"
 	"github.com/serenize/snaker"
+	"strings"
 )
 
 var typeMapping = map[string]string{
-	"integer": "int64",
-	"number":  "int64",
-	"boolean": "bool",
+	"integer":  "int64",
+	"number":   "int64",
+	"boolean":  "bool",
 	"abstract": "object",
 }
 

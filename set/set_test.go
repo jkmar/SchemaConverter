@@ -1,9 +1,9 @@
 package set
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"fmt"
 )
 
 type test string
@@ -164,7 +164,7 @@ var _ = Describe("set tests", func() {
 		It("Should do nothing for a nil set", func() {
 			var (
 				set Set
-				a test = "a"
+				a   test = "a"
 			)
 			set.Insert(a)
 			Expect(set).To(BeNil())
@@ -173,7 +173,7 @@ var _ = Describe("set tests", func() {
 
 	Describe("insert all tests", func() {
 		var (
-			set Set
+			set   Set
 			other Set
 		)
 
@@ -246,7 +246,7 @@ var _ = Describe("set tests", func() {
 		It("Should return error for items with same name", func() {
 			var (
 				a test = "a"
-				b = &test2{"a"}
+				b      = &test2{"a"}
 			)
 			Expect(set.Empty()).To(BeTrue())
 			err := set.SafeInsert(a)
@@ -280,7 +280,7 @@ var _ = Describe("set tests", func() {
 
 	Describe("safe insert all tests", func() {
 		var (
-			set Set
+			set   Set
 			other Set
 		)
 
@@ -312,7 +312,7 @@ var _ = Describe("set tests", func() {
 				a test = "a"
 				b test = "b"
 				c test = "c"
-				d = &test2{"b"}
+				d      = &test2{"b"}
 			)
 			set.Insert(a)
 			set.Insert(b)

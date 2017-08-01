@@ -1,4 +1,4 @@
-package main
+package reader
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 )
 
 var _ = Describe("reader tests", func() {
+	const path = "../tests/"
+
 	Describe("get Schemas tests", func() {
 		It("Should return error for invalid schema", func() {
 			filename := "test"
@@ -37,42 +39,42 @@ var _ = Describe("reader tests", func() {
 		})
 	})
 
-	Describe("read schemas from file tests", func() {
+	Describe("read single tests", func() {
 		It("Should return error when failed to read a file", func() {
-			filename := "tests/NonExistingFile.yaml"
+			filename := path + "NonExistingFile.yaml"
 			expected := fmt.Errorf(
 				"failed to open file %s",
 				filename,
 			)
-			_, err := ReadSchemasFromFile(filename)
+			_, err := ReadSingle(filename)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error for invalid yaml", func() {
-			filename := "tests/invalid.yaml"
+			filename := path + "invalid.yaml"
 			expected := fmt.Errorf(
 				"cannot parse given schema from file %s",
 				filename,
 			)
-			_, err := ReadSchemasFromFile(filename)
+			_, err := ReadSingle(filename)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error when file contains no schemas", func() {
-			filename := "tests/no_schemas.yaml"
+			filename := path + "no_schemas.yaml"
 			expected := fmt.Errorf(
 				"no schemas found in file %s",
 				filename,
 			)
-			_, err := ReadSchemasFromFile(filename)
+			_, err := ReadSingle(filename)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return correct schemas", func() {
-			filename := "tests/only_names.yaml"
+			filename := path + "only_names.yaml"
 			first := map[interface{}]interface{}{
 				"a": "a",
 				"b": "b",
@@ -82,7 +84,63 @@ var _ = Describe("reader tests", func() {
 				"d": "d",
 			}
 			expected := []map[interface{}]interface{}{first, second}
-			result, err := ReadSchemasFromFile(filename)
+			result, err := ReadSingle(filename)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("read all tests", func() {
+		It("Should return error when file contains no schemas", func() {
+			filename := path + "no_schemas.yaml"
+			expected := fmt.Errorf(
+				"no schemas found in file %s",
+				filename,
+			)
+			_, err := ReadAll(filename)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
+		It("Should return error for file with types other than string", func() {
+			filename := path + "no_string_names.yaml"
+			expected := fmt.Errorf(
+				"in config file %s schemas should be filenames",
+				filename,
+			)
+			_, err := ReadAll(filename)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
+		It("Should return error for file with types other than string", func() {
+			filename := path + "invalid_file_config.yaml"
+			expected := fmt.Errorf("failed to open file invalid_file")
+			_, err := ReadAll(filename)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
+		It("Should return correct schemas", func() {
+			filename := path + "only_names_config.yaml"
+			first := map[interface{}]interface{}{
+				"a": "a",
+				"b": "b",
+			}
+			second := map[interface{}]interface{}{
+				"c": "c",
+				"d": "d",
+			}
+			third := map[interface{}]interface{}{
+				"e": "e",
+				"f": "f",
+			}
+			fourth := map[interface{}]interface{}{
+				"g": "g",
+				"h": "h",
+			}
+			expected := []map[interface{}]interface{}{first, second, third, fourth}
+			result, err := ReadAll(filename)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})

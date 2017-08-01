@@ -1,9 +1,9 @@
-package main
+package schema
 
 import (
 	"fmt"
-	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/item"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
@@ -57,7 +57,7 @@ func (schema *Schema) addParent() error {
 	set := set.New()
 	set.Insert(
 		item.CreatePropertyWithType(util.AddName(schema.parent, "id"),
-		"string"),
+			"string"),
 	)
 	return schema.schema.AddProperties(set, true)
 }

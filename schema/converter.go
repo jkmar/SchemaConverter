@@ -1,9 +1,9 @@
-package main
+package schema
 
 import (
-	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/item"
+	"github.com/zimnx/YamlSchemaToGoStruct/set"
 )
 
 func Convert(
@@ -39,7 +39,7 @@ func Convert(
 			return nil, err
 		}
 		// TODO check if objects are equal
-		jsonObjects.InsertAll(object);
+		jsonObjects.InsertAll(object)
 	}
 	result := []string{}
 	for _, object := range dbObjects {

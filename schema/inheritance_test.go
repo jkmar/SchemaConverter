@@ -1,4 +1,4 @@
-package main
+package schema
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ var _ = Describe("inheritance tests", func() {
 	var (
 		getObject = func(base, name, itemType string) map[interface{}]interface{} {
 			return map[interface{}]interface{}{
-				"id": name,
+				"id":     name,
 				"parent": "p" + name,
 				"schema": map[interface{}]interface{}{
 					"type": "object",
@@ -104,7 +104,7 @@ var _ = Describe("inheritance tests", func() {
 			Expect(err).To(MatchError(expected))
 		})
 
-		It ("Should correctly update schemas", func() {
+		It("Should correctly update schemas", func() {
 			objects := make([]map[interface{}]interface{}, 3)
 			objects[0] = getObject("a", "a", "string")
 			objects[0]["extends"] = []interface{}{"b", "c"}
@@ -121,7 +121,7 @@ var _ = Describe("inheritance tests", func() {
 			for i, schema := range array {
 				newSet, err := schema.(*Schema).collectProperties(-1, 1)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(newSet.Size()).To(Equal(2*(3-i)))
+				Expect(newSet.Size()).To(Equal(2 * (3 - i)))
 			}
 		})
 	})
