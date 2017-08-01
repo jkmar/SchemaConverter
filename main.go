@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/reader"
-"github.com/zimnx/YamlSchemaToGoStruct/schema"
+	"github.com/zimnx/YamlSchemaToGoStruct/schema"
 )
 
 func main() {

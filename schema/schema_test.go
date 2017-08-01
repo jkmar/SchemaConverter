@@ -218,7 +218,7 @@ var _ = Describe("schema tests", func() {
 		It("Should create empty schema", func() {
 			name := "test"
 			object := map[interface{}]interface{}{
-				"id": name,
+				"id":     name,
 				"schema": map[interface{}]interface{}{},
 			}
 			err := schema.Parse(object)

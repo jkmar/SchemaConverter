@@ -156,7 +156,7 @@ var _ = Describe("reader tests", func() {
 				"h": "h",
 			}
 			expected := []map[interface{}]interface{}{third, fourth}
-			result, err := ReadAll(filename, path + "only_names.yaml")
+			result, err := ReadAll(filename, path+"only_names.yaml")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
