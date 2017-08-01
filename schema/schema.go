@@ -13,6 +13,15 @@ type Schema struct {
 	schema  *item.Property
 }
 
+func prepareSchema(object map[interface{}]interface{}) map[interface{}]interface{} {
+	if len(object) != 0 {
+		return object
+	}
+	return map[interface{}]interface{}{
+		"type": "object",
+	}
+}
+
 func (schema *Schema) Name() string {
 	return schema.schema.Name()
 }
@@ -81,6 +90,7 @@ func (schema *Schema) Parse(object map[interface{}]interface{}) error {
 			schema.Name(),
 		)
 	}
+	next = prepareSchema(next)
 	if err := schema.schema.Parse("", next); err != nil {
 		return fmt.Errorf(
 			"invalid schema %s: %v",

@@ -38,7 +38,6 @@ func Convert(
 		if err != nil {
 			return nil, err
 		}
-		// TODO check if objects are equal
 		jsonObjects.InsertAll(object)
 	}
 	result := []string{}

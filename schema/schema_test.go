@@ -215,6 +215,20 @@ var _ = Describe("schema tests", func() {
 			Expect(err).To(MatchError(expected))
 		})
 
+		It("Should create empty schema", func() {
+			name := "test"
+			object := map[interface{}]interface{}{
+				"id": name,
+				"schema": map[interface{}]interface{}{},
+			}
+			err := schema.Parse(object)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(schema.schema.IsObject()).To(BeTrue())
+			result, err := schema.collectProperties(-1, 1)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result.Empty()).To(BeTrue())
+		})
+
 		It("Should parse correct schema", func() {
 			name := "test"
 			object := map[interface{}]interface{}{

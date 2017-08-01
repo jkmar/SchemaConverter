@@ -55,7 +55,7 @@ func ReadSingle(filename string) ([]map[interface{}]interface{}, error) {
 	return getSchemas(filename, schemas)
 }
 
-func ReadAll(filename string) ([]map[interface{}]interface{}, error) {
+func ReadAll(filename, restricted string) ([]map[interface{}]interface{}, error) {
 	schemas, err := getSchemasFromFile(filename)
 	if err != nil {
 		return nil, err
@@ -69,12 +69,11 @@ func ReadAll(filename string) ([]map[interface{}]interface{}, error) {
 				filename,
 			)
 		}
-		if !strings.HasPrefix(newFilename, "embed") {
+		if !strings.HasPrefix(newFilename, "embed") && newFilename != restricted {
 			schemas, err := ReadSingle(newFilename)
-			if err != nil {
-				return nil, err
+			if err == nil {
+				result = append(result, schemas...)
 			}
-			result = append(result, schemas...)
 		}
 	}
 	return result, nil

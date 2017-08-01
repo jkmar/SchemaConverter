@@ -104,15 +104,25 @@ var _ = Describe("object tests", func() {
 			item = &Object{}
 		})
 
-		It("Should return an error for an object with no properties", func() {
-			object = map[interface{}]interface{}{}
+		It("Should return an error for an object with invalid properties type", func() {
+			object = map[interface{}]interface{}{
+				"properties": "string",
+			}
 			expected := fmt.Errorf(
-				"object %s does not have properties",
+				"object %s has invalid properties",
 				prefix,
 			)
 			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
+		})
+
+		It("Should return an empty object for an object with no properties", func() {
+			object = map[interface{}]interface{}{}
+			err := item.Parse(prefix, object)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(item.properties.Empty()).To(BeTrue())
+			Expect(item.Name()).To(Equal(prefix))
 		})
 
 		It("Should return an error for an object with a non string property name", func() {

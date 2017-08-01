@@ -45,15 +45,19 @@ func (item *Object) AddProperties(properties set.Set, safe bool) error {
 }
 
 func (item *Object) Parse(prefix string, object map[interface{}]interface{}) error {
-	next, ok := object["properties"].(map[interface{}]interface{})
+	item.objectType = prefix
+	item.properties = set.New()
+	properties, ok := object["properties"]
+	if !ok {
+		return nil
+	}
+	next, ok := properties.(map[interface{}]interface{})
 	if !ok {
 		return fmt.Errorf(
-			"object %s does not have properties",
+			"object %s has invalid properties",
 			prefix,
 		)
 	}
-	item.objectType = prefix
-	item.properties = set.New()
 	for property, definition := range next {
 		strProperty, ok := property.(string)
 		if !ok {

@@ -97,7 +97,7 @@ var _ = Describe("reader tests", func() {
 				"no schemas found in file %s",
 				filename,
 			)
-			_, err := ReadAll(filename)
+			_, err := ReadAll(filename, "")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -108,17 +108,17 @@ var _ = Describe("reader tests", func() {
 				"in config file %s schemas should be filenames",
 				filename,
 			)
-			_, err := ReadAll(filename)
+			_, err := ReadAll(filename, "")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
-		It("Should return error for file with types other than string", func() {
+		It("Should ignore files with no schemas", func() {
 			filename := path + "invalid_file_config.yaml"
-			expected := fmt.Errorf("failed to open file invalid_file")
-			_, err := ReadAll(filename)
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError(expected))
+			expected := []map[interface{}]interface{}{}
+			result, err := ReadAll(filename, "")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(expected))
 		})
 
 		It("Should return correct schemas", func() {
@@ -140,7 +140,23 @@ var _ = Describe("reader tests", func() {
 				"h": "h",
 			}
 			expected := []map[interface{}]interface{}{first, second, third, fourth}
-			result, err := ReadAll(filename)
+			result, err := ReadAll(filename, "")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should ignore restricted file", func() {
+			filename := path + "only_names_config.yaml"
+			third := map[interface{}]interface{}{
+				"e": "e",
+				"f": "f",
+			}
+			fourth := map[interface{}]interface{}{
+				"g": "g",
+				"h": "h",
+			}
+			expected := []map[interface{}]interface{}{third, fourth}
+			result, err := ReadAll(filename, path + "only_names.yaml")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
