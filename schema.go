@@ -17,7 +17,7 @@ func (schema *Schema) Name() string {
 	return schema.schema.Name()
 }
 
-func (schema *Schema) Bases() []string {
+func (schema *Schema) bases() []string {
 	return schema.extends
 }
 
@@ -104,7 +104,7 @@ func (schema *Schema) Parse(object map[interface{}]interface{}) error {
 	return nil
 }
 
-func (schema *Schema) CollectObjects(limit, offset int) (set.Set, error) {
+func (schema *Schema) collectObjects(limit, offset int) (set.Set, error) {
 	result, err := schema.schema.CollectObjects(limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -116,7 +116,7 @@ func (schema *Schema) CollectObjects(limit, offset int) (set.Set, error) {
 	return result, nil
 }
 
-func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
+func (schema *Schema) collectProperties(limit, offset int) (set.Set, error) {
 	result, err := schema.schema.CollectProperties(limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -128,11 +128,11 @@ func (schema *Schema) CollectProperties(limit, offset int) (set.Set, error) {
 	return result, nil
 }
 
-func (schema *Schema) Join(edges []*node) error {
+func (schema *Schema) join(edges []*node) error {
 	properties := set.New()
 	for _, node := range edges {
 		// Impossible to have error here
-		newProperties, _ := node.schema.CollectProperties(2, 1)
+		newProperties, _ := node.schema.collectProperties(2, 1)
 		if err := properties.SafeInsertAll(newProperties); err != nil {
 			return fmt.Errorf(
 				"multiple properties with the same name in bases of schema %s",
@@ -150,7 +150,7 @@ func (schema *Schema) Join(edges []*node) error {
 	return nil
 }
 
-func ParseAll(objects []map[interface{}]interface{}) (set.Set, error) {
+func parseAll(objects []map[interface{}]interface{}) (set.Set, error) {
 	set := set.New()
 	for _, object := range objects {
 		schema := &Schema{}

@@ -19,9 +19,9 @@ type schemaGraph struct {
 func createGraph(toConvert, other set.Set) (*schemaGraph, error) {
 	allSchemas := map[string]*Schema{}
 	if err := other.SafeInsertAll(toConvert); err != nil {
-		fmt.Errorf("multiple schemas with the same name")
+		return nil, fmt.Errorf("multiple schemas with the same name")
 	}
-	for name, schema := range toConvert {
+	for name, schema := range other {
 		allSchemas[name] = schema.(*Schema)
 	}
 	return &schemaGraph{allSchemas, toConvert}, nil
@@ -30,21 +30,31 @@ func createGraph(toConvert, other set.Set) (*schemaGraph, error) {
 func (graph *schemaGraph) sort() ([]*node, error) {
 	nodes := map[string]*node{}
 
-	getNode := func(id string) *node {
+	getNode := func(id string) (*node, error) {
 		if node, ok := nodes[id]; ok {
-			return node
+			return node, nil
 		}
-		node := &node{schema: graph.allSchemas[id]}
+		schema, ok := graph.allSchemas[id]
+		if !ok {
+			return nil, fmt.Errorf(
+				"schema with id %s does not exist",
+				id,
+			)
+		}
+		node := &node{schema: schema}
 		nodes[id] = node
-		return node
+		return node, nil
 	}
 
-	getNeighbours := func(schema *Schema) []*node {
-		result := make([]*node, len(schema.Bases()))
+	getNeighbours := func(schema *Schema) ([]*node, error) {
+		result := make([]*node, len(schema.bases()))
 		for i, name := range schema.extends {
-			result[i] = getNode(name)
+			var err error
+			if result[i], err = getNode(name); err != nil {
+				return nil, err
+			}
 		}
-		return result
+		return result, nil
 	}
 
 	result := []*node{}
@@ -54,10 +64,13 @@ func (graph *schemaGraph) sort() ([]*node, error) {
 		if node.mark == 2 {
 			return nil
 		} else if node.mark == 1 {
-			return fmt.Errorf("Cyclic dependencies detected")
+			return fmt.Errorf("cyclic dependencies detected")
 		}
+		var err error
 		node.mark = 1
-		node.edges = getNeighbours(node.schema)
+		if node.edges, err = getNeighbours(node.schema); err != nil {
+			return err
+		}
 		for _, neighbour := range node.edges {
 			err := visit(neighbour)
 			if err != nil {
@@ -70,8 +83,8 @@ func (graph *schemaGraph) sort() ([]*node, error) {
 	}
 
 	for _, schema := range graph.schemas {
-		err := visit(getNode(schema.Name()))
-		if err != nil {
+		node, _ := getNode(schema.Name())
+		if err := visit(node); err != nil {
 			return nil, err
 		}
 	}
@@ -79,7 +92,7 @@ func (graph *schemaGraph) sort() ([]*node, error) {
 }
 
 func (node *node) join() error {
-	return node.schema.Join(node.edges)
+	return node.schema.join(node.edges)
 }
 
 func updateSchemas(schemas []*node) error {

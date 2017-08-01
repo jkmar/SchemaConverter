@@ -261,7 +261,7 @@ var _ = Describe("schema tests", func() {
 				"invalid schema %s: schema should be an object",
 				name,
 			)
-			_, err := ParseAll(objects)
+			_, err := parseAll(objects)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -296,7 +296,7 @@ var _ = Describe("schema tests", func() {
 				"multiple schemas with the same name: %s",
 				name,
 			)
-			_, err := ParseAll(objects)
+			_, err := parseAll(objects)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -327,7 +327,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			set, err := ParseAll(objects)
+			set, err := parseAll(objects)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(set.Size()).To(Equal(len(objects)))
 		})
@@ -378,7 +378,7 @@ var _ = Describe("schema tests", func() {
 			)
 			err := schema.Parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			_, err = schema.CollectObjects(-1, 0)
+			_, err = schema.collectObjects(-1, 0)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -428,7 +428,7 @@ var _ = Describe("schema tests", func() {
 			}
 			err := schema.Parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			result, err := schema.CollectObjects(-1, 0)
+			result, err := schema.collectObjects(-1, 0)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(len(result)).To(Equal(5))
 			array := result.ToArray()
@@ -485,7 +485,7 @@ var _ = Describe("schema tests", func() {
 			)
 			err := schema.Parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			_, err = schema.CollectProperties(-1, 0)
+			_, err = schema.collectProperties(-1, 0)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -514,7 +514,7 @@ var _ = Describe("schema tests", func() {
 			}
 			err := schema.Parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			result, err := schema.CollectProperties(-1, 0)
+			result, err := schema.collectProperties(-1, 0)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(len(result)).To(Equal(len(names)))
 			array := result.ToArray()
@@ -557,14 +557,14 @@ var _ = Describe("schema tests", func() {
 				"schema %s should be an object",
 				other.Name(),
 			)
-			err := other.Join([]*node{{schema: schema}})
+			err := other.join([]*node{{schema: schema}})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should join schemas with the same properties", func() {
 			nodes := []*node{{schema: schema}, {schema: schema}}
-			err := schema.Join(nodes)
+			err := schema.join(nodes)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -591,7 +591,7 @@ var _ = Describe("schema tests", func() {
 				"multiple properties with the same name in bases of schema %s",
 				names[0],
 			)
-			err = schema.Join(nodes)
+			err = schema.join(nodes)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -622,9 +622,9 @@ var _ = Describe("schema tests", func() {
 			}
 			err := other.Parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			err = schema.Join([]*node{{schema: other}})
+			err = schema.join([]*node{{schema: other}})
 			Expect(err).ToNot(HaveOccurred())
-			properties, err := schema.CollectProperties(-1, 1)
+			properties, err := schema.collectProperties(-1, 1)
 			Expect(err).ToNot(HaveOccurred())
 			array := properties.ToArray()
 			Expect(len(array)).To(Equal(3))

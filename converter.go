@@ -13,11 +13,11 @@ func Convert(
 	prefixObject,
 	suffix string,
 ) ([]string, error) {
-	otherSet, err := ParseAll(other)
+	otherSet, err := parseAll(other)
 	if err != nil {
 		return nil, err
 	}
-	toConvertSet, err := ParseAll(toConvert)
+	toConvertSet, err := parseAll(toConvert)
 	if err != nil {
 		return nil, err
 	}
@@ -27,14 +27,14 @@ func Convert(
 	dbObjects := set.New()
 	jsonObjects := set.New()
 	for _, schema := range toConvertSet {
-		schemaObject, _ := schema.(*Schema).CollectObjects(1, 0)
+		schemaObject, _ := schema.(*Schema).collectObjects(1, 0)
 		if err := dbObjects.SafeInsertAll(schemaObject); err != nil {
 			return nil, fmt.Errorf(
 				"multiple schemas with the same name: %s",
 				schemaObject.Any().Name(),
 			)
 		}
-		object, err := schema.(*Schema).CollectObjects(-1, 1)
+		object, err := schema.(*Schema).collectObjects(-1, 1)
 		if err != nil {
 			return nil, err
 		}
