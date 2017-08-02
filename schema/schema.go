@@ -63,11 +63,13 @@ func (schema *Schema) addParent() error {
 	if schema.parent == "" {
 		return nil
 	}
+	object := map[interface{}]interface{}{
+		"type": "string",
+	}
+	property := item.CreateProperty(util.AddName(schema.parent, "id"))
+	property.Parse("", object)
 	set := set.New()
-	set.Insert(
-		item.CreatePropertyWithType(util.AddName(schema.parent, "id"),
-			"string"),
-	)
+	set.Insert(property)
 	return schema.schema.AddProperties(set, true)
 }
 
