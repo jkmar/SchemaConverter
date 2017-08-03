@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/zimnx/YamlSchemaToGoStruct/app"
-	"fmt"
 	"os"
 )
 

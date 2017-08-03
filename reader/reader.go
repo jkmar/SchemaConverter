@@ -4,8 +4,14 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"strings"
 )
+
+func compareFiles(file os.FileInfo, path string) bool {
+	fileFromPath, err := os.Stat(path)
+	return err == nil && os.SameFile(file, fileFromPath)
+}
 
 func getSchemas(filename string, object []interface{}) ([]map[interface{}]interface{}, error) {
 	result := make([]map[interface{}]interface{}, len(object))
@@ -56,6 +62,7 @@ func ReadSingle(filename string) ([]map[interface{}]interface{}, error) {
 }
 
 func ReadAll(filename, restricted string) ([]map[interface{}]interface{}, error) {
+	restrictedFile, _ := os.Stat(restricted)
 	schemas, err := getSchemasFromFile(filename)
 	if err != nil {
 		return nil, err
@@ -69,7 +76,7 @@ func ReadAll(filename, restricted string) ([]map[interface{}]interface{}, error)
 				filename,
 			)
 		}
-		if !strings.HasPrefix(newFilename, "embed") && newFilename != restricted {
+		if !strings.HasPrefix(newFilename, "embed") && !compareFiles(restrictedFile, newFilename) {
 			schemas, err := ReadSingle(newFilename)
 			if err == nil {
 				result = append(result, schemas...)
