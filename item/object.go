@@ -6,23 +6,23 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
+// Object is an implementation of Item interface
 type Object struct {
 	objectType string
 	properties set.Set
 }
 
+// Name is a function that allows object to be used as a set element
 func (item *Object) Name() string {
 	return item.objectType
 }
 
+// Type implementation
 func (item *Object) Type(suffix string) string {
 	return util.ToGoName(item.Name(), suffix)
 }
 
-func (item *Object) IsObject() bool {
-	return true
-}
-
+// AddProperties implementation
 func (item *Object) AddProperties(properties set.Set, safe bool) error {
 	if properties.Empty() {
 		return nil
@@ -44,6 +44,7 @@ func (item *Object) AddProperties(properties set.Set, safe bool) error {
 	return nil
 }
 
+// Parse implementation
 func (item *Object) Parse(prefix string, object map[interface{}]interface{}) error {
 	item.objectType = prefix
 	item.properties = set.New()
@@ -83,6 +84,7 @@ func (item *Object) Parse(prefix string, object map[interface{}]interface{}) err
 	return nil
 }
 
+// CollectObjects implementation
 func (item *Object) CollectObjects(limit, offset int) (set.Set, error) {
 	if limit == 0 {
 		return nil, nil
@@ -106,6 +108,7 @@ func (item *Object) CollectObjects(limit, offset int) (set.Set, error) {
 	return result, nil
 }
 
+// CollectProperties implementation
 func (item *Object) CollectProperties(limit, offset int) (set.Set, error) {
 	result := set.New()
 	for _, property := range item.properties {
@@ -124,6 +127,8 @@ func (item *Object) CollectProperties(limit, offset int) (set.Set, error) {
 	return result, nil
 }
 
+// GenerateStruct create a struct of an object
+// with suffix added to type name and annotation added to each field
 func (item *Object) GenerateStruct(suffix, annotation string) string {
 	code := "type " + item.Type(suffix) + " struct {\n"
 	properties := item.properties.ToArray()

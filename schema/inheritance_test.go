@@ -29,7 +29,7 @@ var _ = Describe("inheritance tests", func() {
 
 		createFromObject = func(object map[interface{}]interface{}) *Schema {
 			schema := &Schema{}
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			return schema
 		}

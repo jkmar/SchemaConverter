@@ -26,13 +26,6 @@ var _ = Describe("array tests", func() {
 		})
 	})
 
-	Describe("is object tests", func() {
-		It("Should return false for is object query", func() {
-			item := &Array{}
-			Expect(item.IsObject()).To(BeFalse())
-		})
-	})
-
 	Describe("add properties tests", func() {
 		It("Should return an error", func() {
 			item := &Array{}

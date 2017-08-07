@@ -21,7 +21,7 @@ var _ = Describe("property tests", func() {
 			itemType := "object"
 			property := CreatePropertyWithType(name, itemType)
 			Expect(property.name).To(Equal(name))
-			Expect(property.item.IsObject()).To(BeTrue())
+			Expect(property.IsObject()).To(BeTrue())
 		})
 	})
 

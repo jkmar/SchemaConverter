@@ -6,11 +6,23 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 )
 
+// Convert converts given maps describing schemas to go structs
+// args:
+//   other []map[interface{}]interface{} - maps describing schemas than
+//                                         should not be converted to go structs
+//   toConvert []map[interface{}]interface{} - maps describing schemas that
+//                                             should be converted to go structs
+//   annotationDB string - annotation added to each field in schemas
+//   annotationObject string - annotation added to each field in objects
+//   suffix string - suffix added to each type name
+// return:
+//   1. list of go structs as strings
+//   2. error during execution
 func Convert(
 	other,
 	toConvert []map[interface{}]interface{},
-	prefixDB,
-	prefixObject,
+	annotationDB,
+	annotationObject,
 	suffix string,
 ) ([]string, error) {
 	otherSet, err := parseAll(other)
@@ -42,10 +54,10 @@ func Convert(
 	}
 	result := []string{}
 	for _, object := range dbObjects {
-		result = append(result, object.(*item.Object).GenerateStruct(suffix, prefixDB))
+		result = append(result, object.(*item.Object).GenerateStruct(suffix, annotationDB))
 	}
 	for _, object := range jsonObjects {
-		result = append(result, object.(*item.Object).GenerateStruct(suffix, prefixObject))
+		result = append(result, object.(*item.Object).GenerateStruct(suffix, annotationObject))
 	}
 	return result, nil
 }

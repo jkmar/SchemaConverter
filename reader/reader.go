@@ -53,6 +53,7 @@ func getSchemasFromFile(filename string) ([]interface{}, error) {
 	return schemas, nil
 }
 
+// ReadSingle gets a list of maps describing schemas from a file
 func ReadSingle(filename string) ([]map[interface{}]interface{}, error) {
 	schemas, err := getSchemasFromFile(filename)
 	if err != nil {
@@ -61,6 +62,14 @@ func ReadSingle(filename string) ([]map[interface{}]interface{}, error) {
 	return getSchemas(filename, schemas)
 }
 
+// ReadAll gets a list of maps describing schemas from files contained
+// within given file except that restricted name
+// args:
+//   filename string - path to file containing paths to schemas
+//   restricted - path to a file from which schemas should not be read
+// return:
+//   1. list of maps of schemas
+//   2. error during execution
 func ReadAll(filename, restricted string) ([]map[interface{}]interface{}, error) {
 	restrictedFile, _ := os.Stat(restricted)
 	schemas, err := getSchemasFromFile(filename)

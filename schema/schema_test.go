@@ -119,7 +119,7 @@ var _ = Describe("schema tests", func() {
 		It("Should return error for schema with no name", func() {
 			object := map[interface{}]interface{}{}
 			expected := fmt.Errorf("schema does not have an id")
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -136,7 +136,7 @@ var _ = Describe("schema tests", func() {
 				"invalid schema %s: one of the base schemas is not a string",
 				name,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -150,7 +150,7 @@ var _ = Describe("schema tests", func() {
 				"invalid schema %s: schema does not have a \"schema\"",
 				name,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -168,7 +168,7 @@ var _ = Describe("schema tests", func() {
 				name,
 				name,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -185,7 +185,7 @@ var _ = Describe("schema tests", func() {
 				"invalid schema %s: schema should be an object",
 				name,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -210,7 +210,7 @@ var _ = Describe("schema tests", func() {
 				id,
 				id,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -221,7 +221,7 @@ var _ = Describe("schema tests", func() {
 				"id":     name,
 				"schema": map[interface{}]interface{}{},
 			}
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(schema.schema.IsObject()).To(BeTrue())
 			result, err := schema.collectProperties(-1, 1)
@@ -242,7 +242,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(schema.Name()).To(Equal(name))
 			Expect(schema.schema.IsObject()).To(BeTrue())
@@ -390,7 +390,7 @@ var _ = Describe("schema tests", func() {
 				name,
 				name,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			_, err = schema.collectObjects(-1, 0)
 			Expect(err).To(HaveOccurred())
@@ -440,7 +440,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			result, err := schema.collectObjects(-1, 0)
 			Expect(err).ToNot(HaveOccurred())
@@ -497,7 +497,7 @@ var _ = Describe("schema tests", func() {
 				name,
 				name,
 			)
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			_, err = schema.collectProperties(-1, 0)
 			Expect(err).To(HaveOccurred())
@@ -526,7 +526,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			result, err := schema.collectProperties(-1, 0)
 			Expect(err).ToNot(HaveOccurred())
@@ -561,7 +561,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			err := schema.Parse(object)
+			err := schema.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -598,7 +598,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			err := other.Parse(object)
+			err := other.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			nodes := []*node{{schema: schema}, {schema: other}}
 			expected := fmt.Errorf(
@@ -634,7 +634,7 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
-			err := other.Parse(object)
+			err := other.parse(object)
 			Expect(err).ToNot(HaveOccurred())
 			err = schema.join([]*node{{schema: other}})
 			Expect(err).ToNot(HaveOccurred())

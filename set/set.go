@@ -5,8 +5,10 @@ import (
 	"sort"
 )
 
+// Set is type for a set of elements identified by their names
 type Set map[string]Element
 
+// New is a constructor for an empty set
 func New() Set {
 	return make(map[string]Element)
 }
@@ -15,10 +17,12 @@ func (set Set) safeContains(element Element) bool {
 	return set.Contains(element) && set[element.Name()] != element
 }
 
+// Empty checks if set is nil or empty
 func (set Set) Empty() bool {
 	return set == nil || len(set) == 0
 }
 
+// Size returns number of elements in a set
 func (set Set) Size() int {
 	if set == nil {
 		return 0
@@ -26,6 +30,7 @@ func (set Set) Size() int {
 	return len(set)
 }
 
+// Any returns an arbitrary element of a set
 func (set Set) Any() Element {
 	for _, value := range set {
 		return value
@@ -33,6 +38,7 @@ func (set Set) Any() Element {
 	return nil
 }
 
+// Contains checks if set contains an element with given name
 func (set Set) Contains(element Element) bool {
 	if set == nil {
 		return false
@@ -41,18 +47,21 @@ func (set Set) Contains(element Element) bool {
 	return ok
 }
 
+// Delete deletes an element with a given name from a set
 func (set Set) Delete(element Element) {
 	if set != nil {
 		delete(set, element.Name())
 	}
 }
 
+// Insert inserts an element with a given name to a set
 func (set Set) Insert(element Element) {
 	if set != nil {
 		set[element.Name()] = element
 	}
 }
 
+// InsertAll inserts all elements from an other set to a given set
 func (set Set) InsertAll(other Set) {
 	if !other.Empty() {
 		for _, value := range other {
@@ -61,6 +70,9 @@ func (set Set) InsertAll(other Set) {
 	}
 }
 
+// SafeInsert inserts element to a set
+// If the same element was already in the set nothing is done
+// If element with the same name already was in the set an error is returned
 func (set Set) SafeInsert(element Element) error {
 	if set.safeContains(element) {
 		return fmt.Errorf(
@@ -72,6 +84,10 @@ func (set Set) SafeInsert(element Element) error {
 	return nil
 }
 
+// SafeInsertAll inserts all elements from an other set to a given set
+// If at least one of the elements in the given set has the same name
+// as of one the elements of the given set and is different from it
+// an error is returned an the given set remains unchanged
 func (set Set) SafeInsertAll(other Set) error {
 	for _, value := range other {
 		if set.safeContains(value) {
@@ -85,6 +101,7 @@ func (set Set) SafeInsertAll(other Set) error {
 	return nil
 }
 
+// ToArray converts a set to an array sorted by elements names
 func (set Set) ToArray() []Element {
 	if set == nil {
 		return nil

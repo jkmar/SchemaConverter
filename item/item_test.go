@@ -8,25 +8,25 @@ import (
 
 var _ = Describe("item tests", func() {
 	Describe("item creation tests", func() {
-		Describe("CreateItemFromString tests", func() {
+		Describe("createItemFromString tests", func() {
 			It("Should create an array", func() {
 				typeName := "array"
 				expected := &Array{}
-				result := CreateItemFromString(typeName)
+				result := createItemFromString(typeName)
 				Expect(result).To(Equal(expected))
 			})
 
 			It("Should create an object", func() {
 				typeName := "object"
 				expected := &Object{}
-				result := CreateItemFromString(typeName)
+				result := createItemFromString(typeName)
 				Expect(result).To(Equal(expected))
 			})
 
 			It("Should create a plain item", func() {
 				typeName := "string"
 				expected := &PlainItem{}
-				result := CreateItemFromString(typeName)
+				result := createItemFromString(typeName)
 				Expect(result).To(Equal(expected))
 			})
 		})

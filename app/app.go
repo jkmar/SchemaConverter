@@ -32,6 +32,7 @@ func writeResult(structs []string, input, output string) error {
 	return ioutil.WriteFile(output, []byte(result), 0644)
 }
 
+// Run application
 func Run(input, output, config, db, json, suffix string) error {
 	other, err := readConfig(config, input)
 	if err != nil {

@@ -5,22 +5,22 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 )
 
+// Array is an implementation of Item interface
 type Array struct {
 	item Item
 }
 
+// Type implementation
 func (item *Array) Type(suffix string) string {
 	return "[]" + item.item.Type(suffix)
 }
 
-func (item *Array) IsObject() bool {
-	return false
-}
-
+// AddProperties implementation
 func (item *Array) AddProperties(set set.Set, safe bool) error {
 	return fmt.Errorf("cannot add properties to an array")
 }
 
+// Parse implementation
 func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err error) {
 	next, ok := object["items"].(map[interface{}]interface{})
 	if !ok {
@@ -43,10 +43,12 @@ func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err
 	return item.item.Parse(prefix, next)
 }
 
+// CollectObjects implementation
 func (item *Array) CollectObjects(limit, offset int) (set.Set, error) {
 	return item.item.CollectObjects(limit, offset)
 }
 
+// CollectProperties implementation
 func (item *Array) CollectProperties(limit, offset int) (set.Set, error) {
 	return item.item.CollectProperties(limit, offset)
 }

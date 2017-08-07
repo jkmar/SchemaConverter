@@ -7,6 +7,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
+// Schema is a for a gohan schema
 type Schema struct {
 	parent  string
 	extends []string
@@ -22,6 +23,7 @@ func prepareSchema(object map[interface{}]interface{}) map[interface{}]interface
 	}
 }
 
+// Name is a function that allows schema to be used as a set element
 func (schema *Schema) Name() string {
 	return schema.schema.Name()
 }
@@ -73,7 +75,7 @@ func (schema *Schema) addParent() error {
 	return schema.schema.AddProperties(set, true)
 }
 
-func (schema *Schema) Parse(object map[interface{}]interface{}) error {
+func (schema *Schema) parse(object map[interface{}]interface{}) error {
 	if err := schema.getName(object); err != nil {
 		return err
 	}
@@ -166,7 +168,7 @@ func parseAll(objects []map[interface{}]interface{}) (set.Set, error) {
 	set := set.New()
 	for _, object := range objects {
 		schema := &Schema{}
-		if err := schema.Parse(object); err != nil {
+		if err := schema.parse(object); err != nil {
 			return nil, err
 		}
 		if err := set.SafeInsert(schema); err != nil {

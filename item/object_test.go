@@ -27,13 +27,6 @@ var _ = Describe("object tests", func() {
 		})
 	})
 
-	Describe("is object tests", func() {
-		It("Should return true for an object query", func() {
-			item := &Object{}
-			Expect(item.IsObject()).To(BeTrue())
-		})
-	})
-
 	Describe("add properties tests", func() {
 		var (
 			item       *Object

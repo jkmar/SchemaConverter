@@ -1,5 +1,6 @@
 package set
 
+// Element is an interface for set elements
 type Element interface {
 	Name() string
 }

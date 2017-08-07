@@ -15,6 +15,7 @@ var (
 	output         string
 )
 
+// RootCmd of application
 var RootCmd = &cobra.Command{
 	Use:   "YamlSchemaToGoStruct [path to schema]",
 	Short: "YamlSchemaToGoStruct generates go structs from yaml schemas",
@@ -75,6 +76,7 @@ func init() {
 	)
 }
 
+// Execute RootCmd
 func Execute() {
 	RootCmd.Execute()
 }

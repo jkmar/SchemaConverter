@@ -17,13 +17,6 @@ var _ = Describe("plain item tests", func() {
 		})
 	})
 
-	Describe("is object tests", func() {
-		It("Should return false for an object query", func() {
-			item := &PlainItem{}
-			Expect(item.IsObject()).To(BeFalse())
-		})
-	})
-
 	Describe("add properties tests", func() {
 		It("Should return an error", func() {
 			item := &PlainItem{}

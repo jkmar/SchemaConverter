@@ -13,6 +13,7 @@ var typeMapping = map[string]string{
 	"abstract": "object",
 }
 
+// AddName creates a snake case name from prefix and suffix
 func AddName(prefix, suffix string) string {
 	if prefix == "" {
 		return suffix
@@ -20,6 +21,7 @@ func AddName(prefix, suffix string) string {
 	return prefix + "_" + suffix
 }
 
+// ToGoName creates a camel case name from prefix and suffix
 func ToGoName(prefix, suffix string) string {
 	name := strings.Replace(AddName(prefix, suffix), "-", "_", -1)
 	return snaker.SnakeToCamel(name)
@@ -32,6 +34,7 @@ func mapType(typeName string) string {
 	return typeName
 }
 
+// ParseType converts an interface to a name of a go type
 func ParseType(itemType interface{}) (string, error) {
 	switch goType := itemType.(type) {
 	case string:
