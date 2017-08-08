@@ -571,13 +571,13 @@ var _ = Describe("schema tests", func() {
 				"schema %s should be an object",
 				other.Name(),
 			)
-			err := other.join([]*node{{schema: schema}})
+			err := other.join([]*node{{value: schema}})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should join schemas with the same properties", func() {
-			nodes := []*node{{schema: schema}, {schema: schema}}
+			nodes := []*node{{value: schema}, {value: schema}}
 			err := schema.join(nodes)
 			Expect(err).ToNot(HaveOccurred())
 		})
@@ -600,7 +600,7 @@ var _ = Describe("schema tests", func() {
 			}
 			err := other.parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			nodes := []*node{{schema: schema}, {schema: other}}
+			nodes := []*node{{value: schema}, {value: other}}
 			expected := fmt.Errorf(
 				"multiple properties with the same name in bases of schema %s",
 				names[0],
@@ -636,7 +636,7 @@ var _ = Describe("schema tests", func() {
 			}
 			err := other.parse(object)
 			Expect(err).ToNot(HaveOccurred())
-			err = schema.join([]*node{{schema: other}})
+			err = schema.join([]*node{{value: other}})
 			Expect(err).ToNot(HaveOccurred())
 			properties, err := schema.collectProperties(-1, 1)
 			Expect(err).ToNot(HaveOccurred())

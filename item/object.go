@@ -13,42 +13,42 @@ type Object struct {
 }
 
 // Name is a function that allows object to be used as a set element
-func (item *Object) Name() string {
-	return item.objectType
+func (object *Object) Name() string {
+	return object.objectType
 }
 
 // Type implementation
-func (item *Object) Type(suffix string) string {
-	return util.ToGoName(item.Name(), suffix)
+func (object *Object) Type(suffix string) string {
+	return util.ToGoName(object.Name(), suffix)
 }
 
 // AddProperties implementation
-func (item *Object) AddProperties(properties set.Set, safe bool) error {
+func (object *Object) AddProperties(properties set.Set, safe bool) error {
 	if properties.Empty() {
 		return nil
 	}
-	if item.properties == nil {
-		item.properties = set.New()
+	if object.properties == nil {
+		object.properties = set.New()
 	}
 	if safe {
-		if err := item.properties.SafeInsertAll(properties); err != nil {
+		if err := object.properties.SafeInsertAll(properties); err != nil {
 			return fmt.Errorf(
 				"object %s: multiple properties have the same name",
-				item.Name(),
+				object.Name(),
 			)
 		}
 	} else {
-		properties.InsertAll(item.properties)
-		item.properties = properties
+		properties.InsertAll(object.properties)
+		object.properties = properties
 	}
 	return nil
 }
 
 // Parse implementation
-func (item *Object) Parse(prefix string, object map[interface{}]interface{}) error {
-	item.objectType = prefix
-	item.properties = set.New()
-	properties, ok := object["properties"]
+func (object *Object) Parse(prefix string, data map[interface{}]interface{}) error {
+	object.objectType = prefix
+	object.properties = set.New()
+	properties, ok := data["properties"]
 	if !ok {
 		return nil
 	}
@@ -64,16 +64,16 @@ func (item *Object) Parse(prefix string, object map[interface{}]interface{}) err
 		if !ok {
 			return fmt.Errorf(
 				"object %s has property which name is not a string",
-				item.Name(),
+				object.Name(),
 			)
 		}
 		newProperty := CreateProperty(strProperty)
-		item.properties.Insert(newProperty)
+		object.properties.Insert(newProperty)
 		definitionMap, ok := definition.(map[interface{}]interface{})
 		if !ok {
 			return fmt.Errorf(
 				"object %s has invalid property %s",
-				item.Name(),
+				object.Name(),
 				strProperty,
 			)
 		}
@@ -85,15 +85,15 @@ func (item *Object) Parse(prefix string, object map[interface{}]interface{}) err
 }
 
 // CollectObjects implementation
-func (item *Object) CollectObjects(limit, offset int) (set.Set, error) {
+func (object *Object) CollectObjects(limit, offset int) (set.Set, error) {
 	if limit == 0 {
 		return nil, nil
 	}
 	result := set.New()
 	if offset <= 0 {
-		result.Insert(item)
+		result.Insert(object)
 	}
-	for _, property := range item.properties {
+	for _, property := range object.properties {
 		other, err := property.(*Property).CollectObjects(limit-1, offset-1)
 		if err != nil {
 			return nil, err
@@ -101,7 +101,7 @@ func (item *Object) CollectObjects(limit, offset int) (set.Set, error) {
 		if err = result.SafeInsertAll(other); err != nil {
 			return nil, fmt.Errorf(
 				"multiple objects with the same type at object %s",
-				item.Name(),
+				object.Name(),
 			)
 		}
 	}
@@ -109,9 +109,9 @@ func (item *Object) CollectObjects(limit, offset int) (set.Set, error) {
 }
 
 // CollectProperties implementation
-func (item *Object) CollectProperties(limit, offset int) (set.Set, error) {
+func (object *Object) CollectProperties(limit, offset int) (set.Set, error) {
 	result := set.New()
-	for _, property := range item.properties {
+	for _, property := range object.properties {
 		other, err := property.(*Property).CollectProperties(limit, offset)
 		if err != nil {
 			return nil, err
@@ -120,7 +120,7 @@ func (item *Object) CollectProperties(limit, offset int) (set.Set, error) {
 		if err != nil {
 			return nil, fmt.Errorf(
 				"multiple properties with the same name at object %s",
-				item.Name(),
+				object.Name(),
 			)
 		}
 	}
@@ -129,9 +129,9 @@ func (item *Object) CollectProperties(limit, offset int) (set.Set, error) {
 
 // GenerateStruct create a struct of an object
 // with suffix added to type name and annotation added to each field
-func (item *Object) GenerateStruct(suffix, annotation string) string {
-	code := "type " + item.Type(suffix) + " struct {\n"
-	properties := item.properties.ToArray()
+func (object *Object) GenerateStruct(suffix, annotation string) string {
+	code := "type " + object.Type(suffix) + " struct {\n"
+	properties := object.properties.ToArray()
 	for _, property := range properties {
 		code += property.(*Property).GenerateProperty(suffix, annotation)
 	}

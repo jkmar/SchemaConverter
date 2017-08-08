@@ -7,12 +7,12 @@ import (
 
 // Array is an implementation of Item interface
 type Array struct {
-	item Item
+	arrayItem Item
 }
 
 // Type implementation
 func (item *Array) Type(suffix string) string {
-	return "[]" + item.item.Type(suffix)
+	return "[]" + item.arrayItem.Type(suffix)
 }
 
 // AddProperties implementation
@@ -21,8 +21,8 @@ func (item *Array) AddProperties(set set.Set, safe bool) error {
 }
 
 // Parse implementation
-func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err error) {
-	next, ok := object["items"].(map[interface{}]interface{})
+func (item *Array) Parse(prefix string, data map[interface{}]interface{}) (err error) {
+	next, ok := data["items"].(map[interface{}]interface{})
 	if !ok {
 		return fmt.Errorf(
 			"array %s does not have items",
@@ -36,19 +36,19 @@ func (item *Array) Parse(prefix string, object map[interface{}]interface{}) (err
 			prefix,
 		)
 	}
-	item.item, err = CreateItem(objectType)
+	item.arrayItem, err = CreateItem(objectType)
 	if err != nil {
 		return fmt.Errorf("array %s: %v", prefix, err)
 	}
-	return item.item.Parse(prefix, next)
+	return item.arrayItem.Parse(prefix, next)
 }
 
 // CollectObjects implementation
 func (item *Array) CollectObjects(limit, offset int) (set.Set, error) {
-	return item.item.CollectObjects(limit, offset)
+	return item.arrayItem.CollectObjects(limit, offset)
 }
 
 // CollectProperties implementation
 func (item *Array) CollectProperties(limit, offset int) (set.Set, error) {
-	return item.item.CollectProperties(limit, offset)
+	return item.arrayItem.CollectProperties(limit, offset)
 }

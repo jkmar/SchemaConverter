@@ -12,25 +12,25 @@ type PlainItem struct {
 }
 
 // Type implementation
-func (item *PlainItem) Type(suffix string) string {
-	return item.itemType
+func (plainItem *PlainItem) Type(suffix string) string {
+	return plainItem.itemType
 }
 
 // AddProperties implementation
-func (item *PlainItem) AddProperties(set set.Set, safe bool) error {
+func (plainItem *PlainItem) AddProperties(set set.Set, safe bool) error {
 	return fmt.Errorf("cannot add properties to a plain item")
 }
 
 // Parse implementation
-func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) (err error) {
-	objectType, ok := object["type"]
+func (plainItem *PlainItem) Parse(prefix string, data map[interface{}]interface{}) (err error) {
+	objectType, ok := data["type"]
 	if !ok {
 		return fmt.Errorf(
 			"item %s does not have a type",
 			prefix,
 		)
 	}
-	item.itemType, err = util.ParseType(objectType)
+	plainItem.itemType, err = util.ParseType(objectType)
 	if err != nil {
 		err = fmt.Errorf(
 			"item %s: %v",
@@ -42,11 +42,11 @@ func (item *PlainItem) Parse(prefix string, object map[interface{}]interface{}) 
 }
 
 // CollectObjects implementation
-func (item *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
+func (plainItem *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
 	return nil, nil
 }
 
 // CollectProperties implementation
-func (item *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
+func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
 	return nil, nil
 }

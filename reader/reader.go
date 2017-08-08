@@ -13,9 +13,9 @@ func compareFiles(file os.FileInfo, path string) bool {
 	return err == nil && os.SameFile(file, fileFromPath)
 }
 
-func getSchemas(filename string, object []interface{}) ([]map[interface{}]interface{}, error) {
-	result := make([]map[interface{}]interface{}, len(object))
-	for i, item := range object {
+func getSchemas(filename string, data []interface{}) ([]map[interface{}]interface{}, error) {
+	result := make([]map[interface{}]interface{}, len(data))
+	for i, item := range data {
 		var ok bool
 		if result[i], ok = item.(map[interface{}]interface{}); !ok {
 			return nil, fmt.Errorf(
@@ -35,15 +35,15 @@ func getSchemasFromFile(filename string) ([]interface{}, error) {
 			filename,
 		)
 	}
-	object := map[interface{}]interface{}{}
-	err = yaml.Unmarshal(inputContent, &object)
+	data := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(inputContent, &data)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"cannot parse given schema from file %s",
 			filename,
 		)
 	}
-	schemas, ok := object["schemas"].([]interface{})
+	schemas, ok := data["schemas"].([]interface{})
 	if !ok {
 		return nil, fmt.Errorf(
 			"no schemas found in file %s",

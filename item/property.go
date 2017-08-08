@@ -23,13 +23,13 @@ func CreatePropertyWithType(name, itemType string) *Property {
 }
 
 // Name gets a property name
-func (item *Property) Name() string {
-	return item.name
+func (property *Property) Name() string {
+	return property.name
 }
 
 // IsObject checks if an item in property is an object
-func (item *Property) IsObject() bool {
-	_, ok := item.item.(*Object)
+func (property *Property) IsObject() bool {
+	_, ok := property.item.(*Object)
 	return ok
 }
 
@@ -39,23 +39,23 @@ func (item *Property) IsObject() bool {
 //   object map[interface{}]interface{} - map from which a property is created
 // return:
 //   1. error during execution
-func (item *Property) Parse(prefix string, object map[interface{}]interface{}) (err error) {
+func (property *Property) Parse(prefix string, object map[interface{}]interface{}) (err error) {
 	objectType, ok := object["type"]
 	if !ok {
 		return fmt.Errorf(
 			"property %s does not have a type",
-			util.AddName(prefix, item.name),
+			util.AddName(prefix, property.name),
 		)
 	}
-	item.item, err = CreateItem(objectType)
+	property.item, err = CreateItem(objectType)
 	if err != nil {
 		return fmt.Errorf(
 			"property %s: %v",
-			util.AddName(prefix, item.name),
+			util.AddName(prefix, property.name),
 			err,
 		)
 	}
-	return item.item.Parse(util.AddName(prefix, item.name), object)
+	return property.item.Parse(util.AddName(prefix, property.name), object)
 }
 
 // AddProperties adds properties to items of given property
@@ -67,8 +67,8 @@ func (item *Property) Parse(prefix string, object map[interface{}]interface{}) (
 //               otherwise that property should be ignored
 // return:
 //   1. error during execution
-func (item *Property) AddProperties(set set.Set, safe bool) error {
-	return item.item.AddProperties(set, safe)
+func (property *Property) AddProperties(set set.Set, safe bool) error {
+	return property.item.AddProperties(set, safe)
 }
 
 // CollectObjects should return a set of objects contained within a property
@@ -79,8 +79,8 @@ func (item *Property) AddProperties(set set.Set, safe bool) error {
 // return:
 //   1. set of collected objects
 //   2. error during execution
-func (item *Property) CollectObjects(limit, offset int) (set.Set, error) {
-	return item.item.CollectObjects(limit, offset)
+func (property *Property) CollectObjects(limit, offset int) (set.Set, error) {
+	return property.item.CollectObjects(limit, offset)
 }
 
 // CollectProperties should return a set properties contained within a property
@@ -91,11 +91,11 @@ func (item *Property) CollectObjects(limit, offset int) (set.Set, error) {
 // return:
 //   1. set of collected properties
 //   2. error during execution
-func (item *Property) CollectProperties(limit, offset int) (set.Set, error) {
+func (property *Property) CollectProperties(limit, offset int) (set.Set, error) {
 	if limit == 0 {
 		return nil, nil
 	}
-	result, err := item.item.CollectProperties(limit-1, offset-1)
+	result, err := property.item.CollectProperties(limit-1, offset-1)
 	if err != nil {
 		return nil, err
 	}
@@ -103,11 +103,11 @@ func (item *Property) CollectProperties(limit, offset int) (set.Set, error) {
 		if result == nil {
 			result = set.New()
 		}
-		err = result.SafeInsert(item)
+		err = result.SafeInsert(property)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"multiple properties with the same name: %s",
-				item.name,
+				property.name,
 			)
 		}
 	}
@@ -116,12 +116,12 @@ func (item *Property) CollectProperties(limit, offset int) (set.Set, error) {
 
 // GenerateProperty creates a property of a go struct from given property
 // with suffix added to type name
-func (item *Property) GenerateProperty(suffix, annotation string) string {
+func (property *Property) GenerateProperty(suffix, annotation string) string {
 	return fmt.Sprintf(
 		"\t%s %s `%s:\"%s\"`\n",
-		util.ToGoName(item.name, ""),
-		item.item.Type(suffix),
+		util.ToGoName(property.name, ""),
+		property.item.Type(suffix),
 		annotation,
-		item.name,
+		property.name,
 	)
 }

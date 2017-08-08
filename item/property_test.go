@@ -13,13 +13,15 @@ var _ = Describe("property tests", func() {
 		It("Should create a property with a correct name", func() {
 			name := "name"
 			property := CreateProperty(name)
+
 			Expect(property.name).To(Equal(name))
 		})
 
 		It("Should create a property with a correct name and type", func() {
 			name := "name"
-			itemType := "object"
-			property := CreatePropertyWithType(name, itemType)
+			typeOfItem := "object"
+			property := CreatePropertyWithType(name, typeOfItem)
+
 			Expect(property.name).To(Equal(name))
 			Expect(property.IsObject()).To(BeTrue())
 		})
@@ -28,11 +30,13 @@ var _ = Describe("property tests", func() {
 	Describe("is object tests", func() {
 		It("Should return false for not an object", func() {
 			property := CreatePropertyWithType("", "string")
+
 			Expect(property.IsObject()).To(BeFalse())
 		})
 
 		It("Should return false for an object", func() {
 			property := CreatePropertyWithType("", "object")
+
 			Expect(property.IsObject()).To(BeTrue())
 		})
 	})
@@ -42,8 +46,10 @@ var _ = Describe("property tests", func() {
 			properties := set.New()
 			properties.Insert(CreateProperty("a"))
 			object := &Object{}
-			item := &Property{"", object}
-			err := item.AddProperties(properties, true)
+			property := &Property{"", object}
+
+			err := property.AddProperties(properties, true)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(object.properties).To(Equal(properties))
 		})
@@ -51,76 +57,86 @@ var _ = Describe("property tests", func() {
 
 	Describe("parse tests", func() {
 		var (
-			prefix = "abc"
-			item   *Property
-			object map[interface{}]interface{}
+			prefix   = "abc"
+			property *Property
+			data     map[interface{}]interface{}
 		)
 
 		BeforeEach(func() {
-			item = &Property{name: "def"}
+			property = &Property{name: "def"}
 		})
 
 		It("Should return an error for an object with no items", func() {
-			object = map[interface{}]interface{}{}
+			data = map[interface{}]interface{}{}
+
+			err := property.Parse(prefix, data)
+
 			expected := fmt.Errorf(
 				"property %s does not have a type",
-				util.AddName(prefix, item.name),
+				util.AddName(prefix, property.name),
 			)
-			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return an error for a property with an invalid type", func() {
-			object = map[interface{}]interface{}{
+			data = map[interface{}]interface{}{
 				"type": 1,
 			}
+
+			err := property.Parse(prefix, data)
+
 			expected := fmt.Errorf(
 				"property %s: unsupported type: %T",
-				util.AddName(prefix, item.name),
-				object["type"],
+				util.AddName(prefix, property.name),
+				data["type"],
 			)
-			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return an error for an invalid item", func() {
-			object = map[interface{}]interface{}{
+			data = map[interface{}]interface{}{
 				"type": "array",
 			}
+
+			err := property.Parse(prefix, data)
+
 			expected := fmt.Errorf(
 				"array %s does not have items",
-				util.AddName(prefix, item.name),
+				util.AddName(prefix, property.name),
 			)
-			err := item.Parse(prefix, object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should parse a valid property", func() {
-			object = map[interface{}]interface{}{
+			data = map[interface{}]interface{}{
 				"type": "array",
 				"items": map[interface{}]interface{}{
 					"type": "string",
 				},
 			}
-			itemType := object["items"].(map[interface{}]interface{})["type"]
-			expected := "[]" + itemType.(string)
-			err := item.Parse(prefix, object)
+
+			err := property.Parse(prefix, data)
+
+			typeOfItem := data["items"].(map[interface{}]interface{})["type"]
+			expected := "[]" + typeOfItem.(string)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(item.item.Type("")).To(Equal(expected))
+			Expect(property.item.Type("")).To(Equal(expected))
 		})
 	})
 
 	Describe("collect objects tests", func() {
 		It("Should collect object", func() {
 			object := &Object{"abc", nil}
-			item := &Property{"", object}
+			property := &Property{"", object}
 			objects := set.New()
 			objects.Insert(object)
+
+			result, err := property.CollectObjects(1, 0)
+
 			expected := objects
-			result, err := item.CollectObjects(1, 0)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
@@ -131,49 +147,55 @@ var _ = Describe("property tests", func() {
 			prefix     = "abc"
 			suffix     = "xyz"
 			annotation = "123"
-			item       *Property
-			object     map[interface{}]interface{}
+			property   *Property
+			data       map[interface{}]interface{}
 		)
 
 		BeforeEach(func() {
-			item = &Property{name: "def_id"}
+			property = &Property{name: "def_id"}
 		})
 
 		It("Should generate correct property for a plain item", func() {
-			object = map[interface{}]interface{}{
+			data = map[interface{}]interface{}{
 				"type": "boolean",
 			}
-			err := item.Parse(prefix, object)
+
+			err := property.Parse(prefix, data)
 			Expect(err).ToNot(HaveOccurred())
+
+			result := property.GenerateProperty(suffix, annotation)
+
 			expected := fmt.Sprintf(
 				"\tDefID bool `%s:\"%s\"`\n",
 				annotation,
-				item.name,
+				property.name,
 			)
-			result := item.GenerateProperty(suffix, annotation)
 			Expect(result).To(Equal(expected))
 		})
 
 		It("Should generate correct property for an array", func() {
-			object = map[interface{}]interface{}{
+			data = map[interface{}]interface{}{
 				"type": "array",
 				"items": map[interface{}]interface{}{
 					"type": "integer",
 				},
 			}
-			err := item.Parse(prefix, object)
+
+			err := property.Parse(prefix, data)
 			Expect(err).ToNot(HaveOccurred())
+
+			result := property.GenerateProperty(suffix, annotation)
+
 			expected := fmt.Sprintf(
 				"\tDefID []int64 `%s:\"%s\"`\n",
 				annotation,
-				item.name,
+				property.name,
 			)
-			result := item.GenerateProperty(suffix, annotation)
 			Expect(result).To(Equal(expected))
 		})
 
 		It("Should generate correct property for an object", func() {
-			object = map[interface{}]interface{}{
+			data = map[interface{}]interface{}{
 				"type": "object",
 				"properties": map[interface{}]interface{}{
 					"test": map[interface{}]interface{}{
@@ -181,14 +203,17 @@ var _ = Describe("property tests", func() {
 					},
 				},
 			}
-			err := item.Parse(prefix, object)
+
+			err := property.Parse(prefix, data)
 			Expect(err).ToNot(HaveOccurred())
+
+			result := property.GenerateProperty(suffix, annotation)
+
 			expected := fmt.Sprintf(
 				"\tDefID AbcDefIDXyz `%s:\"%s\"`\n",
 				annotation,
-				item.name,
+				property.name,
 			)
-			result := item.GenerateProperty(suffix, annotation)
 			Expect(result).To(Equal(expected))
 		})
 	})

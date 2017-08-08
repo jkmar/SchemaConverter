@@ -38,15 +38,15 @@ func Convert(
 	}
 	dbObjects := set.New()
 	jsonObjects := set.New()
-	for _, schema := range toConvertSet {
-		schemaObject, _ := schema.(*Schema).collectObjects(1, 0)
-		if err := dbObjects.SafeInsertAll(schemaObject); err != nil {
+	for _, toConvertSchema := range toConvertSet {
+		objectFromSchema, _ := toConvertSchema.(*Schema).collectObjects(1, 0)
+		if err := dbObjects.SafeInsertAll(objectFromSchema); err != nil {
 			return nil, fmt.Errorf(
 				"multiple schemas with the same name: %s",
-				schemaObject.Any().Name(),
+				objectFromSchema.Any().Name(),
 			)
 		}
-		object, err := schema.(*Schema).collectObjects(-1, 1)
+		object, err := toConvertSchema.(*Schema).collectObjects(-1, 1)
 		if err != nil {
 			return nil, err
 		}

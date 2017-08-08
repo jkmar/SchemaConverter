@@ -12,12 +12,14 @@ var _ = Describe("reader tests", func() {
 	Describe("get Schemas tests", func() {
 		It("Should return error for invalid schema", func() {
 			filename := "test"
-			object := []interface{}{1, 2}
+			data := []interface{}{1, 2}
+
+			_, err := getSchemas(filename, data)
+
 			expected := fmt.Errorf(
 				"error in file %s: schema should have type map[interface{}]interface{}",
 				filename,
 			)
-			_, err := getSchemas(filename, object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -31,9 +33,11 @@ var _ = Describe("reader tests", func() {
 				"c": "c",
 				"d": "d",
 			}
-			object := []interface{}{first, second}
+			data := []interface{}{first, second}
+
+			result, err := getSchemas("", data)
+
 			expected := []map[interface{}]interface{}{first, second}
-			result, err := getSchemas("", object)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
@@ -42,33 +46,39 @@ var _ = Describe("reader tests", func() {
 	Describe("read single tests", func() {
 		It("Should return error when failed to read a file", func() {
 			filename := path + "NonExistingFile.yaml"
+
+			_, err := ReadSingle(filename)
+
 			expected := fmt.Errorf(
 				"failed to open file %s",
 				filename,
 			)
-			_, err := ReadSingle(filename)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error for invalid yaml", func() {
 			filename := path + "invalid.yaml"
+
+			_, err := ReadSingle(filename)
+
 			expected := fmt.Errorf(
 				"cannot parse given schema from file %s",
 				filename,
 			)
-			_, err := ReadSingle(filename)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error when file contains no schemas", func() {
 			filename := path + "no_schemas.yaml"
+
+			_, err := ReadSingle(filename)
+
 			expected := fmt.Errorf(
 				"no schemas found in file %s",
 				filename,
 			)
-			_, err := ReadSingle(filename)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -83,8 +93,10 @@ var _ = Describe("reader tests", func() {
 				"c": "c",
 				"d": "d",
 			}
-			expected := []map[interface{}]interface{}{first, second}
+
 			result, err := ReadSingle(filename)
+
+			expected := []map[interface{}]interface{}{first, second}
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
@@ -93,30 +105,36 @@ var _ = Describe("reader tests", func() {
 	Describe("read all tests", func() {
 		It("Should return error when file contains no schemas", func() {
 			filename := path + "no_schemas.yaml"
+
+			_, err := ReadAll(filename, "")
+
 			expected := fmt.Errorf(
 				"no schemas found in file %s",
 				filename,
 			)
-			_, err := ReadAll(filename, "")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error for file with types other than string", func() {
 			filename := path + "no_string_names.yaml"
+
+			_, err := ReadAll(filename, "")
+
 			expected := fmt.Errorf(
 				"in config file %s schemas should be filenames",
 				filename,
 			)
-			_, err := ReadAll(filename, "")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should ignore files with no schemas", func() {
 			filename := path + "invalid_file_config.yaml"
-			expected := []map[interface{}]interface{}{}
+
 			result, err := ReadAll(filename, "")
+
+			expected := []map[interface{}]interface{}{}
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
@@ -139,8 +157,10 @@ var _ = Describe("reader tests", func() {
 				"g": "g",
 				"h": "h",
 			}
-			expected := []map[interface{}]interface{}{first, second, third, fourth}
+
 			result, err := ReadAll(filename, "")
+
+			expected := []map[interface{}]interface{}{first, second, third, fourth}
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})
@@ -155,8 +175,10 @@ var _ = Describe("reader tests", func() {
 				"g": "g",
 				"h": "h",
 			}
-			expected := []map[interface{}]interface{}{third, fourth}
+
 			result, err := ReadAll(filename, path+"only_names.yaml")
+
+			expected := []map[interface{}]interface{}{third, fourth}
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).To(Equal(expected))
 		})

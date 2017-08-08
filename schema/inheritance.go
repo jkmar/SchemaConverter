@@ -6,42 +6,42 @@ import (
 )
 
 type node struct {
-	schema *Schema
-	edges  []*node
-	mark   int
+	value *Schema
+	edges []*node
+	mark  int
 }
 
-type schemaGraph struct {
+type graph struct {
 	allSchemas map[string]*Schema
 	schemas    set.Set
 }
 
-func createGraph(toConvert, other set.Set) (*schemaGraph, error) {
+func createGraph(toConvert, other set.Set) (*graph, error) {
 	allSchemas := map[string]*Schema{}
 	if err := other.SafeInsertAll(toConvert); err != nil {
 		return nil, fmt.Errorf("multiple schemas with the same name")
 	}
-	for name, schema := range other {
-		allSchemas[name] = schema.(*Schema)
+	for name, otherSchema := range other {
+		allSchemas[name] = otherSchema.(*Schema)
 	}
-	return &schemaGraph{allSchemas, toConvert}, nil
+	return &graph{allSchemas, toConvert}, nil
 }
 
-func (graph *schemaGraph) sort() ([]*node, error) {
+func (graph *graph) sort() ([]*node, error) {
 	nodes := map[string]*node{}
 
 	getNode := func(id string) (*node, error) {
 		if node, ok := nodes[id]; ok {
 			return node, nil
 		}
-		schema, ok := graph.allSchemas[id]
+		value, ok := graph.allSchemas[id]
 		if !ok {
 			return nil, fmt.Errorf(
 				"schema with id %s does not exist",
 				id,
 			)
 		}
-		node := &node{schema: schema}
+		node := &node{value: value}
 		nodes[id] = node
 		return node, nil
 	}
@@ -68,7 +68,7 @@ func (graph *schemaGraph) sort() ([]*node, error) {
 		}
 		var err error
 		node.mark = 1
-		if node.edges, err = getNeighbours(node.schema); err != nil {
+		if node.edges, err = getNeighbours(node.value); err != nil {
 			return err
 		}
 		for _, neighbour := range node.edges {
@@ -82,8 +82,8 @@ func (graph *schemaGraph) sort() ([]*node, error) {
 		return nil
 	}
 
-	for _, schema := range graph.schemas {
-		node, _ := getNode(schema.Name())
+	for _, vertex := range graph.schemas {
+		node, _ := getNode(vertex.Name())
 		if err := visit(node); err != nil {
 			return nil, err
 		}
@@ -92,7 +92,7 @@ func (graph *schemaGraph) sort() ([]*node, error) {
 }
 
 func (node *node) join() error {
-	return node.schema.join(node.edges)
+	return node.value.join(node.edges)
 }
 
 func updateSchemas(schemas []*node) error {
