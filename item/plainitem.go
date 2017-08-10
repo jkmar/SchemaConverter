@@ -8,7 +8,13 @@ import (
 
 // PlainItem is an implementation of Item interface
 type PlainItem struct {
+	null     bool
 	itemType string
+}
+
+// IsNull implementation
+func (plainItem *PlainItem) IsNull() bool {
+	return plainItem.null
 }
 
 // Type implementation
@@ -22,7 +28,12 @@ func (plainItem *PlainItem) AddProperties(set set.Set, safe bool) error {
 }
 
 // Parse implementation
-func (plainItem *PlainItem) Parse(prefix string, data map[interface{}]interface{}) (err error) {
+func (plainItem *PlainItem) Parse(
+	prefix string,
+	level int,
+	required bool,
+	data map[interface{}]interface{},
+) (err error) {
 	objectType, ok := data["type"]
 	if !ok {
 		return fmt.Errorf(
@@ -30,7 +41,7 @@ func (plainItem *PlainItem) Parse(prefix string, data map[interface{}]interface{
 			prefix,
 		)
 	}
-	plainItem.itemType, err = util.ParseType(objectType)
+	plainItem.itemType, plainItem.null, err = util.ParseType(objectType)
 	if err != nil {
 		err = fmt.Errorf(
 			"item %s: %v",
@@ -38,6 +49,13 @@ func (plainItem *PlainItem) Parse(prefix string, data map[interface{}]interface{
 			err,
 		)
 	}
+
+	if !required {
+		if _, ok = data["default"]; !ok {
+			plainItem.null = true
+		}
+	}
+
 	return
 }
 

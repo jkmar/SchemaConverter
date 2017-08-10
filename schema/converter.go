@@ -21,8 +21,6 @@ import (
 func Convert(
 	other,
 	toConvert []map[interface{}]interface{},
-	annotationDB,
-	annotationObject,
 	suffix string,
 ) ([]string, error) {
 	otherSet, err := parseAll(other)
@@ -54,10 +52,10 @@ func Convert(
 	}
 	result := []string{}
 	for _, object := range dbObjects {
-		result = append(result, object.(*item.Object).GenerateStruct(suffix, annotationDB))
+		result = append(result, object.(*item.Object).GenerateStruct(suffix))
 	}
 	for _, object := range jsonObjects {
-		result = append(result, object.(*item.Object).GenerateStruct(suffix, annotationObject))
+		result = append(result, object.(*item.Object).GenerateStruct(suffix))
 	}
 	return result, nil
 }

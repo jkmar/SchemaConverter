@@ -10,7 +10,7 @@ var _ = Describe("array tests", func() {
 	Describe("type tests", func() {
 		It("Should return correct array type", func() {
 			typeOfItem := "int64"
-			array := Array{&PlainItem{typeOfItem}}
+			array := Array{&PlainItem{itemType: typeOfItem}}
 
 			result := array.Type("")
 
@@ -20,7 +20,7 @@ var _ = Describe("array tests", func() {
 
 		It("Should return correct array type for nested arrays", func() {
 			typeOfItem := "string"
-			nested := Array{&PlainItem{typeOfItem}}
+			nested := Array{&PlainItem{itemType: typeOfItem}}
 			array := Array{&nested}
 
 			result := array.Type("")
@@ -56,7 +56,7 @@ var _ = Describe("array tests", func() {
 		It("Should return an error for an object with no items", func() {
 			data = map[interface{}]interface{}{}
 
-			err := array.Parse(prefix, data)
+			err := array.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"array %s does not have items",
@@ -73,7 +73,7 @@ var _ = Describe("array tests", func() {
 				},
 			}
 
-			err := array.Parse(prefix, data)
+			err := array.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"items of array %s do not have a type",
@@ -90,7 +90,7 @@ var _ = Describe("array tests", func() {
 				},
 			}
 
-			err := array.Parse(prefix, data)
+			err := array.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"array %s: unsupported type: %T",
@@ -108,7 +108,7 @@ var _ = Describe("array tests", func() {
 				},
 			}
 
-			err := array.Parse(prefix, data)
+			err := array.Parse(prefix, 0, true, data)
 
 			typeOfItem := data["items"].(map[interface{}]interface{})["type"]
 			expected := "[]" + typeOfItem.(string)

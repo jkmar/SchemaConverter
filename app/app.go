@@ -33,7 +33,7 @@ func writeResult(structs []string, input, output string) error {
 }
 
 // Run application
-func Run(input, output, config, db, json, suffix string) error {
+func Run(input, output, config, suffix string) error {
 	other, err := readConfig(config, input)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func Run(input, output, config, db, json, suffix string) error {
 	if err != nil {
 		return err
 	}
-	result, err := schema.Convert(other, objects, db, json, suffix)
+	result, err := schema.Convert(other, objects, suffix)
 	if err != nil {
 		return err
 	}

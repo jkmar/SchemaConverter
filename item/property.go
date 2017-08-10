@@ -10,16 +10,12 @@ import (
 type Property struct {
 	name string
 	item Item
+	kind Kind
 }
 
 // CreateProperty is a constructor
 func CreateProperty(name string) *Property {
 	return &Property{name: name}
-}
-
-// CreatePropertyWithType creates property with an item of given type
-func CreatePropertyWithType(name, itemType string) *Property {
-	return &Property{name, createItemFromString(itemType)}
 }
 
 // Name gets a property name
@@ -33,14 +29,25 @@ func (property *Property) IsObject() bool {
 	return ok
 }
 
-// Parse creates property from given map
+// Parse creates property from given map, prefix and level
+// prefix is used to determine a go type of an item
+// level is used to determine a kind of a property
 // args:
 //   prefix string - a prefix added to items type
-//   object map[interface{}]interface{} - map from which a property is created
+//   level int - length of a path to a root property
+//   required bool - true iff. property is required
+//   data map[interface{}]interface{} - map from which a property is created
 // return:
 //   1. error during execution
-func (property *Property) Parse(prefix string, object map[interface{}]interface{}) (err error) {
-	objectType, ok := object["type"]
+func (property *Property) Parse(
+	prefix string,
+	level int,
+	required bool,
+	data map[interface{}]interface{},
+) (err error) {
+	property.getKindFromLevel(level)
+
+	objectType, ok := data["type"]
 	if !ok {
 		return fmt.Errorf(
 			"property %s does not have a type",
@@ -55,7 +62,12 @@ func (property *Property) Parse(prefix string, object map[interface{}]interface{
 			err,
 		)
 	}
-	return property.item.Parse(util.AddName(prefix, property.name), object)
+	return property.item.Parse(
+		util.AddName(prefix, property.name),
+		level+1,
+		required,
+		data,
+	)
 }
 
 // AddProperties adds properties to items of given property
@@ -116,12 +128,19 @@ func (property *Property) CollectProperties(limit, offset int) (set.Set, error) 
 
 // GenerateProperty creates a property of a go struct from given property
 // with suffix added to type name
-func (property *Property) GenerateProperty(suffix, annotation string) string {
+func (property *Property) GenerateProperty(suffix string) string {
 	return fmt.Sprintf(
-		"\t%s %s `%s:\"%s\"`\n",
+		"\t%s %s %s\n",
 		util.ToGoName(property.name, ""),
-		property.item.Type(suffix),
-		annotation,
-		property.name,
+		property.kind.Type(suffix, property.item),
+		property.kind.Annotation(property.Name(), property.item),
 	)
+}
+
+func (property *Property) getKindFromLevel(level int) {
+	if level <= 1 {
+		property.kind = &DBKind{}
+	} else {
+		property.kind = &JSONKind{}
+	}
 }

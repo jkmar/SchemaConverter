@@ -10,7 +10,7 @@ var _ = Describe("plain item tests", func() {
 	Describe("type tests", func() {
 		It("Should return correct item type", func() {
 			typeOfItem := "int64"
-			plainItem := PlainItem{typeOfItem}
+			plainItem := PlainItem{itemType: typeOfItem}
 
 			result := plainItem.Type("")
 
@@ -45,7 +45,7 @@ var _ = Describe("plain item tests", func() {
 		It("Should return an error for an object with no type", func() {
 			data = map[interface{}]interface{}{}
 
-			err := plainItem.Parse(prefix, data)
+			err := plainItem.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"item %s does not have a type",
@@ -58,7 +58,7 @@ var _ = Describe("plain item tests", func() {
 		It("Should return an error for an unsupported type", func() {
 			data = map[interface{}]interface{}{"type": 1}
 
-			err := plainItem.Parse(prefix, data)
+			err := plainItem.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"item %s: unsupported type: %T",
@@ -72,11 +72,32 @@ var _ = Describe("plain item tests", func() {
 		It("Should parse a valid object", func() {
 			data = map[interface{}]interface{}{"type": "number"}
 
-			err := plainItem.Parse(prefix, data)
+			err := plainItem.Parse(prefix, 0, true, data)
 
 			expected := "int64"
 			Expect(err).ToNot(HaveOccurred())
 			Expect(plainItem.Type("")).To(Equal(expected))
+		})
+
+		It("Should not be null when default value is provided", func() {
+			data = map[interface{}]interface{}{
+				"type":    "string",
+				"default": "abc",
+			}
+
+			err := plainItem.Parse(prefix, 0, false, data)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plainItem.null).To(BeFalse())
+		})
+
+		It("Should be null when neither required nor default value is provided", func() {
+			data = map[interface{}]interface{}{"type": "string"}
+
+			err := plainItem.Parse(prefix, 0, false, data)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plainItem.null).To(BeTrue())
 		})
 	})
 

@@ -10,18 +10,28 @@ type Array struct {
 	arrayItem Item
 }
 
+// IsNull implementation
+func (array *Array) IsNull() bool {
+	return false
+}
+
 // Type implementation
-func (item *Array) Type(suffix string) string {
-	return "[]" + item.arrayItem.Type(suffix)
+func (array *Array) Type(suffix string) string {
+	return "[]" + array.arrayItem.Type(suffix)
 }
 
 // AddProperties implementation
-func (item *Array) AddProperties(set set.Set, safe bool) error {
+func (array *Array) AddProperties(set set.Set, safe bool) error {
 	return fmt.Errorf("cannot add properties to an array")
 }
 
 // Parse implementation
-func (item *Array) Parse(prefix string, data map[interface{}]interface{}) (err error) {
+func (array *Array) Parse(
+	prefix string,
+	level int,
+	required bool,
+	data map[interface{}]interface{},
+) (err error) {
 	next, ok := data["items"].(map[interface{}]interface{})
 	if !ok {
 		return fmt.Errorf(
@@ -36,19 +46,19 @@ func (item *Array) Parse(prefix string, data map[interface{}]interface{}) (err e
 			prefix,
 		)
 	}
-	item.arrayItem, err = CreateItem(objectType)
+	array.arrayItem, err = CreateItem(objectType)
 	if err != nil {
 		return fmt.Errorf("array %s: %v", prefix, err)
 	}
-	return item.arrayItem.Parse(prefix, next)
+	return array.arrayItem.Parse(prefix, level, required, next)
 }
 
 // CollectObjects implementation
-func (item *Array) CollectObjects(limit, offset int) (set.Set, error) {
-	return item.arrayItem.CollectObjects(limit, offset)
+func (array *Array) CollectObjects(limit, offset int) (set.Set, error) {
+	return array.arrayItem.CollectObjects(limit, offset)
 }
 
 // CollectProperties implementation
-func (item *Array) CollectProperties(limit, offset int) (set.Set, error) {
-	return item.arrayItem.CollectProperties(limit, offset)
+func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
+	return array.arrayItem.CollectProperties(limit, offset)
 }

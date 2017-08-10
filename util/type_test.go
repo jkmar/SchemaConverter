@@ -10,15 +10,19 @@ var _ = Describe("type parsing tests", func() {
 	Describe("AddName tests", func() {
 		It("Should not add _ to an empty prefix", func() {
 			name := "abc"
+
 			result := AddName("", name)
+
 			Expect(result).To(Equal(name))
 		})
 
 		It("Should add _ to a nonempty prefix", func() {
 			prefix := "a"
-			sufix := "b"
-			expected := prefix + "_" + sufix
-			result := AddName(prefix, sufix)
+			suffix := "b"
+
+			result := AddName(prefix, suffix)
+
+			expected := prefix + "_" + suffix
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -26,8 +30,10 @@ var _ = Describe("type parsing tests", func() {
 	Describe("ToGoName tests", func() {
 		It("Should return correct go name", func() {
 			name := "aa-bb_cc-dd-eE"
-			expected := "AaBbCcDdEE"
+
 			result := ToGoName(name, "")
+
+			expected := "AaBbCcDdEE"
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -35,15 +41,19 @@ var _ = Describe("type parsing tests", func() {
 	Describe("mapType tests", func() {
 		It("Should return the mapped type", func() {
 			typeName := "number"
-			expected := typeMapping[typeName]
+
 			result := mapType(typeName)
+
+			expected := typeMapping[typeName]
 			Expect(result).To(Equal(expected))
 		})
 
 		It("Should return given type for a type with no match", func() {
 			typeName := "string"
-			expected := typeName
+
 			result := mapType(typeName)
+
+			expected := typeName
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -53,41 +63,53 @@ var _ = Describe("type parsing tests", func() {
 
 		It("Should return error for an unsupported argument type", func() {
 			itemType = 1
+
+			_, _, err := ParseType(itemType)
+
 			expected := fmt.Errorf("unsupported type: %T", itemType)
-			_, err := ParseType(itemType)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error for an array with no string", func() {
 			itemType = []interface{}{1, false}
+
+			_, _, err := ParseType(itemType)
+
 			expected := fmt.Errorf("unsupported type: %T", itemType)
-			_, err := ParseType(itemType)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return error for an array with nulls", func() {
 			itemType = []interface{}{"null", "null"}
+
+			_, _, err := ParseType(itemType)
+
 			expected := fmt.Errorf("unsupported type: %T", itemType)
-			_, err := ParseType(itemType)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should return the mapped type for a string input", func() {
 			itemType = "number"
+
+			result, null, err := ParseType(itemType)
+
 			expected := typeMapping[itemType.(string)]
-			result, err := ParseType(itemType)
 			Expect(err).ToNot(HaveOccurred())
+			Expect(null).To(BeFalse())
 			Expect(result).To(Equal(expected))
 		})
 
 		It("Should return the mapped type for an array input", func() {
 			itemType = []interface{}{"null", "number", "boolean"}
+
+			result, null, err := ParseType(itemType)
+
 			expected := typeMapping[itemType.([]interface{})[1].(string)]
-			result, err := ParseType(itemType)
 			Expect(err).ToNot(HaveOccurred())
+			Expect(null).To(BeTrue())
 			Expect(result).To(Equal(expected))
 		})
 	})

@@ -35,17 +35,28 @@ func mapType(typeName string) string {
 }
 
 // ParseType converts an interface to a name of a go type
-func ParseType(itemType interface{}) (string, error) {
+func ParseType(itemType interface{}) (string, bool, error) {
 	switch goType := itemType.(type) {
 	case string:
-		return mapType(goType), nil
+		return mapType(goType), false, nil
 	case []interface{}:
-		for _, item := range goType {
-			if strItem, ok := item.(string); ok && strItem != "null" {
-				return mapType(strItem), nil
+		var (
+			result string
+			null   bool
+		)
+		for _, singleType := range goType {
+			if strType, ok := singleType.(string); ok {
+				if strType == "null" {
+					null = true
+				} else if result == "" {
+					result = mapType(strType)
+				}
 			}
+		}
+		if result != "" {
+			return result, null, nil
 		}
 
 	}
-	return "", fmt.Errorf("unsupported type: %T", itemType)
+	return "", false, fmt.Errorf("unsupported type: %T", itemType)
 }

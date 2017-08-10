@@ -18,8 +18,10 @@ var _ = Describe("schema tests", func() {
 
 		It("Should return error for schema with no name", func() {
 			object := map[interface{}]interface{}{}
-			expected := fmt.Errorf("schema does not have an id")
+
 			err := schema.getName(object)
+
+			expected := fmt.Errorf("schema does not have an id")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -28,8 +30,10 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"id": 1,
 			}
-			expected := fmt.Errorf("schema does not have an id")
+
 			err := schema.getName(object)
+
+			expected := fmt.Errorf("schema does not have an id")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -39,7 +43,9 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"id": name,
 			}
+
 			err := schema.getName(object)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(schema.schema.Name()).To(Equal(name))
 		})
@@ -56,7 +62,9 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"parent": 1,
 			}
+
 			schema.getParent(object)
+
 			Expect(schema.parent).To(BeEmpty())
 		})
 
@@ -65,7 +73,9 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"parent": name,
 			}
+
 			schema.getParent(object)
+
 			Expect(schema.parent).To(Equal(name))
 		})
 	})
@@ -84,8 +94,10 @@ var _ = Describe("schema tests", func() {
 					1,
 				},
 			}
-			expected := fmt.Errorf("one of the base schemas is not a string")
+
 			err := schema.getBaseSchemas(object)
+
+			expected := fmt.Errorf("one of the base schemas is not a string")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -94,7 +106,9 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"extends": 1,
 			}
+
 			err := schema.getBaseSchemas(object)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(schema.extends).To(BeNil())
 		})
@@ -103,7 +117,9 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"extends": []interface{}{"a", "b", "c"},
 			}
+
 			err := schema.getBaseSchemas(object)
+
 			Expect(err).To(BeNil())
 			Expect(schema.extends).To(Equal([]string{"a", "b", "c"}))
 		})
@@ -118,8 +134,10 @@ var _ = Describe("schema tests", func() {
 
 		It("Should return error for schema with no name", func() {
 			object := map[interface{}]interface{}{}
-			expected := fmt.Errorf("schema does not have an id")
+
 			err := schema.parse(object)
+
+			expected := fmt.Errorf("schema does not have an id")
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -132,11 +150,13 @@ var _ = Describe("schema tests", func() {
 					1,
 				},
 			}
+
+			err := schema.parse(object)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: one of the base schemas is not a string",
 				name,
 			)
-			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -146,11 +166,13 @@ var _ = Describe("schema tests", func() {
 			object := map[interface{}]interface{}{
 				"id": name,
 			}
+
+			err := schema.parse(object)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: schema does not have a \"schema\"",
 				name,
 			)
-			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -163,12 +185,14 @@ var _ = Describe("schema tests", func() {
 					"properties": 1,
 				},
 			}
+
+			err := schema.parse(object)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: property %s does not have a type",
 				name,
 				name,
 			)
-			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -181,11 +205,13 @@ var _ = Describe("schema tests", func() {
 					"type": "string",
 				},
 			}
+
+			err := schema.parse(object)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: schema should be an object",
 				name,
 			)
-			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -205,12 +231,14 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
+			err := schema.parse(object)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: object %s: multiple properties have the same name",
 				id,
 				id,
 			)
-			err := schema.parse(object)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -221,10 +249,14 @@ var _ = Describe("schema tests", func() {
 				"id":     name,
 				"schema": map[interface{}]interface{}{},
 			}
+
 			err := schema.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(schema.schema.IsObject()).To(BeTrue())
+
 			result, err := schema.collectProperties(-1, 1)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result.Empty()).To(BeTrue())
 		})
@@ -242,7 +274,9 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			err := schema.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(schema.Name()).To(Equal(name))
 			Expect(schema.schema.IsObject()).To(BeTrue())
@@ -271,11 +305,13 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
+			_, err := parseAll(objects)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: schema should be an object",
 				name,
 			)
-			_, err := parseAll(objects)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -306,11 +342,13 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
+			_, err := parseAll(objects)
+
 			expected := fmt.Errorf(
 				"multiple schemas with the same name: %s",
 				name,
 			)
-			_, err := parseAll(objects)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -341,7 +379,9 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			set, err := parseAll(objects)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(set.Size()).To(Equal(len(objects)))
 		})
@@ -385,14 +425,17 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+			err := schema.parse(object)
+
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = schema.collectObjects(-1, 0)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: multiple objects with the same type at object %s",
 				name,
 				name,
 			)
-			err := schema.parse(object)
-			Expect(err).ToNot(HaveOccurred())
-			_, err = schema.collectObjects(-1, 0)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -440,12 +483,18 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			err := schema.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
+
 			result, err := schema.collectObjects(-1, 0)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(len(result)).To(Equal(5))
+
 			array := result.ToArray()
+
 			Expect(util.ToGoName(array[0].Name(), "")).To(Equal(names[0]))
 			Expect(util.ToGoName(array[1].Name(), "")).To(Equal(names[0] + names[0]))
 			Expect(util.ToGoName(array[2].Name(), "")).To(Equal(names[0] + names[1]))
@@ -492,14 +541,18 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
+			err := schema.parse(object)
+
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = schema.collectProperties(-1, 0)
+
 			expected := fmt.Errorf(
 				"invalid schema %s: multiple properties with the same name at object %s",
 				name,
 				name,
 			)
-			err := schema.parse(object)
-			Expect(err).ToNot(HaveOccurred())
-			_, err = schema.collectProperties(-1, 0)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -526,12 +579,18 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			err := schema.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
+
 			result, err := schema.collectProperties(-1, 0)
+
 			Expect(err).ToNot(HaveOccurred())
 			Expect(len(result)).To(Equal(len(names)))
+
 			array := result.ToArray()
+
 			Expect(util.ToGoName(array[0].Name(), "")).To(Equal(names[0]))
 			Expect(util.ToGoName(array[1].Name(), "")).To(Equal(names[1]))
 			Expect(util.ToGoName(array[2].Name(), "")).To(Equal(names[2]))
@@ -561,24 +620,34 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			err := schema.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("Should return error when joining to invalid schema", func() {
-			other := &Schema{schema: item.CreatePropertyWithType(names[3], "string")}
+			data := map[interface{}]interface{}{
+				"type": "string",
+			}
+			other := &Schema{schema: item.CreateProperty(names[3])}
+			other.schema.Parse("", 0, true, data)
+
+			err := other.join([]*node{{value: schema}})
+
 			expected := fmt.Errorf(
 				"schema %s should be an object",
 				other.Name(),
 			)
-			err := other.join([]*node{{value: schema}})
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
 
 		It("Should join schemas with the same properties", func() {
 			nodes := []*node{{value: schema}, {value: schema}}
+
 			err := schema.join(nodes)
+
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -598,14 +667,19 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			err := other.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
+
 			nodes := []*node{{value: schema}, {value: other}}
+
+			err = schema.join(nodes)
+
 			expected := fmt.Errorf(
 				"multiple properties with the same name in bases of schema %s",
 				names[0],
 			)
-			err = schema.join(nodes)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(expected))
 		})
@@ -634,13 +708,21 @@ var _ = Describe("schema tests", func() {
 					},
 				},
 			}
+
 			err := other.parse(object)
+
 			Expect(err).ToNot(HaveOccurred())
+
 			err = schema.join([]*node{{value: other}})
+
 			Expect(err).ToNot(HaveOccurred())
+
 			properties, err := schema.collectProperties(-1, 1)
+
 			Expect(err).ToNot(HaveOccurred())
+
 			array := properties.ToArray()
+
 			Expect(len(array)).To(Equal(3))
 			Expect(array[2].(*item.Property).IsObject()).To(BeFalse())
 		})

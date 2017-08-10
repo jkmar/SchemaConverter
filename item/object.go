@@ -12,6 +12,11 @@ type Object struct {
 	properties set.Set
 }
 
+// IsNull implementation
+func (object *Object) IsNull() bool {
+	return false
+}
+
 // Name is a function that allows object to be used as a set element
 func (object *Object) Name() string {
 	return object.objectType
@@ -45,9 +50,22 @@ func (object *Object) AddProperties(properties set.Set, safe bool) error {
 }
 
 // Parse implementation
-func (object *Object) Parse(prefix string, data map[interface{}]interface{}) error {
+func (object *Object) Parse(
+	prefix string,
+	level int,
+	required bool,
+	data map[interface{}]interface{},
+) error {
 	object.objectType = prefix
 	object.properties = set.New()
+	requiredMap, err := parseRequired(data)
+	if err != nil {
+		return fmt.Errorf(
+			"object %s: %v",
+			prefix,
+			err,
+		)
+	}
 	properties, ok := data["properties"]
 	if !ok {
 		return nil
@@ -77,7 +95,12 @@ func (object *Object) Parse(prefix string, data map[interface{}]interface{}) err
 				strProperty,
 			)
 		}
-		if err := newProperty.Parse(prefix, definitionMap); err != nil {
+		if err := newProperty.Parse(
+			prefix,
+			level,
+			requiredMap[strProperty],
+			definitionMap,
+		); err != nil {
 			return err
 		}
 	}
@@ -128,12 +151,32 @@ func (object *Object) CollectProperties(limit, offset int) (set.Set, error) {
 }
 
 // GenerateStruct create a struct of an object
-// with suffix added to type name and annotation added to each field
-func (object *Object) GenerateStruct(suffix, annotation string) string {
+// with suffix added to type name of each field
+func (object *Object) GenerateStruct(suffix string) string {
 	code := "type " + object.Type(suffix) + " struct {\n"
 	properties := object.properties.ToArray()
 	for _, property := range properties {
-		code += property.(*Property).GenerateProperty(suffix, annotation)
+		code += property.(*Property).GenerateProperty(suffix)
 	}
 	return code + "}\n"
+}
+
+func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {
+	required, ok := data["required"]
+	if !ok {
+		return nil, nil
+	}
+	list, ok := required.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("required should be a list of strings")
+	}
+	result := map[string]bool{}
+	for _, element := range list {
+		elementString, ok := element.(string)
+		if !ok {
+			return nil, fmt.Errorf("required should be a list of strings")
+		}
+		result[elementString] = true
+	}
+	return result, nil
 }

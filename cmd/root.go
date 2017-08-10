@@ -8,11 +8,9 @@ import (
 )
 
 var (
-	config         string
-	annotationDB   string
-	annotationJSON string
-	suffix         string
-	output         string
+	config string
+	suffix string
+	output string
 )
 
 // RootCmd of application
@@ -30,8 +28,6 @@ var RootCmd = &cobra.Command{
 			args[0],
 			output,
 			config,
-			annotationDB,
-			annotationJSON,
 			suffix,
 		)
 		if err != nil {
@@ -55,18 +51,6 @@ func init() {
 		"o",
 		"",
 		"output file",
-	)
-	RootCmd.Flags().StringVar(
-		&annotationDB,
-		"db",
-		"db",
-		"annotation to schemas fields",
-	)
-	RootCmd.Flags().StringVar(
-		&annotationJSON,
-		"json",
-		"json",
-		"annotation to objects fields",
 	)
 	RootCmd.Flags().StringVar(
 		&suffix,

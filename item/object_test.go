@@ -81,8 +81,8 @@ var _ = Describe("object tests", func() {
 		})
 
 		It("Should not override a property in unsafe mode", func() {
-			newType := "string"
-			newProperty := CreatePropertyWithType("b", newType)
+			newProperty := CreateProperty("b")
+			newProperty.item, _ = CreateItem("object")
 			newProperties := set.New()
 			newProperties.Insert(newProperty)
 
@@ -108,12 +108,27 @@ var _ = Describe("object tests", func() {
 			object = &Object{}
 		})
 
+		It("Should return error for an object with invalid required", func() {
+			data = map[interface{}]interface{}{
+				"required": 1,
+			}
+
+			err := object.Parse(prefix, 0, true, data)
+
+			expected := fmt.Errorf(
+				"object %s: required should be a list of strings",
+				prefix,
+			)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
 		It("Should return an error for an object with invalid properties type", func() {
 			data = map[interface{}]interface{}{
 				"properties": "string",
 			}
 
-			err := object.Parse(prefix, data)
+			err := object.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"object %s has invalid properties",
@@ -126,7 +141,7 @@ var _ = Describe("object tests", func() {
 		It("Should return an empty object for an object with no properties", func() {
 			data = map[interface{}]interface{}{}
 
-			err := object.Parse(prefix, data)
+			err := object.Parse(prefix, 0, true, data)
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(object.properties.Empty()).To(BeTrue())
@@ -140,7 +155,7 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, data)
+			err := object.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"object %s has property which name is not a string",
@@ -157,7 +172,7 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, data)
+			err := object.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"object %s has invalid property a",
@@ -176,7 +191,7 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, data)
+			err := object.Parse(prefix, 0, true, data)
 
 			expected := fmt.Errorf(
 				"property %s does not have a type",
@@ -212,7 +227,7 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, data)
+			err := object.Parse(prefix, 0, true, data)
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(object.objectType).To(Equal(prefix))
@@ -317,9 +332,12 @@ var _ = Describe("object tests", func() {
 				properties[i] = &Property{}
 			}
 
-			properties[4] = &Property{names[2], &PlainItem{"string"}}
+			properties[4] = &Property{
+				name: names[2],
+				item: &PlainItem{itemType: "string"},
+			}
 
-			properties[3].item = &PlainItem{"string"}
+			properties[3].item = &PlainItem{itemType: "string"}
 			properties[3].name = names[2]
 
 			objectSet := set.New()
@@ -393,30 +411,114 @@ var _ = Describe("object tests", func() {
 	})
 
 	Describe("generate struct tests", func() {
-		It("Should generate correct struct", func() {
-			annotate := func(name string) string {
-				return fmt.Sprintf("`annotation:\"%s\"`", name)
-			}
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"id": map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": []interface{}{
+							"int64",
+							"null",
+						},
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
 
-			properties := set.New()
-			properties.Insert(&Property{"id", &PlainItem{"string"}})
-			properties.Insert(&Property{"ip", &Array{&PlainItem{"int64"}}})
-			properties.Insert(&Property{"abc", &Object{"xyz", nil}})
+		It("Should generate correct db struct", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
 
-			item := Object{
-				"abc_def",
-				properties,
-			}
-
-			result := item.GenerateStruct("suffix", "annotation")
+			result := object.GenerateStruct("suffix")
 
 			expected := `type AbcDefSuffix struct {
-	Abc XyzSuffix ` + annotate("abc") + `
-	ID string ` + annotate("id") + `
-	IP []int64 ` + annotate("ip") + `
+	ID sql.NullString ` + "`" + `db:"id"` + "`" + `
+	IP []int64 ` + "`" + `db:"ip"` + "`" + `
+	Xyz AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
 }
 `
 			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json struct", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateStruct("suffix")
+
+			expected := `type AbcDefSuffix struct {
+	ID string ` + "`" + `json:"id,omitempty"` + "`" + `
+	IP []int64 ` + "`" + `json:"ip"` + "`" + `
+	Xyz AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("parse required tests", func() {
+		It("Should return nil for no required", func() {
+			data := map[interface{}]interface{}{}
+
+			result, err := parseRequired(data)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(BeNil())
+		})
+
+		It("Should return error for invalid type of required", func() {
+			data := map[interface{}]interface{}{"required": 1}
+
+			_, err := parseRequired(data)
+
+			expected := fmt.Errorf("required should be a list of strings")
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
+		It("Should return error for required with invalid property name", func() {
+			data := map[interface{}]interface{}{
+				"required": []interface{}{1},
+			}
+
+			_, err := parseRequired(data)
+
+			expected := fmt.Errorf("required should be a list of strings")
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(expected))
+		})
+
+		It("Should return correct required list", func() {
+			data := map[interface{}]interface{}{
+				"required": []interface{}{
+					"1",
+					"2",
+				},
+			}
+
+			result, err := parseRequired(data)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result["1"]).To(BeTrue())
+			Expect(result["2"]).To(BeTrue())
+			Expect(result["3"]).To(BeFalse())
 		})
 	})
 })
