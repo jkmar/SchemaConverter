@@ -26,7 +26,7 @@ var _ = Describe("json kind tests", func() {
 
 			result := dbKind.Type("", newItem)
 
-			expected := "sql." + util.ToGoName("null", typeOfItem)
+			expected := "goext." + util.ToGoName("null", typeOfItem)
 			Expect(result).To(Equal(expected))
 		})
 
@@ -35,16 +35,59 @@ var _ = Describe("json kind tests", func() {
 			newItem, err := CreateItem(typeOfItem)
 			Expect(err).ToNot(HaveOccurred())
 
-			newItem.Parse(
+			err = newItem.Parse(
 				"",
 				0,
 				true,
 				map[interface{}]interface{}{"type": typeOfItem},
 			)
+			Expect(err).ToNot(HaveOccurred())
 
 			result := dbKind.Type("", newItem)
 
 			expected := typeOfItem
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("interface type tests", func() {
+		It("Should return a correct interface type for a null item", func() {
+			newItem, err := CreateItem("int64")
+			Expect(err).ToNot(HaveOccurred())
+
+			err = newItem.Parse(
+				"",
+				0,
+				false,
+				map[interface{}]interface{}{"type": "int64"},
+			)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := dbKind.InterfaceType("", newItem)
+
+			expected := "goext.NullInt"
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should return a correct interface type for an object", func() {
+			newItem, err := CreateItem("object")
+			Expect(err).ToNot(HaveOccurred())
+
+			name := "Test"
+			err = newItem.Parse(
+				name,
+				0,
+				false,
+				map[interface{}]interface{}{
+					"type":       "object",
+					"properties": map[interface{}]interface{}{},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := dbKind.InterfaceType("", newItem)
+
+			expected := "I" + name
 			Expect(result).To(Equal(expected))
 		})
 	})

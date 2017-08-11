@@ -25,7 +25,7 @@ var _ = Describe("object tests", func() {
 
 			result := object.Type("")
 
-			expected := util.ToGoName(typeOfItem, "")
+			expected := "*" + util.ToGoName(typeOfItem, "")
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -236,7 +236,7 @@ var _ = Describe("object tests", func() {
 			names := object.properties.ToArray()
 			Expect(names[0].(*Property).item.Type("")).To(Equal("string"))
 			Expect(names[1].(*Property).item.Type("")).To(Equal("[]string"))
-			Expect(names[2].(*Property).item.Type("")).To(Equal("AbcC"))
+			Expect(names[2].(*Property).item.Type("")).To(Equal("*AbcC"))
 			Expect(names[0].(*Property).Name()).To(Equal("a"))
 			Expect(names[1].(*Property).Name()).To(Equal("b"))
 			Expect(names[2].(*Property).Name()).To(Equal("c"))
@@ -448,9 +448,9 @@ var _ = Describe("object tests", func() {
 			result := object.GenerateStruct("suffix")
 
 			expected := `type AbcDefSuffix struct {
-	ID sql.NullString ` + "`" + `db:"id"` + "`" + `
+	ID goext.NullString ` + "`" + `db:"id"` + "`" + `
 	IP []int64 ` + "`" + `db:"ip"` + "`" + `
-	Xyz AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
 }
 `
 			Expect(result).To(Equal(expected))
@@ -466,9 +466,232 @@ var _ = Describe("object tests", func() {
 			expected := `type AbcDefSuffix struct {
 	ID string ` + "`" + `json:"id,omitempty"` + "`" + `
 	IP []int64 ` + "`" + `json:"ip"` + "`" + `
-	Xyz AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
 }
 `
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate interface tests", func() {
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"a": map[interface{}]interface{}{
+					"type": "int64",
+				},
+				"id": map[interface{}]interface{}{
+					"type": "string",
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": "int64",
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
+
+		It("Should generate correct db interface", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateInterface("suffix")
+
+			expected := `type IAbcDefSuffix interface {
+	GetA() goext.NullInt
+	SetA(goext.NullInt)
+	GetID() string
+	SetID(string)
+	GetIP() []int64
+	SetIP([]int64)
+	GetXyz() IAbcDefXyzSuffix
+	SetXyz(IAbcDefXyzSuffix)
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json interface", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateInterface("suffix")
+
+			expected := `type IAbcDefSuffix interface {
+	GetA() int64
+	SetA(int64)
+	GetID() string
+	SetID(string)
+	GetIP() []int64
+	SetIP([]int64)
+	GetXyz() IAbcDefXyzSuffix
+	SetXyz(IAbcDefXyzSuffix)
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate implementation tests", func() {
+		const (
+			header   = "func (abcDefSuffix *AbcDefSuffix) "
+			variable = "abcDefSuffix"
+		)
+
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"a": map[interface{}]interface{}{
+					"type": "int64",
+				},
+				"id": map[interface{}]interface{}{
+					"type": "string",
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": "int64",
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
+
+		It("Should generate correct db implementation", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateImplementation("suffix")
+
+			expected := fmt.Sprintf(
+				`%sGetA() goext.NullInt {
+	return %s.A
+}
+
+%sSetA(a goext.NullInt) {
+	%s.A = a
+}
+
+%sGetID() string {
+	return %s.ID
+}
+
+%sSetID(id string) {
+	%s.ID = id
+}
+
+%sGetIP() []int64 {
+	return %s.IP
+}
+
+%sSetIP(ip []int64) {
+	%s.IP = ip
+}
+
+%sGetXyz() IAbcDefXyzSuffix {
+	return %s.Xyz
+}
+
+%sSetXyz(xyz IAbcDefXyzSuffix) {
+	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+}
+`,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json implementation", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateImplementation("suffix")
+
+			expected := fmt.Sprintf(
+				`%sGetA() int64 {
+	return %s.A
+}
+
+%sSetA(a int64) {
+	%s.A = a
+}
+
+%sGetID() string {
+	return %s.ID
+}
+
+%sSetID(id string) {
+	%s.ID = id
+}
+
+%sGetIP() []int64 {
+	return %s.IP
+}
+
+%sSetIP(ip []int64) {
+	%s.IP = ip
+}
+
+%sGetXyz() IAbcDefXyzSuffix {
+	return %s.Xyz
+}
+
+%sSetXyz(xyz IAbcDefXyzSuffix) {
+	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+}
+`,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+			)
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -519,6 +742,21 @@ var _ = Describe("object tests", func() {
 			Expect(result["1"]).To(BeTrue())
 			Expect(result["2"]).To(BeTrue())
 			Expect(result["3"]).To(BeFalse())
+		})
+	})
+
+	Describe("generate setter tests", func() {
+		It("Should return a correct setter for an object", func() {
+			name := "Type"
+			variable := "var"
+			argument := "arg"
+
+			object := &Object{objectType: name}
+
+			result := object.GenerateSetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\t%s = %s.(*%s)", variable, argument, name)
+			Expect(result).To(Equal(expected))
 		})
 	})
 })

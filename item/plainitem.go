@@ -22,6 +22,11 @@ func (plainItem *PlainItem) Type(suffix string) string {
 	return plainItem.itemType
 }
 
+// InterfaceType implementation
+func (plainItem *PlainItem) InterfaceType(suffix string) string {
+	return plainItem.itemType
+}
+
 // AddProperties implementation
 func (plainItem *PlainItem) AddProperties(set set.Set, safe bool) error {
 	return fmt.Errorf("cannot add properties to a plain item")
@@ -67,4 +72,19 @@ func (plainItem *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
 // CollectProperties implementation
 func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
 	return nil, nil
+}
+
+// GenerateSetter implementation
+func (plainItem *PlainItem) GenerateSetter(
+	variable,
+	argument,
+	suffix string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s = %s",
+		util.Indent(depth),
+		variable,
+		argument,
+	)
 }

@@ -11,6 +11,11 @@ func (jsonKind *JSONKind) Type(suffix string, item Item) string {
 	return item.Type(suffix)
 }
 
+// InterfaceType implementation
+func (jsonKind *JSONKind) InterfaceType(suffix string, item Item) string {
+	return item.InterfaceType(suffix)
+}
+
 // Annotation implementation
 func (jsonKind *JSONKind) Annotation(name string, item Item) string {
 	var annotation string

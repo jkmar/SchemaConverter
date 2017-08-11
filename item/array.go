@@ -3,6 +3,7 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 // Array is an implementation of Item interface
@@ -18,6 +19,11 @@ func (array *Array) IsNull() bool {
 // Type implementation
 func (array *Array) Type(suffix string) string {
 	return "[]" + array.arrayItem.Type(suffix)
+}
+
+// InterfaceType implementation
+func (array *Array) InterfaceType(suffix string) string {
+	return "[]" + array.arrayItem.InterfaceType(suffix)
 }
 
 // AddProperties implementation
@@ -61,4 +67,44 @@ func (array *Array) CollectObjects(limit, offset int) (set.Set, error) {
 // CollectProperties implementation
 func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
 	return array.arrayItem.CollectProperties(limit, offset)
+}
+
+// GenerateSetter implementation
+func (array *Array) GenerateSetter(
+	variable,
+	argument,
+	suffix string,
+	depth int,
+) string {
+	indent := util.Indent(depth)
+	if _, ok := array.arrayItem.(*PlainItem); ok {
+		return fmt.Sprintf(
+			"%s%s = %s",
+			indent,
+			variable,
+			argument,
+		)
+	}
+	index := arrayIndex(depth)
+	return fmt.Sprintf(
+		"%s%s = make(%s, len(%s))\n%sfor %c := range %s {\n%s\n%s}",
+		indent,
+		variable,
+		array.Type(suffix),
+		argument,
+		indent,
+		util.IndexVariable(depth),
+		argument,
+		array.arrayItem.GenerateSetter(
+			variable+index,
+			argument+index,
+			suffix,
+			depth+1,
+		),
+		indent,
+	)
+}
+
+func arrayIndex(depth int) string {
+	return fmt.Sprintf("[%c]", util.IndexVariable(depth))
 }

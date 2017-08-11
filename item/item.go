@@ -12,12 +12,19 @@ type Item interface {
 	//   true iff. item can be null
 	IsNull() bool
 
-	// Type should return go type of item
+	// Type should return a go type of item
 	// args:
 	//   1. string - a suffix added to a type
 	// return:
 	//   type of item with suffix appended
 	Type(string) string
+
+	// InterfaceType should return an interface type of item
+	// args:
+	//   1. string - a suffix added to a type
+	// return:
+	//   interface type of item with suffix appended
+	InterfaceType(string) string
 
 	// AddProperties should add properties to an item
 	// args:
@@ -42,9 +49,10 @@ type Item interface {
 
 	// CollectObjects should return a set of objects contained within an item
 	// args:
-	//   1. int - limit; how deep to search for an object; starting from 0;
+	//   1. int - limit; how deep to search for an object; starting from 1;
 	//            if limit is negative this parameter is ignored.
 	//   2. int - offset; from which level gathering objects should begin;
+	//            starting from 0;
 	// return:
 	//   1. set of collected objects
 	//   2. error during execution
@@ -66,13 +74,24 @@ type Item interface {
 
 	// CollectProperties should return a set properties contained within an item
 	// args:
-	//   1. int - limit; how deep to search for a property; starting from 0;
+	//   1. int - limit; how deep to search for a property; starting from 1;
 	//            if limit is negative this parameter is ignored.
 	//   2. int - offset; from which level gathering properties should begin;
+	//            starting from 0;
 	// return:
 	//   1. set of collected properties
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
+
+	// GenerateSetter should return a body a of a setter funcion for given item
+	// args:
+	//   1. string - variable; a name of a variable to set
+	//   2. string - argument; a name of an argument of the function
+	//   3. string - suffix; a suffix added to items type
+	//   4. int - depth; a width of an indent
+	// return:
+	//   string representing a body of a setter function
+	GenerateSetter(string, string, string, int) string
 }
 
 // CreateItem is a factory for items
