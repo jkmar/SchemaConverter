@@ -132,7 +132,7 @@ var _ = Describe("array tests", func() {
 				Expect(err).ToNot(HaveOccurred())
 				objects := result.ToArray()
 				Expect(len(objects)).To(Equal(1))
-				Expect(objects[0].(*Object).Type("")).To(Equal(name))
+				Expect(objects[0].(*Object).Type("")).To(Equal("*" + name))
 			})
 		})
 

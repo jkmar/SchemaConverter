@@ -172,7 +172,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID sql.NullString `%s:\"%s\"`\n",
+					"\tDefID goext.NullString `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -234,7 +234,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID AbcDefIDXyz `%s:\"%s\"`\n",
+					"\tDefID *AbcDefIDXyz `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -327,7 +327,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID AbcDefIDXyz `%s:\"%s\"`\n",
+					"\tDefID *AbcDefIDXyz `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)

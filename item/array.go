@@ -20,6 +20,11 @@ func (array *Array) Type(suffix string) string {
 	return "[]" + array.arrayItem.Type(suffix)
 }
 
+// InterfaceType implementation
+func (array *Array) InterfaceType(suffix string) string {
+	return "[]" + array.arrayItem.InterfaceType(suffix)
+}
+
 // AddProperties implementation
 func (array *Array) AddProperties(set set.Set, safe bool) error {
 	return fmt.Errorf("cannot add properties to an array")
@@ -63,15 +68,15 @@ func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
 	return array.arrayItem.CollectProperties(limit, offset)
 }
 
-func (array *Array) GenerateSetter(prefix, arg string) string {
-	if _, ok := array.arrayItem.(*PlainItem); ok {
-		return fmt.Sprintf(
-			"%s = %s",
-			prefix,
-			arg,
-		)
-	}
-	return fmt.Sprintf(
-		"%s = make(%s, len(%s))\n"
-	)
-}
+//func (array *Array) GenerateSetter(prefix, arg string) string {
+//	if _, ok := array.arrayItem.(*PlainItem); ok {
+//		return fmt.Sprintf(
+//			"%s = %s",
+//			prefix,
+//			arg,
+//		)
+//	}
+//	return fmt.Sprintf(
+//		"%s = make(%s, len(%s))\n"
+//	)
+//}

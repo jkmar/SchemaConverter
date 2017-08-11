@@ -11,6 +11,14 @@ type Kind interface {
 	//   go type of a property
 	Type(string, Item) string
 
+	// Type should return an interface type of a property
+	// args:
+	//   1. string - a suffix added to a type
+	//   2. item - an item of a property
+	// return:
+	//   interface type of a property
+	InterfaceType(string, Item) string
+
 	// Annotation should return an annotation for a property is a go struct
 	// args:
 	//   1. string - a name of a property

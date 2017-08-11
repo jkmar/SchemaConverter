@@ -22,6 +22,11 @@ func (plainItem *PlainItem) Type(suffix string) string {
 	return plainItem.itemType
 }
 
+// InterfaceType implementation
+func (plainItem *PlainItem) InterfaceType(suffix string) string {
+	return plainItem.itemType
+}
+
 // AddProperties implementation
 func (plainItem *PlainItem) AddProperties(set set.Set, safe bool) error {
 	return fmt.Errorf("cannot add properties to a plain item")
@@ -69,10 +74,10 @@ func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error
 	return nil, nil
 }
 
-func (plainItem *PlainItem) GenerateSetter(prefix, arg string) string {
-	return fmt.Sprintf(
-		"%s = %s",
-		prefix,
-		arg,
-	)
-}
+//func (plainItem *PlainItem) GenerateSetter(prefix, arg string) string {
+//	return fmt.Sprintf(
+//		"%s = %s",
+//		prefix,
+//		arg,
+//	)
+//}

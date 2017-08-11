@@ -24,7 +24,12 @@ func (object *Object) Name() string {
 
 // Type implementation
 func (object *Object) Type(suffix string) string {
-	return util.ToGoName(object.Name(), suffix)
+	return "*" + object.getType(suffix)
+}
+
+// InterfaceType implementation
+func (object *Object) InterfaceType(suffix string) string {
+	return "I" + object.getType(suffix)
 }
 
 // AddProperties implementation
@@ -153,7 +158,7 @@ func (object *Object) CollectProperties(limit, offset int) (set.Set, error) {
 // GenerateStruct create a struct of an object
 // with suffix added to type name of each field
 func (object *Object) GenerateStruct(suffix string) string {
-	code := "type " + object.Type(suffix) + " struct {\n"
+	code := "type " + object.getType(suffix) + " struct {\n"
 	properties := object.properties.ToArray()
 	for _, property := range properties {
 		code += property.(*Property).GenerateProperty(suffix)
@@ -161,14 +166,14 @@ func (object *Object) GenerateStruct(suffix string) string {
 	return code + "}\n"
 }
 
-func (object *Object) GenerateSetter(prefix, arg string) string {
-	return fmt.Sprintf(
-		"%s = %s.(%s)",
-		prefix,
-		arg,
-		object.Type(""),
-	)
-}
+//func (object *Object) GenerateSetter(prefix, arg string) string {
+//	return fmt.Sprintf(
+//		"%s = %s.(%s)",
+//		prefix,
+//		arg,
+//		object.Type(""),
+//	)
+//}
 
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {
 	required, ok := data["required"]
@@ -188,4 +193,8 @@ func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {
 		result[elementString] = true
 	}
 	return result, nil
+}
+
+func (object *Object) getType(suffix string) string {
+	return util.ToGoName(object.Name(), suffix)
 }

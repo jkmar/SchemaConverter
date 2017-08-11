@@ -25,7 +25,7 @@ var _ = Describe("object tests", func() {
 
 			result := object.Type("")
 
-			expected := util.ToGoName(typeOfItem, "")
+			expected := "*" + util.ToGoName(typeOfItem, "")
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -236,7 +236,7 @@ var _ = Describe("object tests", func() {
 			names := object.properties.ToArray()
 			Expect(names[0].(*Property).item.Type("")).To(Equal("string"))
 			Expect(names[1].(*Property).item.Type("")).To(Equal("[]string"))
-			Expect(names[2].(*Property).item.Type("")).To(Equal("AbcC"))
+			Expect(names[2].(*Property).item.Type("")).To(Equal("*AbcC"))
 			Expect(names[0].(*Property).Name()).To(Equal("a"))
 			Expect(names[1].(*Property).Name()).To(Equal("b"))
 			Expect(names[2].(*Property).Name()).To(Equal("c"))
@@ -448,9 +448,9 @@ var _ = Describe("object tests", func() {
 			result := object.GenerateStruct("suffix")
 
 			expected := `type AbcDefSuffix struct {
-	ID sql.NullString ` + "`" + `db:"id"` + "`" + `
+	ID goext.NullString ` + "`" + `db:"id"` + "`" + `
 	IP []int64 ` + "`" + `db:"ip"` + "`" + `
-	Xyz AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
 }
 `
 			Expect(result).To(Equal(expected))
@@ -466,7 +466,7 @@ var _ = Describe("object tests", func() {
 			expected := `type AbcDefSuffix struct {
 	ID string ` + "`" + `json:"id,omitempty"` + "`" + `
 	IP []int64 ` + "`" + `json:"ip"` + "`" + `
-	Xyz AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
 }
 `
 			Expect(result).To(Equal(expected))
