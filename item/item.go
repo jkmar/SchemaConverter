@@ -3,6 +3,7 @@ package item
 import (
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"strings"
 )
 
 // Item is an interface for a type of a variable
@@ -18,6 +19,10 @@ type Item interface {
 	// return:
 	//   type of item with suffix appended
 	Type(string) string
+
+	InterfaceType(string) string
+
+	RealType(string) string
 
 	// AddProperties should add properties to an item
 	// args:
@@ -73,6 +78,8 @@ type Item interface {
 	//   1. set of collected properties
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
+
+	GenerateSetter(string, string) string
 }
 
 // CreateItem is a factory for items

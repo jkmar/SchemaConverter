@@ -161,6 +161,15 @@ func (object *Object) GenerateStruct(suffix string) string {
 	return code + "}\n"
 }
 
+func (object *Object) GenerateSetter(prefix, arg string) string {
+	return fmt.Sprintf(
+		"%s = %s.(%s)",
+		prefix,
+		arg,
+		object.Type(""),
+	)
+}
+
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {
 	required, ok := data["required"]
 	if !ok {

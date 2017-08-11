@@ -68,3 +68,11 @@ func (plainItem *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
 func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
 	return nil, nil
 }
+
+func (plainItem *PlainItem) GenerateSetter(prefix, arg string) string {
+	return fmt.Sprintf(
+		"%s = %s",
+		prefix,
+		arg,
+	)
+}

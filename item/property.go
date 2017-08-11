@@ -62,6 +62,9 @@ func (property *Property) Parse(
 			err,
 		)
 	}
+	if util.ToGoName(property.Name(), "") == "ID" {
+		required = true
+	}
 	return property.item.Parse(
 		util.AddName(prefix, property.name),
 		level+1,

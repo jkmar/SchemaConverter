@@ -62,3 +62,16 @@ func (array *Array) CollectObjects(limit, offset int) (set.Set, error) {
 func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
 	return array.arrayItem.CollectProperties(limit, offset)
 }
+
+func (array *Array) GenerateSetter(prefix, arg string) string {
+	if _, ok := array.arrayItem.(*PlainItem); ok {
+		return fmt.Sprintf(
+			"%s = %s",
+			prefix,
+			arg,
+		)
+	}
+	return fmt.Sprintf(
+		"%s = make(%s, len(%s))\n"
+	)
+}
