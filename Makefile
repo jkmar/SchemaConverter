@@ -10,7 +10,7 @@ test:
 	./tools/test.sh
 
 format:
-	@echo "$(OK_COLOR)==> Formating$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Formatting$(NO_COLOR)"
 	./tools/format.sh
 
 lint:

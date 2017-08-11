@@ -48,6 +48,30 @@ var _ = Describe("json kind tests", func() {
 		})
 	})
 
+	Describe("interface type tests", func() {
+		It("Should return a correct interface type for an object", func() {
+			newItem, err := CreateItem("object")
+			Expect(err).ToNot(HaveOccurred())
+
+			name := "Test"
+			err = newItem.Parse(
+				name,
+				0,
+				false,
+				map[interface{}]interface{}{
+					"type":       "object",
+					"properties": map[interface{}]interface{}{},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := jsonKind.InterfaceType("", newItem)
+
+			expected := "I" + name
+			Expect(result).To(Equal(expected))
+		})
+	})
+
 	Describe("annotation tests", func() {
 		It("Should return a correct annotation for a null item", func() {
 			name := "name"
