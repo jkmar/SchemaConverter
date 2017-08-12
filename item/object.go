@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"strings"
 )
 
 // Object is an implementation of Item interface
@@ -156,6 +155,22 @@ func (object *Object) CollectProperties(limit, offset int) (set.Set, error) {
 	return result, nil
 }
 
+// GenerateSetter implementation
+func (object *Object) GenerateSetter(
+	variable,
+	argument,
+	suffix string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s = %s.(%s)",
+		util.Indent(depth),
+		variable,
+		argument,
+		object.Type(suffix),
+	)
+}
+
 // GenerateStruct create a struct of an object
 // with suffix added to type name of each field
 func (object *Object) GenerateStruct(suffix string) string {
@@ -167,19 +182,12 @@ func (object *Object) GenerateStruct(suffix string) string {
 	return code + "}\n"
 }
 
-// GenerateSetter implementation
-func (object *Object) GenerateSetter(
-	variable string,
-	argument string,
-	depth int,
-) string {
-	return fmt.Sprintf(
-		"%s%s = %s.(%s)",
-		strings.Repeat("\t", depth),
-		variable,
-		argument,
-		object.Type(""),
-	)
+func (object *Object) GenerateInterface(suffix string) string {
+	return ""
+}
+
+func (object *Object) GenerateImplementation(suffix string) []string {
+	return nil
 }
 
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {

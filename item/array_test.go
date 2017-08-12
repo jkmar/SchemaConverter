@@ -155,7 +155,7 @@ var _ = Describe("array tests", func() {
 			name := "string"
 			array := &Array{&PlainItem{itemType: name}}
 
-			result := array.GenerateSetter(variable, argument, 1)
+			result := array.GenerateSetter(variable, argument, "", 1)
 
 			expected := fmt.Sprintf(
 				"\t%s = %s",
@@ -169,7 +169,7 @@ var _ = Describe("array tests", func() {
 			name := "Type"
 			array := &Array{&Object{objectType: name}}
 
-			result := array.GenerateSetter(variable, argument, 1)
+			result := array.GenerateSetter(variable, argument, "", 1)
 
 			expected := fmt.Sprintf(
 				`	%s = make([]*%s, len(%s))
@@ -191,7 +191,7 @@ var _ = Describe("array tests", func() {
 			name := "string"
 			array := &Array{&Array{&PlainItem{itemType: name}}}
 
-			result := array.GenerateSetter(variable, argument, 1)
+			result := array.GenerateSetter(variable, argument, "", 1)
 
 			expected := fmt.Sprintf(
 				`	%s = make([][]%s, len(%s))
@@ -212,7 +212,7 @@ var _ = Describe("array tests", func() {
 			name := "Type"
 			array := &Array{&Array{&Object{objectType: name}}}
 
-			result := array.GenerateSetter(variable, argument, 1)
+			result := array.GenerateSetter(variable, argument, "", 1)
 
 			expected := fmt.Sprintf(
 				`	%s = make([][]*%s, len(%s))

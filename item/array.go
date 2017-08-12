@@ -71,8 +71,9 @@ func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
 
 // GenerateSetter implementation
 func (array *Array) GenerateSetter(
-	variable string,
-	argument string,
+	variable,
+	argument,
+	suffix string,
 	depth int,
 ) string {
 	indent := util.Indent(depth)
@@ -89,7 +90,7 @@ func (array *Array) GenerateSetter(
 		"%s%s = make(%s, len(%s))\n%sfor %c := range %s {\n%s\n%s}",
 		indent,
 		variable,
-		array.Type(""),
+		array.Type(suffix),
 		argument,
 		indent,
 		util.IndexVariable(depth),
@@ -97,6 +98,7 @@ func (array *Array) GenerateSetter(
 		array.arrayItem.GenerateSetter(
 			variable+index,
 			argument+index,
+			suffix,
 			depth+1,
 		),
 		indent,

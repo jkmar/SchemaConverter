@@ -530,7 +530,7 @@ var _ = Describe("object tests", func() {
 
 			object := &Object{objectType: name}
 
-			result := object.GenerateSetter(variable, argument, 1)
+			result := object.GenerateSetter(variable, argument, "", 1)
 
 			expected := fmt.Sprintf("\t%s = %s.(*%s)", variable, argument, name)
 			Expect(result).To(Equal(expected))

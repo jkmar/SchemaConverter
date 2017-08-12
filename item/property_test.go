@@ -335,4 +335,145 @@ var _ = Describe("property tests", func() {
 			})
 		})
 	})
+
+	Describe("getter header tests", func() {
+		It("Should generate a correct getter header for a plain item", func() {
+			property := &Property{
+				"name",
+				&PlainItem{itemType: "string", null: true},
+				&DBKind{},
+			}
+
+			result := property.GetterHeader("suffix")
+
+			expected := "GetName() goext.NullString"
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter header for an object", func() {
+			property := &Property{
+				"name",
+				&Object{objectType: "test"},
+				&DBKind{},
+			}
+
+			result := property.GetterHeader("suffix")
+
+			expected := "GetName() ITestSuffix"
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("setter header tests", func() {
+		It("Should generate a correct setter header for a plain item", func() {
+			property := &Property{
+				"name",
+				&PlainItem{itemType: "string", null: true},
+				&DBKind{},
+			}
+
+			result := property.SetterHeader("suffix", true)
+
+			expected := "SetName(name goext.NullString)"
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter header for an object", func() {
+			property := &Property{
+				"name",
+				&Object{objectType: "test"},
+				&DBKind{},
+			}
+
+			result := property.SetterHeader("suffix", false)
+
+			expected := "SetName(ITestSuffix)"
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		It("Should generate a correct getter for a plain item", func() {
+			property := &Property{
+				"def",
+				&PlainItem{itemType: "int64", null: true},
+				&DBKind{},
+			}
+
+			result := property.GenerateGetter("var", "")
+
+			expected := `GetDef() goext.NullInt {
+	return var.Def
+}`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter for an object", func() {
+			property := &Property{
+				"abc",
+				&Object{objectType: "xyz"},
+				&DBKind{},
+			}
+
+			result := property.GenerateGetter("var", "")
+
+			expected := `GetAbc() IXyz {
+	return var.Abc
+}`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate setter tests", func() {
+		It("Should generate a correct setter for a plain item", func() {
+			property := &Property{
+				"def",
+				&PlainItem{itemType: "int64", null: true},
+				&DBKind{},
+			}
+
+			result := property.GenerateSetter("var", "")
+
+			expected := `SetDef(def goext.NullInt) {
+	var.Def = def
+}`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for an object", func() {
+			property := &Property{
+				"range",
+				&Object{objectType: "xyz"},
+				&DBKind{},
+			}
+
+			result := property.GenerateSetter("var", "")
+
+			expected := `SetRange(rangeObject IXyz) {
+	var.Range = rangeObject.(*Xyz)
+}`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for an array", func() {
+			property := &Property{
+				"a",
+				&Array{&Array{&Object{objectType: "object"}}},
+				&DBKind{},
+			}
+
+			result := property.GenerateSetter("var", "")
+
+			expected := `SetA(a [][]IObject) {
+	var.A = make([][]*Object, len(a))
+	for i := range a {
+		var.A[i] = make([]*Object, len(a[i]))
+		for j := range a[i] {
+			var.A[i][j] = a[i][j].(*Object)
+		}
+	}
+}`
+			Expect(result).To(Equal(expected))
+		})
+	})
 })

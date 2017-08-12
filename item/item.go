@@ -85,10 +85,11 @@ type Item interface {
 	// args:
 	//   1. string - variable; a name of a variable to set
 	//   2. string - argument; a name of an argument of the function
-	//   3. int - depth; a width of an indent
+	//   3. string - suffix; a suffix added to items type
+	//   4. int - depth; a width of an indent
 	// return:
 	//   string representing a body of a setter function
-	GenerateSetter(string, string, int) string
+	GenerateSetter(string, string, string, int) string
 }
 
 // CreateItem is a factory for items

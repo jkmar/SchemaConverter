@@ -124,7 +124,7 @@ var _ = Describe("plain item tests", func() {
 
 			plainItem := &PlainItem{}
 
-			result := plainItem.GenerateSetter(variable, argument, 1)
+			result := plainItem.GenerateSetter(variable, argument, "", 1)
 
 			expected := fmt.Sprintf("\t%s = %s", variable, argument)
 			Expect(result).To(Equal(expected))

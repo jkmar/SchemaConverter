@@ -18,7 +18,7 @@ func CreateProperty(name string) *Property {
 	return &Property{name: name}
 }
 
-// Name gets a property name
+// Name gets a name of a property
 func (property *Property) Name() string {
 	return property.name
 }
@@ -62,7 +62,7 @@ func (property *Property) Parse(
 			err,
 		)
 	}
-	if util.ToGoName(property.Name(), "") == "ID" {
+	if property.goName() == "ID" {
 		required = true
 	}
 	return property.item.Parse(
@@ -136,8 +136,65 @@ func (property *Property) GenerateProperty(suffix string) string {
 		"\t%s %s %s\n",
 		util.ToGoName(property.name, ""),
 		property.kind.Type(suffix, property.item),
-		property.kind.Annotation(property.Name(), property.item),
+		property.kind.Annotation(property.name, property.item),
 	)
+}
+
+// GetterHeader returns a header of a getter for a property
+func (property *Property) GetterHeader(suffix string) string {
+	return fmt.Sprintf(
+		"%s() %s",
+		util.ToGoName("get", property.name),
+		property.kind.InterfaceType(suffix, property.item),
+	)
+}
+
+// SetterHeader returns a header of a setter for a property
+func (property *Property) SetterHeader(suffix string, argument bool) string {
+	var arg string
+	if argument {
+		arg = util.VariableName(property.goName()) + " "
+	}
+	return fmt.Sprintf(
+		"%s(%s%s)",
+		util.ToGoName("set", property.name),
+		arg,
+		property.kind.InterfaceType(suffix, property.item),
+	)
+}
+
+// GenerateGetter returns a getter for a property
+func (property *Property) GenerateGetter(
+	variable,
+	suffix string,
+) string {
+	return fmt.Sprintf(
+		"%s {\n\treturn %s.%s\n}",
+		property.GetterHeader(suffix),
+		variable,
+		property.goName(),
+	)
+}
+
+// GenerateSetter returns a setter for a property
+func (property *Property) GenerateSetter(
+	variable,
+	suffix string,
+) string {
+	return fmt.Sprintf(
+		"%s {\n%s\n}",
+		property.SetterHeader(suffix, true),
+		property.item.GenerateSetter(
+			variable+"."+property.goName(),
+			util.VariableName(property.goName()),
+			suffix,
+			1,
+		),
+	)
+}
+
+func (property *Property) goName() string {
+	return util.ToGoName(property.name, "")
 }
 
 func (property *Property) getKindFromLevel(level int) {
