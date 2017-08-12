@@ -116,4 +116,18 @@ var _ = Describe("plain item tests", func() {
 			Expect(plainItem.CollectProperties(1, 0)).To(BeNil())
 		})
 	})
+
+	Describe("generate setter tests", func() {
+		It("Should return a correct setter for a plain item", func() {
+			variable := "var"
+			argument := "arg"
+
+			plainItem := &PlainItem{}
+
+			result := plainItem.GenerateSetter(variable, argument, 1)
+
+			expected := fmt.Sprintf("\t%s = %s", variable, argument)
+			Expect(result).To(Equal(expected))
+		})
+	})
 })

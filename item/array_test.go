@@ -115,33 +115,126 @@ var _ = Describe("array tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(array.Type("")).To(Equal(expected))
 		})
+	})
 
-		Describe("collect object tests", func() {
-			It("Should return nil for an array of plain items", func() {
-				array := &Array{&PlainItem{}}
+	Describe("collect object tests", func() {
+		It("Should return nil for an array of plain items", func() {
+			array := &Array{&PlainItem{}}
 
-				Expect(array.CollectObjects(1, 0)).To(BeNil())
-			})
-
-			It("Should return object for an array of objects", func() {
-				name := "Test"
-				array := &Array{&Object{name, nil}}
-
-				result, err := array.CollectObjects(1, 0)
-
-				Expect(err).ToNot(HaveOccurred())
-				objects := result.ToArray()
-				Expect(len(objects)).To(Equal(1))
-				Expect(objects[0].(*Object).Type("")).To(Equal("*" + name))
-			})
+			Expect(array.CollectObjects(1, 0)).To(BeNil())
 		})
 
-		Describe("collect properties tests", func() {
-			It("Should return nil for an array of plain items", func() {
-				array := &Array{&PlainItem{}}
+		It("Should return object for an array of objects", func() {
+			name := "Test"
+			array := &Array{&Object{name, nil}}
 
-				Expect(array.CollectProperties(1, 0)).To(BeNil())
-			})
+			result, err := array.CollectObjects(1, 0)
+
+			Expect(err).ToNot(HaveOccurred())
+			objects := result.ToArray()
+			Expect(len(objects)).To(Equal(1))
+			Expect(objects[0].(*Object).Type("")).To(Equal("*" + name))
+		})
+	})
+
+	Describe("collect properties tests", func() {
+		It("Should return nil for an array of plain items", func() {
+			array := &Array{&PlainItem{}}
+
+			Expect(array.CollectProperties(1, 0)).To(BeNil())
+		})
+	})
+
+	Describe("generate setter tests", func() {
+		const (
+			variable = "variable"
+			argument = "argument"
+		)
+
+		It("Should generate a correct setter for an array of plain items", func() {
+			name := "string"
+			array := &Array{&PlainItem{itemType:name}}
+
+			result := array.GenerateSetter(variable, argument, 1)
+
+			expected := fmt.Sprintf(
+				"\t%s = %s",
+				variable,
+				argument,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for an array of objects", func() {
+			name := "Type"
+			array := &Array{&Object{objectType:name}}
+
+			result := array.GenerateSetter(variable, argument, 1)
+
+			expected := fmt.Sprintf(
+				`	%s = make([]*%s, len(%s))
+	for i := range %s {
+		%s[i] = %s[i].(*%s)
+	}`,
+				variable,
+				name,
+				argument,
+				argument,
+				variable,
+				argument,
+				name,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for nested array of plain items", func() {
+			name := "string"
+			array := &Array{&Array{&PlainItem{itemType:name}}}
+
+			result := array.GenerateSetter(variable, argument, 1)
+
+			expected := fmt.Sprintf(
+				`	%s = make([][]%s, len(%s))
+	for i := range %s {
+		%s[i] = %s[i]
+	}`,
+				variable,
+				name,
+				argument,
+				argument,
+				variable,
+				argument,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for nested array of objects", func() {
+			name := "Type"
+			array := &Array{&Array{&Object{objectType:name}}}
+
+			result := array.GenerateSetter(variable, argument, 1)
+
+			expected := fmt.Sprintf(
+				`	%s = make([][]*%s, len(%s))
+	for i := range %s {
+		%s[i] = make([]*%s, len(%s[i]))
+		for j := range %s[i] {
+			%s[i][j] = %s[i][j].(*%s)
+		}
+	}`,
+				variable,
+				name,
+				argument,
+				argument,
+				variable,
+				name,
+				argument,
+				argument,
+				variable,
+				argument,
+				name,
+			)
+			Expect(result).To(Equal(expected))
 		})
 	})
 })

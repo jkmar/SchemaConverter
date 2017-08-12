@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"strings"
 )
 
 // PlainItem is an implementation of Item interface
@@ -74,10 +75,16 @@ func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error
 	return nil, nil
 }
 
-//func (plainItem *PlainItem) GenerateSetter(prefix, arg string) string {
-//	return fmt.Sprintf(
-//		"%s = %s",
-//		prefix,
-//		arg,
-//	)
-//}
+// GenerateSetter implementation
+func (plainItem *PlainItem) GenerateSetter(
+	variable string,
+	argument string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s = %s",
+		strings.Repeat("\t", depth),
+		variable,
+		argument,
+	)
+}

@@ -81,7 +81,7 @@ type Item interface {
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
 
-	//GenerateSetter(string, string) string
+	GenerateSetter(string, string, int) string
 }
 
 // CreateItem is a factory for items

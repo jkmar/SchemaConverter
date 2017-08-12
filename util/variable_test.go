@@ -29,4 +29,14 @@ var _ = Describe("string util tests", func() {
 			Expect(VariableName("Range")).To(Equal("rangeObject"))
 		})
 	})
+
+	Describe("IndexVariable tests", func() {
+		It("Should return correct index variable name - i", func() {
+			Expect(IndexVariable(1)).To(Equal('i'))
+		})
+
+		It("Should return correct index variable name - j", func() {
+			Expect(IndexVariable(2)).To(Equal('j'))
+		})
+	})
 })

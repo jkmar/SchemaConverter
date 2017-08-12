@@ -521,4 +521,19 @@ var _ = Describe("object tests", func() {
 			Expect(result["3"]).To(BeFalse())
 		})
 	})
+
+	Describe("generate setter tests", func() {
+		It("Should return a correct setter for an object", func() {
+			name := "Type"
+			variable := "var"
+			argument := "arg"
+
+			object := &Object{objectType: name}
+
+			result := object.GenerateSetter(variable, argument, 1)
+
+			expected := fmt.Sprintf("\t%s = %s.(*%s)", variable, argument, name)
+			Expect(result).To(Equal(expected))
+		})
+	})
 })

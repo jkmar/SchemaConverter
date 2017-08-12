@@ -52,3 +52,8 @@ func VariableName(name string) string {
 	}
 	return result
 }
+
+// IndexVariable returns a name of variable used in for loop
+func IndexVariable(depth int) rune {
+	return rune('i' + depth - 1)
+}
