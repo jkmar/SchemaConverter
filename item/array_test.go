@@ -153,7 +153,7 @@ var _ = Describe("array tests", func() {
 
 		It("Should generate a correct setter for an array of plain items", func() {
 			name := "string"
-			array := &Array{&PlainItem{itemType:name}}
+			array := &Array{&PlainItem{itemType: name}}
 
 			result := array.GenerateSetter(variable, argument, 1)
 
@@ -167,7 +167,7 @@ var _ = Describe("array tests", func() {
 
 		It("Should generate a correct setter for an array of objects", func() {
 			name := "Type"
-			array := &Array{&Object{objectType:name}}
+			array := &Array{&Object{objectType: name}}
 
 			result := array.GenerateSetter(variable, argument, 1)
 
@@ -189,7 +189,7 @@ var _ = Describe("array tests", func() {
 
 		It("Should generate a correct setter for nested array of plain items", func() {
 			name := "string"
-			array := &Array{&Array{&PlainItem{itemType:name}}}
+			array := &Array{&Array{&PlainItem{itemType: name}}}
 
 			result := array.GenerateSetter(variable, argument, 1)
 
@@ -210,7 +210,7 @@ var _ = Describe("array tests", func() {
 
 		It("Should generate a correct setter for nested array of objects", func() {
 			name := "Type"
-			array := &Array{&Array{&Object{objectType:name}}}
+			array := &Array{&Array{&Object{objectType: name}}}
 
 			result := array.GenerateSetter(variable, argument, 1)
 

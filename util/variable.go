@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -56,4 +57,9 @@ func VariableName(name string) string {
 // IndexVariable returns a name of variable used in for loop
 func IndexVariable(depth int) rune {
 	return rune('i' + depth - 1)
+}
+
+// Indent returns an indent with given width
+func Indent(width int) string {
+	return strings.Repeat("\t", width)
 }

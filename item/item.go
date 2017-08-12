@@ -81,6 +81,13 @@ type Item interface {
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
 
+	// GenerateSetter should return a body a of a setter funcion for given item
+	// args:
+	//   1. string - variable; a name of a variable to set
+	//   2. string - argument; a name of an argument of the function
+	//   3. int - depth; a width of an indent
+	// return:
+	//   string representing a body of a setter function
 	GenerateSetter(string, string, int) string
 }
 

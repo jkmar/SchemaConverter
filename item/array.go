@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"strings"
 )
 
 // Array is an implementation of Item interface
@@ -76,10 +75,11 @@ func (array *Array) GenerateSetter(
 	argument string,
 	depth int,
 ) string {
+	indent := util.Indent(depth)
 	if _, ok := array.arrayItem.(*PlainItem); ok {
 		return fmt.Sprintf(
 			"%s%s = %s",
-			strings.Repeat("\t", depth),
+			indent,
 			variable,
 			argument,
 		)
@@ -87,11 +87,11 @@ func (array *Array) GenerateSetter(
 	index := arrayIndex(depth)
 	return fmt.Sprintf(
 		"%s%s = make(%s, len(%s))\n%sfor %c := range %s {\n%s\n%s}",
-		strings.Repeat("\t", depth),
+		indent,
 		variable,
 		array.Type(""),
 		argument,
-		strings.Repeat("\t", depth),
+		indent,
 		util.IndexVariable(depth),
 		argument,
 		array.arrayItem.GenerateSetter(
@@ -99,7 +99,7 @@ func (array *Array) GenerateSetter(
 			argument+index,
 			depth+1,
 		),
-		strings.Repeat("\t", depth),
+		indent,
 	)
 }
 

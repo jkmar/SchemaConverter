@@ -31,12 +31,18 @@ var _ = Describe("string util tests", func() {
 	})
 
 	Describe("IndexVariable tests", func() {
-		It("Should return correct index variable name - i", func() {
+		It("Should return a correct index variable name - i", func() {
 			Expect(IndexVariable(1)).To(Equal('i'))
 		})
 
-		It("Should return correct index variable name - j", func() {
+		It("Should return a correct index variable name - j", func() {
 			Expect(IndexVariable(2)).To(Equal('j'))
+		})
+	})
+
+	Describe("Indent tests", func() {
+		It("Should return an ident with a correct width", func() {
+			Expect(Indent(2)).To(Equal("\t\t"))
 		})
 	})
 })
