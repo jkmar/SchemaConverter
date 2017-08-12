@@ -473,6 +473,231 @@ var _ = Describe("object tests", func() {
 		})
 	})
 
+	Describe("generate interface tests", func() {
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"a": map[interface{}]interface{}{
+					"type": "int64",
+				},
+				"id": map[interface{}]interface{}{
+					"type": "string",
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": "int64",
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
+
+		It("Should generate correct db interface", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateInterface("suffix")
+
+			expected := `type IAbcDefSuffix interface {
+	GetA() goext.NullInt
+	SetA(goext.NullInt)
+	GetID() string
+	SetID(string)
+	GetIP() []int64
+	SetIP([]int64)
+	GetXyz() IAbcDefXyzSuffix
+	SetXyz(IAbcDefXyzSuffix)
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json interface", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateInterface("suffix")
+
+			expected := `type IAbcDefSuffix interface {
+	GetA() int64
+	SetA(int64)
+	GetID() string
+	SetID(string)
+	GetIP() []int64
+	SetIP([]int64)
+	GetXyz() IAbcDefXyzSuffix
+	SetXyz(IAbcDefXyzSuffix)
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate implementation tests", func() {
+		const (
+			header   = "func (abcDefSuffix *AbcDefSuffix) "
+			variable = "abcDefSuffix"
+		)
+
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"a": map[interface{}]interface{}{
+					"type": "int64",
+				},
+				"id": map[interface{}]interface{}{
+					"type": "string",
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": "int64",
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
+
+		It("Should generate correct db implementation", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateImplementation("suffix")
+
+			expected := fmt.Sprintf(
+				`%sGetA() goext.NullInt {
+	return %s.A
+}
+
+%sSetA(a goext.NullInt) {
+	%s.A = a
+}
+
+%sGetID() string {
+	return %s.ID
+}
+
+%sSetID(id string) {
+	%s.ID = id
+}
+
+%sGetIP() []int64 {
+	return %s.IP
+}
+
+%sSetIP(ip []int64) {
+	%s.IP = ip
+}
+
+%sGetXyz() IAbcDefXyzSuffix {
+	return %s.Xyz
+}
+
+%sSetXyz(xyz IAbcDefXyzSuffix) {
+	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+}
+
+`,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json implementation", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateImplementation("suffix")
+
+			expected := fmt.Sprintf(
+				`%sGetA() int64 {
+	return %s.A
+}
+
+%sSetA(a int64) {
+	%s.A = a
+}
+
+%sGetID() string {
+	return %s.ID
+}
+
+%sSetID(id string) {
+	%s.ID = id
+}
+
+%sGetIP() []int64 {
+	return %s.IP
+}
+
+%sSetIP(ip []int64) {
+	%s.IP = ip
+}
+
+%sGetXyz() IAbcDefXyzSuffix {
+	return %s.Xyz
+}
+
+%sSetXyz(xyz IAbcDefXyzSuffix) {
+	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+}
+
+`,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+			)
+			Expect(result).To(Equal(expected))
+		})
+	})
+
 	Describe("parse required tests", func() {
 		It("Should return nil for no required", func() {
 			data := map[interface{}]interface{}{}

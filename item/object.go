@@ -171,7 +171,7 @@ func (object *Object) GenerateSetter(
 	)
 }
 
-// GenerateStruct create a struct of an object
+// GenerateStruct creates a struct of an object
 // with suffix added to type name of each field
 func (object *Object) GenerateStruct(suffix string) string {
 	code := "type " + object.getType(suffix) + " struct {\n"
@@ -182,12 +182,42 @@ func (object *Object) GenerateStruct(suffix string) string {
 	return code + "}\n"
 }
 
+// GenerateInterface creates an interface of an object
+// with suffix added to objects type
 func (object *Object) GenerateInterface(suffix string) string {
-	return ""
+	code := "type " + object.InterfaceType(suffix) + " interface {\n"
+	properties := object.properties.ToArray()
+	for _, property := range properties {
+		code += fmt.Sprintf(
+			"\t%s\n\t%s\n",
+			property.(*Property).GetterHeader(suffix),
+			property.(*Property).SetterHeader(suffix, false),
+		)
+	}
+	return code + "}\n"
 }
 
-func (object *Object) GenerateImplementation(suffix string) []string {
-	return nil
+// GenerateImplementation creates an implementation of an objects
+// getter and setter methods
+func (object *Object) GenerateImplementation(suffix string) string {
+	variable := util.VariableName(util.AddName(object.objectType, suffix))
+	prefix := fmt.Sprintf(
+		"func (%s %s) ",
+		variable,
+		object.Type(suffix),
+	)
+	properties := object.properties.ToArray()
+	code := ""
+	for _, property := range properties {
+		code += fmt.Sprintf(
+			"%s%s\n\n%s%s\n\n",
+			prefix,
+			property.(*Property).GenerateGetter(variable, suffix),
+			prefix,
+			property.(*Property).GenerateSetter(variable, suffix),
+		)
+	}
+	return code
 }
 
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {

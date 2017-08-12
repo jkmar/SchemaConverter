@@ -153,7 +153,7 @@ func (property *Property) GetterHeader(suffix string) string {
 func (property *Property) SetterHeader(suffix string, argument bool) string {
 	var arg string
 	if argument {
-		arg = util.VariableName(property.goName()) + " "
+		arg = util.VariableName(property.Name()) + " "
 	}
 	return fmt.Sprintf(
 		"%s(%s%s)",
@@ -186,7 +186,7 @@ func (property *Property) GenerateSetter(
 		property.SetterHeader(suffix, true),
 		property.item.GenerateSetter(
 			variable+"."+property.goName(),
-			util.VariableName(property.goName()),
+			util.VariableName(property.Name()),
 			suffix,
 			1,
 		),

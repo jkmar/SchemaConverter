@@ -1,9 +1,8 @@
 package util
 
 import (
+	"github.com/serenize/snaker"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 )
 
 var keywords = []string{
@@ -34,18 +33,9 @@ var keywords = []string{
 	"var",
 }
 
-// ToLowerFirst makes the first character of a given string lowercase
-func ToLowerFirst(text string) string {
-	if text == "" {
-		return ""
-	}
-	rune, pos := utf8.DecodeRuneInString(text)
-	return string(unicode.ToLower(rune)) + text[pos:]
-}
-
 // VariableName gets a variable name from its type
 func VariableName(name string) string {
-	result := ToLowerFirst(name)
+	result := snaker.SnakeToCamelLower(name)
 	for _, keyword := range keywords {
 		if result == keyword {
 			return result + "Object"
