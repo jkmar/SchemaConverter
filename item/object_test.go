@@ -614,7 +614,6 @@ var _ = Describe("object tests", func() {
 %sSetXyz(xyz IAbcDefXyzSuffix) {
 	%s.Xyz = xyz.(*AbcDefXyzSuffix)
 }
-
 `,
 				header,
 				variable,
@@ -675,7 +674,6 @@ var _ = Describe("object tests", func() {
 %sSetXyz(xyz IAbcDefXyzSuffix) {
 	%s.Xyz = xyz.(*AbcDefXyzSuffix)
 }
-
 `,
 				header,
 				variable,

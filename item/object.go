@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"strings"
 )
 
 // Object is an implementation of Item interface
@@ -217,7 +218,7 @@ func (object *Object) GenerateImplementation(suffix string) string {
 			property.(*Property).GenerateSetter(variable, suffix),
 		)
 	}
-	return code
+	return strings.TrimSuffix(code, "\n")
 }
 
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {

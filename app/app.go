@@ -42,7 +42,7 @@ func Run(input, output, config, suffix string) error {
 	if err != nil {
 		return err
 	}
-	result, err := schema.Convert(other, objects, suffix)
+	_, result, _, err := schema.Convert(other, objects, suffix)
 	if err != nil {
 		return err
 	}

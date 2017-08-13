@@ -49,9 +49,10 @@ type Item interface {
 
 	// CollectObjects should return a set of objects contained within an item
 	// args:
-	//   1. int - limit; how deep to search for an object; starting from 0;
+	//   1. int - limit; how deep to search for an object; starting from 1;
 	//            if limit is negative this parameter is ignored.
 	//   2. int - offset; from which level gathering objects should begin;
+	//            starting from 0;
 	// return:
 	//   1. set of collected objects
 	//   2. error during execution
@@ -73,9 +74,10 @@ type Item interface {
 
 	// CollectProperties should return a set properties contained within an item
 	// args:
-	//   1. int - limit; how deep to search for a property; starting from 0;
+	//   1. int - limit; how deep to search for a property; starting from 1;
 	//            if limit is negative this parameter is ignored.
 	//   2. int - offset; from which level gathering properties should begin;
+	//            starting from 0;
 	// return:
 	//   1. set of collected properties
 	//   2. error during execution
