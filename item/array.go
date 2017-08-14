@@ -17,13 +17,8 @@ func (array *Array) IsNull() bool {
 }
 
 // Type implementation
-func (array *Array) Type(suffix string) string {
-	return "[]" + array.arrayItem.Type(suffix)
-}
-
-// InterfaceType implementation
-func (array *Array) InterfaceType(suffix string) string {
-	return "[]" + array.arrayItem.InterfaceType(suffix)
+func (array *Array) Type(prefix, suffix string) string {
+	return "[]" + array.arrayItem.Type(prefix, suffix)
 }
 
 // AddProperties implementation

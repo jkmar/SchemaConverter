@@ -18,12 +18,7 @@ func (plainItem *PlainItem) IsNull() bool {
 }
 
 // Type implementation
-func (plainItem *PlainItem) Type(suffix string) string {
-	return plainItem.itemType
-}
-
-// InterfaceType implementation
-func (plainItem *PlainItem) InterfaceType(suffix string) string {
+func (plainItem *PlainItem) Type(prefix, suffix string) string {
 	return plainItem.itemType
 }
 

@@ -14,17 +14,11 @@ type Item interface {
 
 	// Type should return a go type of item
 	// args:
-	//   1. string - a suffix added to a type
+	//   1. string - a prefix added to a type
+	//   2. string - a suffix added to a type
 	// return:
 	//   type of item with suffix appended
-	Type(string) string
-
-	// InterfaceType should return an interface type of item
-	// args:
-	//   1. string - a suffix added to a type
-	// return:
-	//   interface type of item with suffix appended
-	InterfaceType(string) string
+	Type(string, string) string
 
 	// AddProperties should add properties to an item
 	// args:
