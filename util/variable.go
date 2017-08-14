@@ -35,7 +35,7 @@ var keywords = []string{
 
 // VariableName gets a variable name from its type
 func VariableName(name string) string {
-	result := snaker.SnakeToCamelLower(name)
+	result := snaker.SnakeToCamelLower(strings.Replace(name, "-", "_", -1))
 	for _, keyword := range keywords {
 		if result == keyword {
 			return result + "Object"

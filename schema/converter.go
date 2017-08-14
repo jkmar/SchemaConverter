@@ -39,7 +39,8 @@ func Convert(
 	if err != nil {
 		return
 	}
-	if err = collectSchemas(toConvertSet, otherSet); err != nil {
+	toConvertSet.InsertAll(otherSet)
+	if err = collectSchemas(toConvertSet, toConvertSet); err != nil {
 		return
 	}
 	dbObjects := set.New()
