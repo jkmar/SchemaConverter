@@ -14,34 +14,31 @@ func readConfig(config, input string) ([]map[interface{}]interface{}, error) {
 	return reader.ReadAll(config, input)
 }
 
-func writeResult(data []string, input, output, suffix string) error {
-	rawData := util.CollectData(input, data)
+func writeResult(data []string, packageName, outputPrefix, outputSuffix string) error {
+	rawData := util.CollectData(packageName, data)
 	if rawData == "" {
 		return nil
 	}
-	file := writer.CreateWriter(util.TryToAddName(output, suffix))
+	file := writer.CreateWriter(util.TryToAddName(outputPrefix, outputSuffix))
 	return file.Write(rawData)
 }
 
 // Run application
-func Run(input, output, config, suffix string) error {
-	other, err := readConfig(config, input)
+func Run(config, output, packageName, suffix string) error {
+	all, err := readConfig(config, "")
 	if err != nil {
 		return err
 	}
-	objects, err := reader.ReadSingle(input)
+
+	interfaces, structs, implementations, err := schema.Convert(nil, all, suffix)
 	if err != nil {
 		return err
 	}
-	interfaces, structs, implementations, err := schema.Convert(other, objects, suffix)
-	if err != nil {
+	if err = writeResult(interfaces, "esi", output, "interface.go"); err != nil {
 		return err
 	}
-	if err = writeResult(interfaces, "interface", output, "interface.go"); err != nil {
+	if err = writeResult(structs, packageName, output, "raw.go"); err != nil {
 		return err
 	}
-	if err = writeResult(structs, input, output, "raw.go"); err != nil {
-		return err
-	}
-	return writeResult(implementations, input, output, "implementation.go")
+	return writeResult(implementations, packageName, output, "implementation.go")
 }

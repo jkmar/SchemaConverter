@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -16,6 +17,29 @@ type Property struct {
 // CreateProperty is a constructor
 func CreateProperty(name string) *Property {
 	return &Property{name: name}
+}
+
+// ToString implementation
+func (property *Property) ToString() string {
+	return property.name
+}
+
+// Compress implementation
+func (property *Property) Compress(source, destination hash.IHashable) {
+	if sourceItem, ok := source.(Item); property.item == destination && ok {
+		property.item = sourceItem
+	}
+}
+
+// GetChildren implementation
+func (property *Property) GetChildren() []hash.IHashable {
+	return []hash.IHashable{property.item}
+}
+
+// CompressObjects removes duplicate objects
+// from an object tree rooted at a property
+func (property *Property) CompressObjects() {
+	hash.Run(property, 2)
 }
 
 // Name gets a name of a property
@@ -168,11 +192,21 @@ func (property *Property) GenerateGetter(
 	variable,
 	suffix string,
 ) string {
+	//return fmt.Sprintf(
+	//	"%s {\n\treturn %s.%s\n}",
+	//	property.GetterHeader(suffix),
+	//	variable,
+	//	property.goName(),
+	//)
 	return fmt.Sprintf(
-		"%s {\n\treturn %s.%s\n}",
+		"%s {\n%s\n}",
 		property.GetterHeader(suffix),
-		variable,
-		property.goName(),
+		property.item.GenerateGetter(
+			variable+"."+property.goName(),
+			"result",
+			suffix,
+			1,
+		),
 	)
 }
 

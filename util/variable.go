@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"github.com/serenize/snaker"
 	"strings"
 )
@@ -31,6 +32,17 @@ var keywords = []string{
 	"switch",
 	"type",
 	"var",
+}
+
+// ResultPrefix returns a prefix for getter function
+func ResultPrefix(argument string, depth int, create bool) string {
+	if depth > 1 {
+		return fmt.Sprintf("%s =", argument)
+	}
+	if create {
+		return fmt.Sprintf("%s :=", argument)
+	}
+	return "return"
 }
 
 // VariableName gets a variable name from its type

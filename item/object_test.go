@@ -9,6 +9,87 @@ import (
 )
 
 var _ = Describe("object tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct string representation of an object", func() {
+				object := Object{objectType: "test"}
+
+				result := object.ToString()
+
+				expected := "#*"
+				Expect(result).To(Equal(expected))
+			})
+		})
+
+		Describe("compress tests", func() {
+			var (
+				properties []*Property
+				object     *Object
+			)
+
+			BeforeEach(func() {
+				properties = []*Property{
+					CreateProperty("a"),
+					CreateProperty("b"),
+				}
+				propertiesSet := set.New()
+				for _, property := range properties {
+					propertiesSet.Insert(property)
+				}
+				object = &Object{properties: propertiesSet}
+				properties = append(properties, CreateProperty("c"))
+			})
+
+			It("Should compress an existing property", func() {
+				object.Compress(properties[2], properties[1])
+
+				sorted := object.properties.ToArray()
+				Expect(len(sorted)).To(Equal(2))
+				Expect(sorted[0]).To(BeIdenticalTo(properties[0]))
+				Expect(sorted[1]).To(BeIdenticalTo(properties[2]))
+			})
+
+			It("Should not compress a non existing property", func() {
+				object.Compress(properties[2], properties[2])
+
+				sorted := object.properties.ToArray()
+				Expect(len(sorted)).To(Equal(2))
+				Expect(sorted[0]).To(BeIdenticalTo(properties[0]))
+				Expect(sorted[1]).To(BeIdenticalTo(properties[1]))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return a correct set of children", func() {
+				properties := []*Property{
+					CreateProperty("c"),
+					CreateProperty("a"),
+					CreateProperty("b"),
+				}
+				propertiesSet := set.New()
+				for _, property := range properties {
+					propertiesSet.Insert(property)
+				}
+				object := Object{properties: propertiesSet}
+
+				result := object.GetChildren()
+
+				Expect(len(result)).To(Equal(len(properties)))
+				Expect(result[0]).To(BeIdenticalTo(properties[1]))
+				Expect(result[1]).To(BeIdenticalTo(properties[2]))
+				Expect(result[2]).To(BeIdenticalTo(properties[0]))
+			})
+		})
+	})
+
+	Describe("contains object tests", func() {
+		It("Should return true", func() {
+			object := &Object{}
+
+			Expect(object.ContainsObject()).To(BeTrue())
+		})
+	})
+
 	Describe("name tests", func() {
 		It("Should return a correct object name", func() {
 			name := "abc_abc"
@@ -742,6 +823,34 @@ var _ = Describe("object tests", func() {
 			Expect(result["1"]).To(BeTrue())
 			Expect(result["2"]).To(BeTrue())
 			Expect(result["3"]).To(BeFalse())
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		const (
+			name     = "Type"
+			variable = "var"
+			argument = "arg"
+		)
+
+		var object *Object
+
+		BeforeEach(func() {
+			object = &Object{objectType: name}
+		})
+
+		It("Should return a correct getter for an object depth 1", func() {
+			result := object.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\treturn %s", variable)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Shoud return a correct getter for an object depth >1", func() {
+			result := object.GenerateGetter(variable, argument, "", 2)
+
+			expected := fmt.Sprintf("\t\t%s = %s", argument, variable)
+			Expect(result).To(Equal(expected))
 		})
 	})
 
