@@ -9,6 +9,55 @@ import (
 )
 
 var _ = Describe("property tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct string representation of a property", func() {
+				name := "name"
+				property := CreateProperty(name)
+
+				result := property.ToString()
+
+				Expect(result).To(Equal(name))
+			})
+		})
+
+		Describe("compress tests", func() {
+			It("Should compress if destination is owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				property := Property{item: destination}
+
+				property.Compress(source, destination)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(property.item).To(BeIdenticalTo(source))
+			})
+
+			It("Should not compress if destination is not owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				property := Property{item: destination}
+
+				property.Compress(destination, source)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(property.item).To(BeIdenticalTo(destination))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return a correct children set", func() {
+				plainItem := &PlainItem{itemType: "test"}
+				property := Property{item: plainItem}
+
+				result := property.GetChildren()
+
+				Expect(len(result)).To(Equal(1))
+				Expect(result[0]).To(BeIdenticalTo(plainItem))
+			})
+		})
+	})
+
 	Describe("creation tests", func() {
 		It("Should create a property with a correct name", func() {
 			name := "name"
@@ -474,6 +523,93 @@ var _ = Describe("property tests", func() {
 	}
 }`
 			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("compression tests", func() {
+		It("Should compress exactly identical objects", func() {
+			data := map[interface{}]interface{}{
+				"type": "object",
+				"properties": map[interface{}]interface{}{
+					"a": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "number",
+								},
+							},
+						},
+					},
+					"b": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "number",
+								},
+							},
+						},
+					},
+					"c": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "number",
+								},
+							},
+						},
+					},
+					"d": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "string",
+								},
+							},
+						},
+					},
+				},
+			}
+			property := &Property{name: "test"}
+			err := property.Parse("test", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			property.CompressObjects()
+
+			properties := property.item.GetChildren()
+			Expect(len(properties)).To(Equal(4))
+			Expect(properties[0].(*Property).item).To(
+				BeIdenticalTo(properties[1].(*Property).item),
+			)
+			Expect(properties[1].(*Property).item).To(
+				BeIdenticalTo(properties[2].(*Property).item),
+			)
+			Expect(properties[2].(*Property).item).ToNot(
+				BeIdenticalTo(properties[3].(*Property).item),
+			)
+
+			objects, err := property.CollectObjects(-1, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(objects.Size()).To(Equal(3))
 		})
 	})
 })

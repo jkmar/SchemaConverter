@@ -7,8 +7,71 @@ import (
 )
 
 var _ = Describe("array tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct string representation of an array", func() {
+				array := Array{&PlainItem{itemType: "test"}}
+
+				result := array.ToString()
+
+				expected := "#[]"
+				Expect(result).To(Equal(expected))
+			})
+		})
+
+		Describe("compress tests", func() {
+			It("Should compress if destination is owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				array := Array{destination}
+
+				array.Compress(source, destination)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(array.arrayItem).To(BeIdenticalTo(source))
+			})
+
+			It("Should not compress if destination is not owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				array := Array{destination}
+
+				array.Compress(destination, source)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(array.arrayItem).To(BeIdenticalTo(destination))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return a correct children set", func() {
+				plainItem := &PlainItem{itemType: "test"}
+				array := Array{plainItem}
+
+				result := array.GetChildren()
+
+				Expect(len(result)).To(Equal(1))
+				Expect(result[0]).To(BeIdenticalTo(plainItem))
+			})
+		})
+	})
+
+	Describe("contains object tests", func() {
+		It("Should return true for an array of objects", func() {
+			array := Array{&Object{}}
+
+			Expect(array.ContainsObject()).To(BeTrue())
+		})
+
+		It("Should return false for an array of plain items", func() {
+			array := Array{&PlainItem{}}
+
+			Expect(array.ContainsObject()).To(BeFalse())
+		})
+	})
+
 	Describe("type tests", func() {
-		It("Should return correct array type", func() {
+		It("Should return a correct array type", func() {
 			typeOfItem := "int64"
 			array := Array{&PlainItem{itemType: typeOfItem}}
 
@@ -142,6 +205,92 @@ var _ = Describe("array tests", func() {
 			array := &Array{&PlainItem{}}
 
 			Expect(array.CollectProperties(1, 0)).To(BeNil())
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		const (
+			variable = "variable"
+			argument = "argument"
+		)
+
+		It("Should generate a correct getter for an array of plain items", func() {
+			name := "string"
+			array := &Array{&PlainItem{itemType: name}}
+
+			result := array.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf(
+				"\treturn %s",
+				variable,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter for an array of objects", func() {
+			name := "Type"
+			array := &Array{&Object{objectType: name}}
+
+			result := array.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf(
+				`	%s := make([]I%s, len(%s))
+	for i := range %s {
+		%s[i] = %s[i]
+	}
+	return %s`,
+				argument,
+				name,
+				variable,
+				variable,
+				argument,
+				variable,
+				argument,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter for nested array of plain items", func() {
+			name := "string"
+			array := &Array{&Array{&PlainItem{itemType: name}}}
+
+			result := array.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf(
+				"\treturn %s",
+				variable,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter for nested array of objects", func() {
+			name := "Type"
+			array := &Array{&Array{&Object{objectType: name}}}
+
+			result := array.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf(
+				`	%s := make([][]I%s, len(%s))
+	for i := range %s {
+		%s[i] = make([]I%s, len(%s[i]))
+		for j := range %s[i] {
+			%s[i][j] = %s[i][j]
+		}
+	}
+	return %s`,
+				argument,
+				name,
+				variable,
+				variable,
+				argument,
+				name,
+				variable,
+				variable,
+				argument,
+				variable,
+				argument,
+			)
+			Expect(result).To(Equal(expected))
 		})
 	})
 

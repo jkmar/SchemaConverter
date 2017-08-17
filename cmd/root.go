@@ -8,14 +8,14 @@ import (
 )
 
 var (
-	config string
-	suffix string
-	output string
+	packageName string
+	suffix      string
+	output      string
 )
 
 // RootCmd of application
 var RootCmd = &cobra.Command{
-	Use:   "YamlSchemaToGoStruct [path to schema]",
+	Use:   "YamlSchemaToGoStruct [path to config file with schemas]",
 	Short: "YamlSchemaToGoStruct generates go structs from yaml schemas",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
@@ -27,7 +27,7 @@ var RootCmd = &cobra.Command{
 		err := app.Run(
 			args[0],
 			output,
-			config,
+			packageName,
 			suffix,
 		)
 		if err != nil {
@@ -39,18 +39,18 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.Flags().StringVarP(
-		&config,
-		"config",
-		"c",
-		"",
-		"yaml file where schema locations are stored",
+		&packageName,
+		"package-name",
+		"p",
+		"esi",
+		"package name for implementation and raw structs",
 	)
 	RootCmd.Flags().StringVarP(
 		&output,
 		"output",
 		"o",
 		"",
-		"output file",
+		"prefix added to output file",
 	)
 	RootCmd.Flags().StringVar(
 		&suffix,

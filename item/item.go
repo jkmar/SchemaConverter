@@ -1,16 +1,24 @@
 package item
 
 import (
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 // Item is an interface for a type of a variable
 type Item interface {
-	// IsNull checks if item can be null
+	hash.IHashable
+
+	// IsNull checks if an item can be null
 	// return:
 	//   true iff. item can be null
 	IsNull() bool
+
+	// ContainsObject checks if an item contains an object
+	// return:
+	//   true iff. item contains an object
+	ContainsObject() bool
 
 	// Type should return a go type of item
 	// args:
@@ -83,7 +91,17 @@ type Item interface {
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
 
-	// GenerateSetter should return a body a of a setter funcion for given item
+	// GenerateGetter should return a body of a getter function for given item
+	// args:
+	//   1. string - variable; a name of a variable to get
+	//   2. string - argument; a name of a result
+	//   3. string - suffix; a suffix added to items type
+	//   4. int - depth; a width of an indent
+	// return:
+	//   string representing a body of a getter function
+	GenerateGetter(string, string, string, int) string
+
+	// GenerateSetter should return a body of a setter function for given item
 	// args:
 	//   1. string - variable; a name of a variable to set
 	//   2. string - argument; a name of an argument of the function

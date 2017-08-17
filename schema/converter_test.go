@@ -401,7 +401,14 @@ func (general *General) SetArray(array [][]int64) {
 }
 
 func (general *General) GetComplex() [][]IGeneralComplex {
-	return general.Complex
+	result := make([][]IGeneralComplex, len(general.Complex))
+	for i := range general.Complex {
+		result[i] = make([]IGeneralComplex, len(general.Complex[i]))
+		for j := range general.Complex[i] {
+			result[i][j] = general.Complex[i][j]
+		}
+	}
+	return result
 }
 
 func (general *General) SetComplex(complex [][]IGeneralComplex) {
