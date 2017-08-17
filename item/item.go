@@ -3,6 +3,7 @@ package item
 import (
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 )
 
 // Item is an interface for a type of a variable
@@ -83,7 +84,7 @@ type Item interface {
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
 
-	// GenerateSetter should return a body a of a setter funcion for given item
+	// GenerateSetter should return a body a of a setter function for given item
 	// args:
 	//   1. string - variable; a name of a variable to set
 	//   2. string - argument; a name of an argument of the function
