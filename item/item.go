@@ -1,9 +1,9 @@
 package item
 
 import (
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 )
 
 // Item is an interface for a type of a variable

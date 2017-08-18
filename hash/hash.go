@@ -57,14 +57,6 @@ func (hash *Hash) Join(first, second Node) Node {
 	}
 }
 
-func add(x, y uint32) uint32 {
-	return AddMod(x, y, mod)
-}
-
-func mul(x, y uint32) uint32 {
-	return MulMod(x, y, mod)
-}
-
 func (hash *Hash) getPowers(limit int) {
 	length := len(hash.powers)
 	if length < 1 {
@@ -74,4 +66,12 @@ func (hash *Hash) getPowers(limit int) {
 	for i := length; i < limit; i++ {
 		hash.powers = append(hash.powers, mul(hash.powers[i-1], base))
 	}
+}
+
+func add(x, y uint32) uint32 {
+	return AddMod(x, y, mod)
+}
+
+func mul(x, y uint32) uint32 {
+	return MulMod(x, y, mod)
 }
