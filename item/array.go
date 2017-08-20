@@ -29,6 +29,11 @@ func (array *Array) GetChildren() []hash.IHashable {
 	return []hash.IHashable{array.arrayItem}
 }
 
+// ContainsObject implementation
+func (array *Array) ContainsObject() bool {
+	return array.arrayItem.ContainsObject()
+}
+
 // IsNull implementation
 func (array *Array) IsNull() bool {
 	return false
@@ -85,6 +90,50 @@ func (array *Array) CollectObjects(limit, offset int) (set.Set, error) {
 // CollectProperties implementation
 func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
 	return array.arrayItem.CollectProperties(limit, offset)
+}
+
+// GenerateGetter implementation
+func (array *Array) GenerateGetter(
+	variable,
+	argument,
+	suffix string,
+	depth int,
+) string {
+	indent := util.Indent(depth)
+	var resultSuffix string
+	if depth == 1 {
+		if !array.ContainsObject() {
+			return fmt.Sprintf(
+				"%sreturn %s",
+				indent,
+				variable,
+			)
+		}
+		resultSuffix = fmt.Sprintf(
+			"\n%sreturn %s",
+			indent,
+			argument,
+		)
+	}
+	index := arrayIndex(depth)
+	return fmt.Sprintf(
+		"%s%s make(%s, len(%s))\n%sfor %c := range %s {\n%s\n%s}%s",
+		indent,
+		util.ResultPrefix(argument, depth, true),
+		array.InterfaceType(suffix),
+		variable,
+		indent,
+		util.IndexVariable(depth),
+		variable,
+		array.arrayItem.GenerateGetter(
+			variable+index,
+			argument+index,
+			suffix,
+			depth+1,
+		),
+		indent,
+		resultSuffix,
+	)
 }
 
 // GenerateSetter implementation

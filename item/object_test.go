@@ -82,6 +82,14 @@ var _ = Describe("object tests", func() {
 		})
 	})
 
+	Describe("contains object tests", func() {
+		It("Should return true", func() {
+			object := &Object{}
+
+			Expect(object.ContainsObject()).To(BeTrue())
+		})
+	})
+
 	Describe("name tests", func() {
 		It("Should return a correct object name", func() {
 			name := "abc_abc"
@@ -815,6 +823,34 @@ var _ = Describe("object tests", func() {
 			Expect(result["1"]).To(BeTrue())
 			Expect(result["2"]).To(BeTrue())
 			Expect(result["3"]).To(BeFalse())
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		const (
+			name = "Type"
+			variable = "var"
+			argument = "arg"
+		)
+
+		var object *Object
+
+		BeforeEach(func() {
+			object = &Object{objectType: name}
+		})
+
+		It("Should return a correct getter for an object depth 1", func() {
+			result := object.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\treturn %s", variable)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Shoud return a correct getter for an object depth >1", func() {
+			result := object.GenerateGetter(variable, argument, "", 2)
+
+			expected := fmt.Sprintf("\t\t%s = %s", argument, variable)
+			Expect(result).To(Equal(expected))
 		})
 	})
 

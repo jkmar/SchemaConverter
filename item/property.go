@@ -192,11 +192,21 @@ func (property *Property) GenerateGetter(
 	variable,
 	suffix string,
 ) string {
+	//return fmt.Sprintf(
+	//	"%s {\n\treturn %s.%s\n}",
+	//	property.GetterHeader(suffix),
+	//	variable,
+	//	property.goName(),
+	//)
 	return fmt.Sprintf(
-		"%s {\n\treturn %s.%s\n}",
+		"%s {\n%s\n}",
 		property.GetterHeader(suffix),
-		variable,
-		property.goName(),
+		property.item.GenerateGetter(
+			variable+"."+property.goName(),
+			"result",
+			suffix,
+			1,
+		),
 	)
 }
 

@@ -52,6 +52,14 @@ var _ = Describe("plain item tests", func() {
 		})
 	})
 
+	Describe("contains object tests", func() {
+		It("Should return false", func() {
+			plainItem := &PlainItem{}
+
+			Expect(plainItem.ContainsObject()).To(BeFalse())
+		})
+	})
+
 	Describe("type tests", func() {
 		It("Should return a correct item type", func() {
 			typeOfItem := "int64"
@@ -159,6 +167,34 @@ var _ = Describe("plain item tests", func() {
 			plainItem := &PlainItem{}
 
 			Expect(plainItem.CollectProperties(1, 0)).To(BeNil())
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		const (
+			name = "string"
+			variable = "var"
+			argument = "arg"
+		)
+
+		var plainItem *PlainItem
+
+		BeforeEach(func() {
+			plainItem = &PlainItem{itemType: name, null: true}
+		})
+
+		It("Should return a correct getter for a plain item depth 1", func() {
+			result := plainItem.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\treturn %s", variable)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should return a correct getter for a plain item depth >1", func() {
+			result := plainItem.GenerateGetter(variable, argument, "", 2)
+
+			expected := fmt.Sprintf("\t\t%s = %s", argument, variable)
+			Expect(result).To(Equal(expected))
 		})
 	})
 

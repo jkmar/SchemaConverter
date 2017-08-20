@@ -41,6 +41,11 @@ func (object *Object) GetChildren() []hash.IHashable {
 	return result
 }
 
+// ContainsObject implementation
+func (object *Object) ContainsObject() bool {
+	return true
+}
+
 // IsNull implementation
 func (object *Object) IsNull() bool {
 	return false
@@ -182,6 +187,21 @@ func (object *Object) CollectProperties(limit, offset int) (set.Set, error) {
 		}
 	}
 	return result, nil
+}
+
+// GenerateGetter implementation
+func (object *Object) GenerateGetter(
+	variable,
+	argument,
+	suffix string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s %s",
+		util.Indent(depth),
+		util.ResultPrefix(argument, depth, false),
+		variable,
+	)
 }
 
 // GenerateSetter implementation

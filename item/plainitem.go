@@ -27,6 +27,11 @@ func (plainItem *PlainItem) GetChildren() []hash.IHashable {
 	return nil
 }
 
+// ContainsObject implementation
+func (plainItem *PlainItem) ContainsObject() bool {
+	return false
+}
+
 // IsNull implementation
 func (plainItem *PlainItem) IsNull() bool {
 	return plainItem.null
@@ -87,6 +92,21 @@ func (plainItem *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
 // CollectProperties implementation
 func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
 	return nil, nil
+}
+
+// GenerateGetter implementation
+func (plainItem *PlainItem) GenerateGetter(
+	variable,
+	argument,
+	suffix string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s %s",
+		util.Indent(depth),
+		util.ResultPrefix(argument, depth, false),
+		variable,
+	)
 }
 
 // GenerateSetter implementation

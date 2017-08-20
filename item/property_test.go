@@ -596,7 +596,6 @@ var _ = Describe("property tests", func() {
 			property.CompressObjects()
 
 			properties := property.item.GetChildren()
-
 			Expect(len(properties)).To(Equal(4))
 			Expect(properties[0].(*Property).item).To(
 				BeIdenticalTo(properties[1].(*Property).item),
@@ -607,6 +606,10 @@ var _ = Describe("property tests", func() {
 			Expect(properties[2].(*Property).item).ToNot(
 				BeIdenticalTo(properties[3].(*Property).item),
 			)
+
+			objects, err := property.CollectObjects(-1, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(objects.Size()).To(Equal(3))
 		})
 	})
 })
