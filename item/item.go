@@ -91,7 +91,6 @@ type Item interface {
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
 
-
 	// GenerateGetter should return a body of a getter function for given item
 	// args:
 	//   1. string - variable; a name of a variable to get

@@ -115,6 +115,7 @@ func (schema *Schema) parse(data map[interface{}]interface{}) error {
 			err,
 		)
 	}
+	schema.schema.CompressObjects()
 	return nil
 }
 

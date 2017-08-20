@@ -1,9 +1,9 @@
 package util
 
 import (
+	"fmt"
 	"github.com/serenize/snaker"
 	"strings"
-	"fmt"
 )
 
 var keywords = []string{

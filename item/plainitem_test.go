@@ -172,7 +172,7 @@ var _ = Describe("plain item tests", func() {
 
 	Describe("generate getter tests", func() {
 		const (
-			name = "string"
+			name     = "string"
 			variable = "var"
 			argument = "arg"
 		)

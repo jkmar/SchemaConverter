@@ -828,7 +828,7 @@ var _ = Describe("object tests", func() {
 
 	Describe("generate getter tests", func() {
 		const (
-			name = "Type"
+			name     = "Type"
 			variable = "var"
 			argument = "arg"
 		)
