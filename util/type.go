@@ -13,6 +13,8 @@ var typeMapping = map[string]string{
 	"abstract": "object",
 }
 
+// TryToAddName creates a snake case name from prefix and suffix
+// if prefix is empty empty string is returned
 func TryToAddName(prefix, suffix string) string {
 	if prefix == "" {
 		return ""

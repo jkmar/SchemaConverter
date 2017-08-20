@@ -10,6 +10,7 @@ func packageName(input string) string {
 	return "package " + strings.TrimSuffix(array[len(array)-1], ".yaml")
 }
 
+// CollectData ...
 func CollectData(name string, data []string) string {
 	prefix := packageName(name) + "\n"
 	result := prefix

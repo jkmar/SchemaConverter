@@ -6,6 +6,19 @@ import (
 )
 
 var _ = Describe("variable util tests", func() {
+	Describe("ResultPrefix tests", func() {
+		It("Should return return for no create and depth = 1", func() {
+			Expect(ResultPrefix("arg", 1, false)).To(Equal("return"))
+		})
+
+		It("Should return assignment for depth > 1", func() {
+			Expect(ResultPrefix("arg", 2, false)).To(Equal("arg ="))
+		})
+
+		It("Should return declaration for create and depth = 1", func() {
+			Expect(ResultPrefix("arg", 1, true)).To(Equal("arg :="))
+		})
+	})
 
 	Describe("VariableName tests", func() {
 		It("Should return a correct name", func() {
