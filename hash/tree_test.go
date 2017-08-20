@@ -3,513 +3,532 @@ package hash
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"fmt"
 )
 
-type IHashableImplementation struct {
+type testNode struct {
 	value string
+	nodes []*testNode
 }
 
-func (item *IHashableImplementation) ToString() string {
-	return item.value
+func (node *testNode) ToString() string {
+	return node.value
+}
+
+func (node *testNode) Compress(source IHashable, destination IHashable) {
+	for i, elem := range node.nodes {
+		if destination.(*testNode) == elem {
+			node.nodes[i] = source.(*testNode)
+			break
+		}
+	}
+}
+
+func (node *testNode) GetChildren() []IHashable {
+	result := make([]IHashable, len(node.nodes))
+	for i, elem := range node.nodes {
+		result[i] = elem
+	}
+	return result
 }
 
 var _ = Describe("tree tests", func() {
-	Describe("create tree tests", func() {
-		It("Should create tree", func() {
-			item := &IHashableImplementation{"abc"}
+	var (
+		onlyRoot = func() *testNode {
+			return &testNode{
+				"root",
+				nil,
+			}
+		}
 
-			tree := CreateTreeNode(item, nil)
-
-			Expect(tree.item).To(Equal(item))
-			Expect(tree.nodes).To(BeNil())
-		})
-	})
-
-	Describe("setup tests", func() {
-		It("Should use the same hash", func() {
-			tree := TreeNode{
-				nodes: []*TreeNode{
+		createSmall = func() *testNode {
+			return &testNode{
+				"root",
+				[]*testNode{
 					{
-						nodes: []*TreeNode{
-							{},
-							{},
-						},
+						"a",
+						nil,
 					},
-					{},
+					{
+						"a",
+						nil,
+					},
 				},
 			}
+		}
 
-			tree.setup()
-			result := tree.hash
-
-			Expect(tree.nodes[0].nodes[0].hash).To(Equal(result))
-			Expect(tree.nodes[0].nodes[1].hash).To(Equal(result))
-			Expect(tree.nodes[1].hash).To(Equal(result))
-		})
-	})
-
-	Describe("calc all hashes tests", func() {
-		It("Should calc hashes for one node tree", func() {
-			item := &IHashableImplementation{"abc"}
-			tree := CreateTreeNode(item, nil)
-			tree.setup()
-
-			tree.calcAllHashes()
-
-			hash := &Hash{}
-			Expect(tree.value).To(Equal(hash.Calc("abc()")))
-		})
-
-		It("Should calc hashes for tree", func() {
-			item := &IHashableImplementation{"1"}
-			left := &IHashableImplementation{"2"}
-			right := &IHashableImplementation{"3"}
-			tree := CreateTreeNode(
-				item,
-				[]*TreeNode{
-					CreateTreeNode(left, nil),
-					CreateTreeNode(right, nil),
+		createSmallMiddleHeight = func() *testNode {
+			return &testNode{
+				"root",
+				[]*testNode{
+					{
+						"a",
+						[]*testNode{
+							{
+								"a",
+								nil,
+							},
+						},
+					},
+					{
+						"a",
+						[]*testNode{
+							{
+								"a",
+								nil,
+							},
+						},
+					},
 				},
-			)
-			tree.setup()
+			}
+		}
 
-			tree.calcAllHashes()
+		createSmallHigh = func() *testNode {
+			return &testNode{
+				"root",
+				[]*testNode{
+					{
+						"a",
+						[]*testNode{
+							{
+								"a",
+								[]*testNode{
+									{
+										"a",
+										[]*testNode{
+											{
+												"a",
+												nil,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						"a",
+						[]*testNode{
+							{
+								"a",
+								[]*testNode{
+									{
+										"a",
+										[]*testNode{
+											{
+												"a",
+												nil,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+		}
 
-			hash := &Hash{}
-			Expect(tree.value).To(Equal(hash.Calc("1(2(),3(),)")))
-			Expect(tree.nodes[0].value).To(Equal(hash.Calc("2()")))
-			Expect(tree.nodes[1].value).To(Equal(hash.Calc("3()")))
+		createWide = func() *testNode {
+			return &testNode{
+				"root",
+				[]*testNode{
+					{
+						"a",
+						[]*testNode{
+							{
+								"a",
+								[]*testNode{
+									{
+										"b",
+										nil,
+									},
+								},
+							},
+							{
+								"a",
+								[]*testNode{
+									{
+										"b",
+										nil,
+									},
+								},
+							},
+						},
+					},
+					{
+						"b",
+						[]*testNode{
+							{
+								"a",
+								[]*testNode{
+									{
+										"b",
+										nil,
+									},
+								},
+							},
+							{
+								"a",
+								[]*testNode{
+									{
+										"b",
+										nil,
+									},
+								},
+							},
+						},
+					},
+					{
+						"a",
+						[]*testNode{
+							{
+								"a",
+								[]*testNode{
+									{
+										"b",
+										nil,
+									},
+								},
+							},
+							{
+								"a",
+								[]*testNode{
+									{
+										"b",
+										nil,
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+		}
+	)
+
+	Describe("create tree tests", func() {
+		It("Should create a root only tree", func() {
+			item := onlyRoot()
+
+			tree := createTree(item)
+
+			Expect(tree.index).To(Equal(0))
+			Expect(tree.item).To(Equal(item))
+			Expect(len(tree.ancestors)).To(Equal(1))
+			Expect(tree.ancestors[0]).To(BeNil())
+			Expect(len(tree.children)).To(Equal(0))
+		})
+
+		It("Should create a small tree", func() {
+			item := createSmall()
+
+			tree := createTree(item)
+
+			Expect(tree.index).To(Equal(0))
+			Expect(tree.item).To(BeIdenticalTo(item))
+			Expect(len(tree.ancestors)).To(Equal(1))
+			Expect(tree.ancestors[0]).To(BeNil())
+			Expect(len(tree.children)).To(Equal(2))
+
+			hash := tree.hash
+			left := tree.children[0]
+
+			Expect(left.hash).To(BeIdenticalTo(hash))
+			Expect(left.index).To(Equal(1))
+			Expect(left.item).To(BeIdenticalTo(item.nodes[0]))
+			Expect(len(left.ancestors)).To(Equal(1))
+			Expect(left.ancestors[0]).To(BeIdenticalTo(tree))
+			Expect(len(left.children)).To(Equal(0))
+
+			right := tree.children[1]
+
+			Expect(right.hash).To(BeIdenticalTo(hash))
+			Expect(right.index).To(Equal(2))
+			Expect(right.item).To(BeIdenticalTo(item.nodes[1]))
+			Expect(len(right.ancestors)).To(Equal(1))
+			Expect(right.ancestors[0]).To(BeIdenticalTo(tree))
+			Expect(len(right.children)).To(Equal(0))
 		})
 	})
 
-	Describe("compression tests", func() {
-		Describe("level 1", func() {
-			It("Should not compress different trees", func() {
-				item := &IHashableImplementation{"1"}
-				left := &IHashableImplementation{"2"}
-				right := &IHashableImplementation{"3"}
-				tree := CreateTreeNode(
-					item,
-					[]*TreeNode{
-						CreateTreeNode(left, nil),
-						CreateTreeNode(right, nil),
-					},
-				)
-				tree.setup()
-				tree.calcAllHashes()
+	Describe("all nodes tests", func() {
+		It("Should get all nodes for a root only tree", func() {
+			item := onlyRoot()
+			tree := createTree(item)
 
-				tree.compress(1)
+			result := tree.allNodes()
 
-				Expect(tree.nodes[0].item).ToNot(Equal(tree.nodes[1].item))
-			})
-
-			It("Should not compress tree with different parents", func() {
-				item1 := &IHashableImplementation{"X"}
-				item2 := &IHashableImplementation{"X"}
-				item := &IHashableImplementation{"1"}
-				left := &IHashableImplementation{"2"}
-				right := &IHashableImplementation{"3"}
-				tree := CreateTreeNode(
-					item,
-					[]*TreeNode{
-						CreateTreeNode(
-							left,
-							[]*TreeNode{CreateTreeNode(item1, nil)},
-						),
-						CreateTreeNode(
-							right,
-							[]*TreeNode{CreateTreeNode(item2, nil)},
-						),
-					},
-				)
-				tree.setup()
-				tree.calcAllHashes()
-
-				tree.compress(1)
-
-				Expect(tree.nodes[0].nodes[0].item == tree.nodes[1].nodes[0].item).To(BeFalse())
-			})
-
-			It("Should compress same trees", func() {
-				item := &IHashableImplementation{"1"}
-				left := &IHashableImplementation{"2"}
-				right := &IHashableImplementation{"2"}
-				tree := CreateTreeNode(
-					item,
-					[]*TreeNode{
-						CreateTreeNode(left, nil),
-						CreateTreeNode(right, nil),
-					},
-				)
-				tree.setup()
-				tree.calcAllHashes()
-				Expect(tree.nodes[0].item == tree.nodes[1].item).To(BeFalse())
-
-				tree.compress(1)
-
-				Expect(tree.nodes[0].item == tree.nodes[1].item).To(BeTrue())
-			})
+			Expect(len(result)).To(Equal(1))
+			Expect(result[0]).To(BeIdenticalTo(tree))
 		})
 
-		Describe("higher level tests", func() {
-			It("Should compress same trees with level 2", func() {
-				tree := CreateTreeNode(
-					&IHashableImplementation{"A"},
-					[]*TreeNode{
-						CreateTreeNode(
-							&IHashableImplementation{"A"},
-							[]*TreeNode{
-								CreateTreeNode(
-									&IHashableImplementation{"A"},
-									[]*TreeNode{
-										CreateTreeNode(
-											&IHashableImplementation{"A"},
-											[]*TreeNode{
-												CreateTreeNode(
-													&IHashableImplementation{"A"},
-													nil,
-												),
-												CreateTreeNode(
-													&IHashableImplementation{"B"},
-													nil,
-												),
-											},
-										),
-									},
-								),
-								CreateTreeNode(
-									&IHashableImplementation{"B"},
-									[]*TreeNode{
-										CreateTreeNode(
-											&IHashableImplementation{"A"},
-											[]*TreeNode{
-												CreateTreeNode(
-													&IHashableImplementation{"A"},
-													nil,
-												),
-												CreateTreeNode(
-													&IHashableImplementation{"B"},
-													nil,
-												),
-											},
-										),
-									},
-								),
-							},
-						),
-						CreateTreeNode(
-							&IHashableImplementation{"A"},
-							[]*TreeNode{
-								CreateTreeNode(
-									&IHashableImplementation{"A"},
-									[]*TreeNode{
-										CreateTreeNode(
-											&IHashableImplementation{"A"},
-											nil,
-										),
-										CreateTreeNode(
-											&IHashableImplementation{"B"},
-											nil,
-										),
-									},
-								),
-							},
-						),
-					},
-				)
+		It("Should get all nodes for a small tree", func() {
+			item := createSmall()
+			tree := createTree(item)
 
-				tree.setup()
-				tree.calcAllHashes()
+			result := tree.allNodes()
+
+			Expect(len(result)).To(Equal(3))
+			Expect(result[0]).To(BeIdenticalTo(tree))
+			Expect(result[1]).To(BeIdenticalTo(tree.children[0]))
+			Expect(result[2]).To(BeIdenticalTo(tree.children[1]))
+		})
+
+		It("Should get all nodes for a small tree with middle height", func() {
+			item := createSmallMiddleHeight()
+			tree := createTree(item)
+
+			result := tree.allNodes()
+
+			Expect(len(result)).To(Equal(5))
+			Expect(result[0]).To(BeIdenticalTo(tree))
+			Expect(result[1]).To(BeIdenticalTo(tree.children[0]))
+			Expect(result[2]).To(BeIdenticalTo(tree.children[0].children[0]))
+			Expect(result[3]).To(BeIdenticalTo(tree.children[1]))
+			Expect(result[4]).To(BeIdenticalTo(tree.children[1].children[0]))
+		})
+	})
+
+	Describe("calc hash tests", func() {
+		It("Should calc correct hashes for a root only tree", func() {
+			item := onlyRoot()
+			tree := createTree(item)
+
+			tree.calcHashes()
+
+			hash := tree.hash
+			Expect(tree.value).To(Equal(hash.Calc("root()")))
+		})
+
+		It("Should calc correct hashes for a small tree", func() {
+			item := createSmall()
+			tree := createTree(item)
+
+			tree.calcHashes()
+
+			hash := tree.hash
+			Expect(tree.value).To(Equal(hash.Calc("root(a(),a(),)")))
+			Expect(tree.children[0].value).To(Equal(hash.Calc("a()")))
+			Expect(tree.children[1].value).To(Equal(hash.Calc("a()")))
+		})
+
+		It("Should calc correct hashes for a small tree with middle height", func() {
+			item := createSmallMiddleHeight()
+			tree := createTree(item)
+
+			tree.calcHashes()
+
+			hash := tree.hash
+			Expect(tree.value).To(Equal(hash.Calc("root(a(a(),),a(a(),),)")))
+			Expect(tree.children[0].value).To(Equal(hash.Calc("a(a(),)")))
+			Expect(tree.children[1].value).To(Equal(hash.Calc("a(a(),)")))
+			Expect(tree.children[0].children[0].value).To(Equal(hash.Calc("a()")))
+			Expect(tree.children[1].children[0].value).To(Equal(hash.Calc("a()")))
+
+		})
+	})
+
+	Describe("compress tree tests", func() {
+		Describe("ancestor tests", func() {
+			It("Should get ancestors for a root only tree", func() {
+				item := onlyRoot()
+				tree := createTree(item)
+				tree.calcHashes()
+
 				tree.compress(2)
 
-				type pair struct {
-					first,
-					second int
+				Expect(len(tree.ancestors)).To(Equal(1))
+				Expect(tree.ancestors[0]).To(BeNil())
+				Expect(tree.ancestor).To(BeNil())
+			})
+
+			It("Should get ancestor for a high tree", func() {
+				item := createSmallHigh()
+				tree := createTree(item)
+				tree.calcHashes()
+
+				tree.compress(7)
+
+				nodes := tree.allNodes()
+
+				Expect(nodes[0].ancestors).To(Equal([]*treeNode{nil, nil, nil}))
+				Expect(nodes[1].ancestors).To(Equal([]*treeNode{nodes[0], nil, nil}))
+				Expect(nodes[2].ancestors).To(Equal([]*treeNode{nodes[1], nodes[0], nil}))
+				Expect(nodes[3].ancestors).To(Equal([]*treeNode{nodes[2], nodes[1], nil}))
+				Expect(nodes[4].ancestors).To(Equal([]*treeNode{nodes[3], nodes[2], nodes[0]}))
+				Expect(nodes[5].ancestors).To(Equal([]*treeNode{nodes[0], nil, nil}))
+				Expect(nodes[6].ancestors).To(Equal([]*treeNode{nodes[5], nodes[0], nil}))
+				Expect(nodes[7].ancestors).To(Equal([]*treeNode{nodes[6], nodes[5], nil}))
+				Expect(nodes[8].ancestors).To(Equal([]*treeNode{nodes[7], nodes[6], nodes[0]}))
+
+				for _, node := range nodes {
+					Expect(node.ancestor).To(BeNil())
 				}
-				ok := map[pair]bool{
-					{3, 7}: true,
-				}
-				nodes := tree.getAllNodes()
+			})
+
+			It("Should not overflow", func() {
+				item := createSmallHigh()
+				tree := createTree(item)
+				tree.calcHashes()
+
+				tree.compress(3)
+
+				nodes := tree.allNodes()
+
+				Expect(nodes[0].ancestors).To(Equal([]*treeNode{nil, nil}))
+				Expect(nodes[1].ancestors).To(Equal([]*treeNode{nodes[0], nil}))
+				Expect(nodes[2].ancestors).To(Equal([]*treeNode{nodes[1], nodes[0]}))
+				Expect(nodes[3].ancestors).To(Equal([]*treeNode{nodes[2], nodes[1]}))
+				Expect(nodes[4].ancestors).To(Equal([]*treeNode{nodes[3], nodes[2]}))
+				Expect(nodes[5].ancestors).To(Equal([]*treeNode{nodes[0], nil}))
+				Expect(nodes[6].ancestors).To(Equal([]*treeNode{nodes[5], nodes[0]}))
+				Expect(nodes[7].ancestors).To(Equal([]*treeNode{nodes[6], nodes[5]}))
+				Expect(nodes[8].ancestors).To(Equal([]*treeNode{nodes[7], nodes[6]}))
+
 				for i, node := range nodes {
-					for j := i + 1; j < len(nodes); j++ {
-						Expect(node.item == nodes[j].item).To(Equal(ok[pair{i, j}]))
+					switch i {
+					case 3, 7:
+						Expect(node.ancestor).To(BeIdenticalTo(nodes[0]))
+					case 4:
+						Expect(node.ancestor).To(BeIdenticalTo(nodes[1]))
+					case 8:
+						Expect(node.ancestor).To(BeIdenticalTo(nodes[5]))
+					default:
+						Expect(node.ancestor).To(BeNil())
 					}
 				}
 			})
-		})
-	})
 
-	Describe("power tests", func() {
-		It("Should get correct powers", func() {
-			Expect(powers(0)).To(Equal([]int{}))
-		})
+			It("Should skip non positive level", func() {
+				item := createSmall()
+				tree := createTree(item)
+				tree.calcHashes()
 
-		It("Should get correct powers", func() {
-			Expect(powers(4)).To(Equal([]int{2}))
-		})
+				tree.compress(0)
 
-		It("Should get correct powers", func() {
-			Expect(powers(7)).To(Equal([]int{0, 1, 2}))
-		})
-	})
+				nodes := tree.allNodes()
 
-	Describe("get all nodes tests", func() {
-		It("Should get all nodes visited in pre order", func() {
-			item := &IHashableImplementation{"test"}
-			tree := CreateTreeNode(
-				item,
-				[]*TreeNode{
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(item, nil),
-							CreateTreeNode(item, nil),
-						},
-					),
-					CreateTreeNode(item, nil),
-				},
-			)
-
-			result := tree.getAllNodes()
-
-			Expect(len(result)).To(Equal(5))
-			Expect(result[0]).To(Equal(tree))
-			Expect(result[1]).To(Equal(tree.nodes[0]))
-			Expect(result[2]).To(Equal(tree.nodes[0].nodes[0]))
-			Expect(result[3]).To(Equal(tree.nodes[0].nodes[1]))
-			Expect(result[4]).To(Equal(tree.nodes[1]))
-		})
-	})
-
-	Describe("get ancestors tests", func() {
-		It("Should get self for level 0", func() {
-			item := &IHashableImplementation{"test"}
-			tree := CreateTreeNode(
-				item,
-				[]*TreeNode{
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(item, nil),
-							CreateTreeNode(item, nil),
-						},
-					),
-					CreateTreeNode(item, nil),
-				},
-			)
-			nodes := tree.getAllNodes()
-
-			tree.getAncestors(0)
-
-			for _, node := range nodes {
-				Expect(node.parent).To(Equal(node))
-			}
+				for _, node := range nodes {
+					Expect(node.ancestor).To(BeNil())
+				}
+			})
 		})
 
-		It("Should get self for level 1", func() {
-			item := &IHashableImplementation{"test"}
-			tree := CreateTreeNode(
-				item,
-				[]*TreeNode{
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(item, nil),
-							CreateTreeNode(item, nil),
-						},
-					),
-					CreateTreeNode(item, nil),
-				},
-			)
-			nodes := tree.getAllNodes()
-			parents := make([]*TreeNode, len(nodes))
-			for i, node := range nodes {
-				parents[i] = node.parent
-			}
-
-			tree.getAncestors(1)
-
-			for i, node := range nodes {
-				Expect(node.parent).To(Equal(parents[i]))
-			}
-		})
-
-		It("Should get self for level 3", func() {
-			item := &IHashableImplementation{"test"}
-			tree := CreateTreeNode(
-				item,
-				[]*TreeNode{
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(item, nil),
-							CreateTreeNode(
-								item,
-								[]*TreeNode{
-									CreateTreeNode(item, nil),
-									CreateTreeNode(item, nil),
-								},
-							),
-						},
-					),
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(
-								item,
-								[]*TreeNode{
-									CreateTreeNode(item, nil),
-									CreateTreeNode(item, nil),
-								},
-							),
-						},
-					),
-				},
-			)
-			nodes := tree.getAllNodes()
-
-			tree.getAncestors(3)
-
-			withRoot := []int{4, 5, 8, 9}
-			withNil := []int{0, 1, 2, 3, 6, 7}
-			for _, val := range withRoot {
-				Expect(nodes[val].parent).To(Equal(tree))
-			}
-			for _, val := range withNil {
-				Expect(nodes[val].parent).To(BeNil())
-			}
-		})
-
-		It("Should get self for level 9", func() {
-			item := &IHashableImplementation{"test"}
-			tree := CreateTreeNode(
-				item,
-				[]*TreeNode{
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(item, nil),
-							CreateTreeNode(
-								item,
-								[]*TreeNode{
-									CreateTreeNode(item, nil),
-									CreateTreeNode(item, nil),
-								},
-							),
-						},
-					),
-					CreateTreeNode(
-						item,
-						[]*TreeNode{
-							CreateTreeNode(
-								item,
-								[]*TreeNode{
-									CreateTreeNode(item, nil),
-									CreateTreeNode(item, nil),
-								},
-							),
-						},
-					),
-				},
-			)
-			nodes := tree.getAllNodes()
-
-			tree.getAncestors(9)
-
-			for _, node := range nodes {
-				Expect(node.parent).To(BeNil())
-			}
-		})
-	})
-
-	Describe("run tests", func() {
-		It("Should compress", func() {
-			items := []*IHashableImplementation{
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-				&IHashableImplementation{"A"},
-			}
-			tree := CreateTreeNode(
-				items[0],
-				[]*TreeNode{
-					CreateTreeNode(
-						items[1],
-						[]*TreeNode{
-							CreateTreeNode(
-								items[2],
-								[]*TreeNode{
-									CreateTreeNode(
-										items[3],
-										nil,
-									),
-								},
-							),
-						},
-					),
-					CreateTreeNode(
-						items[4],
-						[]*TreeNode{
-							CreateTreeNode(
-								items[5],
-								[]*TreeNode{
-									CreateTreeNode(
-										items[6],
-										nil,
-									),
-								},
-							),
-						},
-					),
-					CreateTreeNode(
-						items[7],
-						[]*TreeNode{
-							CreateTreeNode(
-								items[8],
-								[]*TreeNode{
-									CreateTreeNode(
-										items[9],
-										nil,
-									),
-								},
-							),
-						},
-					),
-				},
-			)
-
-			tree.Run(3)
-
+		Describe("compression tests", func() {
 			type pair struct {
 				first,
 				second int
 			}
-			ok := map[pair]bool{
-				{3, 6}: true,
-				{3, 9}: true,
-				{6, 9}: true,
-			}
-			//nodes := tree.getAllNodes()
-			//for i, node := range nodes {
-			//	for j := i + 1; j < len(nodes); j++ {
-			//		Expect(node.item == nodes[j].item).To(Equal(ok[pair{i, j}]))
-			//	}
-			//}
-			for _, item := range items {
-				fmt.Printf("%p %v\n", item, item)
-			}
-			for i, item := range items {
-				for j := i + 1; j < len(items); j++ {
-					Expect(item == items[j]).To(Equal(ok[pair{i, j}]))
+
+			var (
+				ok map[pair]bool
+
+				createIdentical = func(identical [][]int) {
+					for _, array := range identical {
+						for i := range array {
+							for j := i + 1; j < len(array); j++ {
+								ok[pair{array[i], array[j]}] = true
+							}
+						}
+					}
 				}
-			}
+
+				check = func(tree *treeNode) {
+					nodes := tree.allNodes()
+					for i := range nodes {
+						for j := i + 1; j < len(nodes); j++ {
+							if ok[pair{i, j}] {
+								Expect(nodes[i].item).To(BeIdenticalTo(nodes[j].item))
+							} else {
+								Expect(nodes[i].item).ToNot(BeIdenticalTo(nodes[j].item))
+							}
+						}
+					}
+				}
+			)
+
+			BeforeEach(func() {
+				ok = map[pair]bool{}
+			})
+
+			It("Should compress a wide tree level 1", func() {
+				item := createWide()
+				tree := createTree(item)
+				tree.calcHashes()
+
+				tree.compress(1)
+
+				createIdentical([][]int{{1, 11}, {2, 4}, {7, 9}, {12, 14}})
+				check(tree)
+			})
+
+			It("Should compress a wide tree level 3", func() {
+				item := createWide()
+				tree := createTree(item)
+				tree.calcHashes()
+
+				tree.compress(3)
+
+				createIdentical([][]int{{3, 5, 8, 10, 13, 15}})
+				check(tree)
+			})
+
+			It("Should compress a high tree level 4", func() {
+				item := createSmallHigh()
+				tree := createTree(item)
+				tree.calcHashes()
+
+				tree.compress(4)
+
+				createIdentical([][]int{{4, 8}})
+				check(tree)
+			})
+		})
+	})
+
+	Describe("general tests", func() {
+		It("Should compress a wide tree level 1", func() {
+			item := createWide()
+
+			Run(item, 1)
+
+			Expect(item.nodes[0]).To(BeIdenticalTo(item.nodes[2]))
+			Expect(item.nodes[0]).ToNot(BeIdenticalTo(item.nodes[1]))
+		})
+
+		It("Should compress a wide tree level 3", func() {
+			item := createWide()
+
+			Run(item, 3)
+
+			Expect(item.nodes[0].nodes[0].nodes[0]).To(
+				BeIdenticalTo(item.nodes[0].nodes[1].nodes[0]),
+			)
+			Expect(item.nodes[0].nodes[1].nodes[0]).To(
+				BeIdenticalTo(item.nodes[1].nodes[0].nodes[0]),
+			)
+			Expect(item.nodes[1].nodes[0].nodes[0]).To(
+				BeIdenticalTo(item.nodes[1].nodes[1].nodes[0]),
+			)
+			Expect(item.nodes[1].nodes[1].nodes[0]).To(
+				BeIdenticalTo(item.nodes[2].nodes[0].nodes[0]),
+			)
+			Expect(item.nodes[2].nodes[0].nodes[0]).To(
+				BeIdenticalTo(item.nodes[2].nodes[1].nodes[0]),
+			)
+		})
+
+		It("Should compress a high tree level 4", func() {
+			item := createSmallHigh()
+
+			Run(item, 4)
+
+			Expect(item.nodes[0].nodes[0].nodes[0].nodes[0]).To(
+				BeIdenticalTo(item.nodes[1].nodes[0].nodes[0].nodes[0]),
+			)
+			Expect(item.nodes[0].nodes[0].nodes[0]).ToNot(
+				BeIdenticalTo(item.nodes[1].nodes[0].nodes[0]),
+			)
 		})
 	})
 })

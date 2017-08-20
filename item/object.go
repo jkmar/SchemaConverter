@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"strings"
@@ -11,6 +12,33 @@ import (
 type Object struct {
 	objectType string
 	properties set.Set
+}
+
+// ToString implementation
+func (object *Object) ToString() string {
+	return "#*"
+}
+
+// Compress implementation
+func (object *Object) Compress(source, destination hash.IHashable) {
+	if destinationProperty, ok := destination.(*Property); ok {
+		if sourceProperty, ok := source.(*Property); ok {
+			if object.properties.Contains(destinationProperty) {
+				object.properties.Delete(destinationProperty)
+				object.properties.Insert(sourceProperty)
+			}
+		}
+	}
+}
+
+// GetChildren implementation
+func (object *Object) GetChildren() []hash.IHashable {
+	sorted := object.properties.ToArray()
+	result := make([]hash.IHashable, len(sorted))
+	for i, property := range sorted {
+		result[i] = property.(hash.IHashable)
+	}
+	return result
 }
 
 // IsNull implementation

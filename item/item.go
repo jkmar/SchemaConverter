@@ -8,6 +8,8 @@ import (
 
 // Item is an interface for a type of a variable
 type Item interface {
+	hash.IHashable
+
 	// IsNull checks if item can be null
 	// return:
 	//   true iff. item can be null

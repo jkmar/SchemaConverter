@@ -7,8 +7,53 @@ import (
 )
 
 var _ = Describe("plain item tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct item type", func() {
+				typeOfItem := "int64"
+				plainItem := PlainItem{itemType: typeOfItem, null: false}
+
+				result := plainItem.ToString()
+
+				expected := "#int64,false"
+				Expect(result).To(Equal(expected))
+			})
+
+			It("Should return a correct item type for a null item", func() {
+				typeOfItem := "string"
+				plainItem := PlainItem{itemType: typeOfItem, null: true}
+
+				result := plainItem.ToString()
+
+				expected := "#string,true"
+				Expect(result).To(Equal(expected))
+			})
+		})
+
+		Describe("compress tests", func() {
+			It("Should do nothing", func() {
+				plainItem := PlainItem{itemType: "test", null: true}
+				original := plainItem
+
+				plainItem.Compress(&PlainItem{}, &plainItem)
+
+				Expect(plainItem).To(Equal(original))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return an empty children list", func() {
+				plainItem := PlainItem{}
+
+				result := plainItem.GetChildren()
+
+				Expect(result).To(BeNil())
+			})
+		})
+	})
+
 	Describe("type tests", func() {
-		It("Should return correct item type", func() {
+		It("Should return a correct item type", func() {
 			typeOfItem := "int64"
 			plainItem := PlainItem{itemType: typeOfItem}
 

@@ -2,181 +2,143 @@ package hash
 
 import (
 	"sort"
-	"fmt"
 )
 
-// TreeNode is node in hash tree
-type TreeNode struct {
-	index  int
-	hash   *Hash
-	value  Node
-	item   IHashable
-	parent *TreeNode
-	nodes  []*TreeNode
-}
-
-// CreateTreeNode creates node from hashable item
-func CreateTreeNode(item IHashable, nodes []*TreeNode) *TreeNode {
-	tree := &TreeNode{
-		item:  item,
-		nodes: nodes,
-	}
-	for _, node := range nodes {
-		node.parent = tree
-	}
-	return tree
-}
-
 // Run compresses items that have the same hash and level th parent
-func (tree *TreeNode) Run(level int)  {
-	tree.setup()
-	tree.calcAllHashes()
+func Run(item IHashable, level int) {
+	tree := createTree(item)
+	tree.calcHashes()
 	tree.compress(level)
 }
 
-func (tree *TreeNode) setup() {
-	tree.setupHash(&Hash{})
+type treeNode struct {
+	index     int
+	item      IHashable
+	value     Node
+	hash      *Hash
+	ancestor  *treeNode
+	ancestors []*treeNode
+	children  []*treeNode
 }
 
-func (tree *TreeNode) setupHash(hash *Hash) {
-	tree.hash = hash
-	for _, node := range tree.nodes {
-		node.setupHash(hash)
-	}
-}
-
-func (tree *TreeNode) getAllNodes() []*TreeNode {
+func createTree(item IHashable) *treeNode {
 	var (
-		result []*TreeNode
-		index  int
+		index          int
+		createTreeNode func(IHashable, *treeNode, *Hash) *treeNode
 	)
-	tree.allNodes(&index, &result)
+
+	createTreeNode = func(item IHashable, parent *treeNode, hash *Hash) *treeNode {
+		children := item.GetChildren()
+		tree := &treeNode{
+			index:     index,
+			item:      item,
+			ancestors: []*treeNode{parent},
+			hash:      hash,
+			children:  make([]*treeNode, len(children)),
+		}
+		index++
+		for i, child := range children {
+			tree.children[i] = createTreeNode(child, tree, hash)
+		}
+		return tree
+	}
+
+	return createTreeNode(item, nil, &Hash{})
+}
+
+func (tree *treeNode) allNodes() []*treeNode {
+	var getNodes func(*treeNode)
+
+	result := []*treeNode{}
+
+	getNodes = func(node *treeNode) {
+		result = append(result, node)
+		for _, child := range node.children {
+			getNodes(child)
+		}
+	}
+
+	getNodes(tree)
 	return result
 }
 
-func (tree *TreeNode) allNodes(index *int, result *[]*TreeNode) {
-	*result = append(*result, tree)
-	tree.index = *index
-	*index++
-	for _, node := range tree.nodes {
-		node.allNodes(index, result)
+func (tree *treeNode) calcHashes() {
+	joinHashes := func(hash *Hash, item IHashable, nodes []Node) Node {
+		result := hash.Calc(item.ToString() + "(")
+		for _, node := range nodes {
+			result = hash.Join(result, node)
+			result = hash.Join(result, hash.Calc(","))
+		}
+		return hash.Join(result, hash.Calc(")"))
 	}
-}
 
-func (tree *TreeNode) calcAllHashes() {
-	nodes := make([]Node, len(tree.nodes))
-	for i, node := range tree.nodes {
-		node.calcAllHashes()
+	nodes := make([]Node, len(tree.children))
+	for i, node := range tree.children {
+		node.calcHashes()
 		nodes[i] = node.value
 	}
-	tree.value = joinHashes(tree.hash, *tree.item, nodes)
+	tree.value = joinHashes(tree.hash, tree.item, nodes)
 }
 
-func joinHashes(hash *Hash, item IHashable, nodes []Node) Node {
-	result := hash.Calc(item.ToString() + "(")
-	for _, node := range nodes {
-		result = hash.Join(result, node)
-		result = hash.Join(result, hash.Calc(","))
-	}
-	return hash.Join(result, hash.Calc(")"))
-}
-
-func (tree *TreeNode) compress(level int) {
-	tree.getAncestors(level)
-	nodes := tree.getAllNodes()
-	sort.Sort(byHash(nodes))
-
-	for _, node := range nodes {
-		fmt.Printf("%p\n", *node.item)
-	}
-
-	var index int
-	for index = 0; index < len(nodes) && nodes[index].parent == nil; index++ {
-	}
-	index++
-	for ; index < len(nodes); index++ {
-		if nodes[index].value == nodes[index-1].value &&
-			nodes[index].parent == nodes[index-1].parent {
-			fmt.Println("equal")
-			*nodes[index].item = *nodes[index-1].item
-		}
-	}
-
-	for _, node := range nodes {
-		fmt.Printf("%p\n", *node.item)
-	}
-}
-
-func (tree *TreeNode) getAncestors(level int) {
-	powers := powers(level)
-	last := level
-	if level >= 1 {
-		last = powers[len(powers)-1]
-	}
-
-	allNodes := tree.getAllNodes()
-	length := len(allNodes)
-
-	current := make([]*TreeNode, length)
-	for i, node := range allNodes {
-		current[i] = node.parent
-	}
-
-	levels := [][]*TreeNode{current}
-	for limit := 0; limit < last && !isEmpty(levels); limit++ {
-		new := make([]*TreeNode, length)
-		for i, node := range current {
-			if node != nil {
-				new[i] = current[node.index]
-			}
-		}
-		levels = append(levels, new)
-		current = new
-	}
-
-	if last >= len(levels) {
-		for _, node := range allNodes {
-			node.parent = nil
-		}
+func (tree *treeNode) compress(level int) {
+	if level < 1 {
 		return
 	}
 
-	for _, node := range allNodes {
-		current := node
-		for _, power := range powers {
-			if current == nil {
-				break
+	getAncestors := func(nodes []*treeNode) {
+		log, powers := powers(level)
+		allNil := len(nodes) <= 1
+
+		for i := 0; i < log && !allNil; i++ {
+			allNil = true
+			for _, node := range nodes {
+				if ancestor := node.ancestors[i]; ancestor != nil {
+					allNil = false
+					node.ancestors = append(node.ancestors, ancestor.ancestors[i])
+				} else {
+					node.ancestors = append(node.ancestors, nil)
+				}
 			}
-			current = levels[power][current.index]
 		}
-		node.parent = current
-	}
-}
 
-func isEmpty(array [][]*TreeNode) bool {
-	for _, value := range array[len(array)-1] {
-		if value != nil {
-			return false
+		if len(nodes[0].ancestors) < log+1 {
+			return
 		}
-	}
-	return true
-}
 
-func powers(x int) []int {
-	result := []int{}
-	current := 0
-	for x > 0 {
-		if x%2 == 1 {
-			result = append(result, current)
+		for _, node := range nodes {
+			node.ancestor = node
+			for _, value := range powers {
+				if node.ancestor == nil {
+					break
+				}
+				node.ancestor = node.ancestor.ancestors[value]
+			}
 		}
-		current++
-		x /= 2
 	}
-	return result
+
+	compressNodes := func(nodes []*treeNode) {
+		sort.Sort(byHash(nodes))
+
+		var index int
+		for index = 0; index < len(nodes) && nodes[index].ancestor == nil; index++ {
+		}
+		index++
+		for ; index < len(nodes); index++ {
+			if nodes[index].value == nodes[index-1].value &&
+				nodes[index].ancestor == nodes[index-1].ancestor {
+				nodes[index].ancestors[0].item.Compress(nodes[index-1].item, nodes[index].item)
+				nodes[index].item = nodes[index-1].item
+			}
+		}
+	}
+
+	nodes := tree.allNodes()
+	getAncestors(nodes)
+	compressNodes(nodes)
 }
 
 // Sorting nodes by hash
-type byHash []*TreeNode
+type byHash []*treeNode
 
 func (array byHash) Len() int {
 	return len(array)
@@ -187,15 +149,15 @@ func (array byHash) Swap(i, j int) {
 }
 
 func (array byHash) Less(i, j int) bool {
-	if array[i].parent == nil {
+	if array[i].ancestor == nil {
 		return true
 	}
-	if array[j].parent == nil {
+	if array[j].ancestor == nil {
 		return false
 	}
 	if array[i].value.value == array[j].value.value {
 		if array[i].value.length == array[j].value.length {
-			return array[i].parent.index < array[j].parent.index
+			return array[i].ancestor.index < array[j].ancestor.index
 		}
 		return array[i].value.length < array[j].value.length
 	}

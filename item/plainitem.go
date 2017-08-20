@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -10,6 +11,20 @@ import (
 type PlainItem struct {
 	null     bool
 	itemType string
+}
+
+// ToString implementation
+func (plainItem *PlainItem) ToString() string {
+	return fmt.Sprintf("#%s,%v", plainItem.itemType, plainItem.null)
+}
+
+// Compress implementation
+func (plainItem *PlainItem) Compress(hash.IHashable, hash.IHashable) {
+}
+
+// GetChildren implementation
+func (plainItem *PlainItem) GetChildren() []hash.IHashable {
+	return nil
 }
 
 // IsNull implementation

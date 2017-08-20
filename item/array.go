@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -9,6 +10,23 @@ import (
 // Array is an implementation of Item interface
 type Array struct {
 	arrayItem Item
+}
+
+// ToString implementation
+func (array *Array) ToString() string {
+	return "#[]"
+}
+
+// Compress implementation
+func (array *Array) Compress(source, destination hash.IHashable) {
+	if sourceItem, ok := source.(Item); array.arrayItem == destination && ok {
+		array.arrayItem = sourceItem
+	}
+}
+
+// GetChildren implementation
+func (array *Array) GetChildren() []hash.IHashable {
+	return []hash.IHashable{array.arrayItem}
 }
 
 // IsNull implementation

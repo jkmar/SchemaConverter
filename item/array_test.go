@@ -7,8 +7,57 @@ import (
 )
 
 var _ = Describe("array tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct string representation of an array", func() {
+				array := Array{&PlainItem{itemType: "test"}}
+
+				result := array.ToString()
+
+				expected := "#[]"
+				Expect(result).To(Equal(expected))
+			})
+		})
+
+		Describe("compress tests", func() {
+			It("Should compress if destination is owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				array := Array{destination}
+
+				array.Compress(source, destination)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(array.arrayItem).To(BeIdenticalTo(source))
+			})
+
+			It("Should not compress if destination is not owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				array := Array{destination}
+
+				array.Compress(destination, source)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(array.arrayItem).To(BeIdenticalTo(destination))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return a correct children set", func() {
+				plainItem := &PlainItem{itemType: "test"}
+				array := Array{plainItem}
+
+				result := array.GetChildren()
+
+				Expect(len(result)).To(Equal(1))
+				Expect(result[0]).To(BeIdenticalTo(plainItem))
+			})
+		})
+	})
+
 	Describe("type tests", func() {
-		It("Should return correct array type", func() {
+		It("Should return a correct array type", func() {
 			typeOfItem := "int64"
 			array := Array{&PlainItem{itemType: typeOfItem}}
 
