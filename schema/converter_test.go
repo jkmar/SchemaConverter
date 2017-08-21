@@ -4,7 +4,6 @@ import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"sort"
 )
 
 var _ = Describe("converter tess", func() {
@@ -242,91 +241,91 @@ var _ = Describe("converter tess", func() {
 				},
 			}
 
-			interfaces, _, structs, implementations, err := Convert(other, toConvert, "", "")
+			generated, _, structs, implementations, err := Convert(other, toConvert, "", "Gen")
 			Expect(err).ToNot(HaveOccurred())
 
-			generalInterface := `type IGeneral interface {
+			generalInterface := `type IGeneralGen interface {
 	GetArray() [][]int64
 	SetArray([][]int64)
-	GetComplex() [][]IGeneralComplex
-	SetComplex([][]IGeneralComplex)
+	GetComplex() [][]IGeneralComplexGen
+	SetComplex([][]IGeneralComplexGen)
 	GetID() string
 	SetID(string)
 	GetIP() goext.NullInt
 	SetIP(goext.NullInt)
-	GetNested() IMiddleNested
-	SetNested(IMiddleNested)
+	GetNested() IMiddleNestedGen
+	SetNested(IMiddleNestedGen)
 	GetNull() goext.NullBool
 	SetNull(goext.NullBool)
-	GetObject() IBaseObject
-	SetObject(IBaseObject)
+	GetObject() IBaseObjectGen
+	SetObject(IBaseObjectGen)
 	GetParentID() string
 	SetParentID(string)
-	GetTree() IGeneralTree
-	SetTree(IGeneralTree)
+	GetTree() IGeneralTreeGen
+	SetTree(IGeneralTreeGen)
 }
 `
-			onlyDeriveInterface := `type IOnlyDerive interface {
+			onlyDeriveInterface := `type IOnlyDeriveGen interface {
 	GetID() string
 	SetID(string)
 	GetIP() goext.NullInt
 	SetIP(goext.NullInt)
-	GetObject() IBaseObject
-	SetObject(IBaseObject)
+	GetObject() IBaseObjectGen
+	SetObject(IBaseObjectGen)
 }
 `
-			emptyInterface := `type IEmpty interface {
+			emptyInterface := `type IEmptyGen interface {
 }
 `
-			generalTreeLeftLeafSecondInterface := `type IGeneralTreeLeftLeafSecond interface {
+			generalTreeLeftLeafSecondInterface := `type IGeneralTreeLeftLeafSecondGen interface {
 	GetValue() int64
 	SetValue(int64)
 }
 `
-			middleNestedFirstInterface := `type IMiddleNestedFirst interface {
-	GetSecond() IMiddleNestedFirstSecond
-	SetSecond(IMiddleNestedFirstSecond)
+			middleNestedFirstInterface := `type IMiddleNestedFirstGen interface {
+	GetSecond() IMiddleNestedFirstSecondGen
+	SetSecond(IMiddleNestedFirstSecondGen)
 }
 `
-			middleNestedInterface := `type IMiddleNested interface {
-	GetFirst() IMiddleNestedFirst
-	SetFirst(IMiddleNestedFirst)
+			middleNestedInterface := `type IMiddleNestedGen interface {
+	GetFirst() IMiddleNestedFirstGen
+	SetFirst(IMiddleNestedFirstGen)
 }
 `
-			generalComplexInterface := `type IGeneralComplex interface {
+			generalComplexInterface := `type IGeneralComplexGen interface {
 	GetFor() int64
 	SetFor(int64)
 	GetInt() bool
 	SetInt(bool)
 }
 `
-			generalTreeLeftInterface := `type IGeneralTreeLeft interface {
+			generalTreeLeftInterface := `type IGeneralTreeLeftGen interface {
 	GetLeafFirst() string
 	SetLeafFirst(string)
-	GetLeafSecond() IGeneralTreeLeftLeafSecond
-	SetLeafSecond(IGeneralTreeLeftLeafSecond)
+	GetLeafSecond() IGeneralTreeLeftLeafSecondGen
+	SetLeafSecond(IGeneralTreeLeftLeafSecondGen)
 }
 `
-			generalTreeInterface := `type IGeneralTree interface {
-	GetLeft() IGeneralTreeLeft
-	SetLeft(IGeneralTreeLeft)
-	GetRight() IGeneralTreeRight
-	SetRight(IGeneralTreeRight)
+			generalTreeInterface := `type IGeneralTreeGen interface {
+	GetLeft() IGeneralTreeLeftGen
+	SetLeft(IGeneralTreeLeftGen)
+	GetRight() IGeneralTreeRightGen
+	SetRight(IGeneralTreeRightGen)
 }
 `
-			baseObjectInterface := `type IBaseObject interface {
+			baseObjectInterface := `type IBaseObjectGen interface {
 	GetX() string
 	SetX(string)
 	GetY() string
 	SetY(string)
 }
 `
-			generalTreeRightInterface := `type IGeneralTreeRight interface {
+			generalTreeRightInterface := `type IGeneralTreeRightGen interface {
 	GetLeafThird() []bool
 	SetLeafThird([]bool)
 }
 `
-			middleNestedFirstSecondInterface := `type IMiddleNestedFirstSecond interface {
+			middleNestedFirstSecondInterface := `type IMiddleNestedFirstSecondGen interface {
 }
 `
 			generalStruct := `type General struct {
@@ -400,10 +399,10 @@ func (general *General) SetArray(array [][]int64) {
 	}
 }
 
-func (general *General) GetComplex() [][]IGeneralComplex {
-	result := make([][]IGeneralComplex, len(general.Complex))
+func (general *General) GetComplex() [][]IGeneralComplexGen {
+	result := make([][]IGeneralComplexGen, len(general.Complex))
 	for i := range general.Complex {
-		result[i] = make([]IGeneralComplex, len(general.Complex[i]))
+		result[i] = make([]IGeneralComplexGen, len(general.Complex[i]))
 		for j := range general.Complex[i] {
 			result[i][j] = general.Complex[i][j]
 		}
@@ -411,7 +410,7 @@ func (general *General) GetComplex() [][]IGeneralComplex {
 	return result
 }
 
-func (general *General) SetComplex(complex [][]IGeneralComplex) {
+func (general *General) SetComplex(complex [][]IGeneralComplexGen) {
 	general.Complex = make([][]*GeneralComplex, len(complex))
 	for i := range complex {
 		general.Complex[i] = make([]*GeneralComplex, len(complex[i]))
@@ -437,11 +436,11 @@ func (general *General) SetIP(ip goext.NullInt) {
 	general.IP = ip
 }
 
-func (general *General) GetNested() IMiddleNested {
+func (general *General) GetNested() IMiddleNestedGen {
 	return general.Nested
 }
 
-func (general *General) SetNested(nested IMiddleNested) {
+func (general *General) SetNested(nested IMiddleNestedGen) {
 	general.Nested = nested.(*MiddleNested)
 }
 
@@ -453,11 +452,11 @@ func (general *General) SetNull(null goext.NullBool) {
 	general.Null = null
 }
 
-func (general *General) GetObject() IBaseObject {
+func (general *General) GetObject() IBaseObjectGen {
 	return general.Object
 }
 
-func (general *General) SetObject(object IBaseObject) {
+func (general *General) SetObject(object IBaseObjectGen) {
 	general.Object = object.(*BaseObject)
 }
 
@@ -469,11 +468,11 @@ func (general *General) SetParentID(parentID string) {
 	general.ParentID = parentID
 }
 
-func (general *General) GetTree() IGeneralTree {
+func (general *General) GetTree() IGeneralTreeGen {
 	return general.Tree
 }
 
-func (general *General) SetTree(tree IGeneralTree) {
+func (general *General) SetTree(tree IGeneralTreeGen) {
 	general.Tree = tree.(*GeneralTree)
 }
 `
@@ -493,11 +492,11 @@ func (onlyDerive *OnlyDerive) SetIP(ip goext.NullInt) {
 	onlyDerive.IP = ip
 }
 
-func (onlyDerive *OnlyDerive) GetObject() IBaseObject {
+func (onlyDerive *OnlyDerive) GetObject() IBaseObjectGen {
 	return onlyDerive.Object
 }
 
-func (onlyDerive *OnlyDerive) SetObject(object IBaseObject) {
+func (onlyDerive *OnlyDerive) SetObject(object IBaseObjectGen) {
 	onlyDerive.Object = object.(*BaseObject)
 }
 `
@@ -510,19 +509,19 @@ func (generalTreeLeftLeafSecond *GeneralTreeLeftLeafSecond) SetValue(value int64
 	generalTreeLeftLeafSecond.Value = value
 }
 `
-			middleNestedFirstImplementation := `func (middleNestedFirst *MiddleNestedFirst) GetSecond() IMiddleNestedFirstSecond {
+			middleNestedFirstImplementation := `func (middleNestedFirst *MiddleNestedFirst) GetSecond() IMiddleNestedFirstSecondGen {
 	return middleNestedFirst.Second
 }
 
-func (middleNestedFirst *MiddleNestedFirst) SetSecond(second IMiddleNestedFirstSecond) {
+func (middleNestedFirst *MiddleNestedFirst) SetSecond(second IMiddleNestedFirstSecondGen) {
 	middleNestedFirst.Second = second.(*MiddleNestedFirstSecond)
 }
 `
-			middleNestedImplementation := `func (middleNested *MiddleNested) GetFirst() IMiddleNestedFirst {
+			middleNestedImplementation := `func (middleNested *MiddleNested) GetFirst() IMiddleNestedFirstGen {
 	return middleNested.First
 }
 
-func (middleNested *MiddleNested) SetFirst(first IMiddleNestedFirst) {
+func (middleNested *MiddleNested) SetFirst(first IMiddleNestedFirstGen) {
 	middleNested.First = first.(*MiddleNestedFirst)
 }
 `
@@ -550,27 +549,27 @@ func (generalTreeLeft *GeneralTreeLeft) SetLeafFirst(leafFirst string) {
 	generalTreeLeft.LeafFirst = leafFirst
 }
 
-func (generalTreeLeft *GeneralTreeLeft) GetLeafSecond() IGeneralTreeLeftLeafSecond {
+func (generalTreeLeft *GeneralTreeLeft) GetLeafSecond() IGeneralTreeLeftLeafSecondGen {
 	return generalTreeLeft.LeafSecond
 }
 
-func (generalTreeLeft *GeneralTreeLeft) SetLeafSecond(leafSecond IGeneralTreeLeftLeafSecond) {
+func (generalTreeLeft *GeneralTreeLeft) SetLeafSecond(leafSecond IGeneralTreeLeftLeafSecondGen) {
 	generalTreeLeft.LeafSecond = leafSecond.(*GeneralTreeLeftLeafSecond)
 }
 `
-			generalTreeImplementation := `func (generalTree *GeneralTree) GetLeft() IGeneralTreeLeft {
+			generalTreeImplementation := `func (generalTree *GeneralTree) GetLeft() IGeneralTreeLeftGen {
 	return generalTree.Left
 }
 
-func (generalTree *GeneralTree) SetLeft(left IGeneralTreeLeft) {
+func (generalTree *GeneralTree) SetLeft(left IGeneralTreeLeftGen) {
 	generalTree.Left = left.(*GeneralTreeLeft)
 }
 
-func (generalTree *GeneralTree) GetRight() IGeneralTreeRight {
+func (generalTree *GeneralTree) GetRight() IGeneralTreeRightGen {
 	return generalTree.Right
 }
 
-func (generalTree *GeneralTree) SetRight(right IGeneralTreeRight) {
+func (generalTree *GeneralTree) SetRight(right IGeneralTreeRightGen) {
 	generalTree.Right = right.(*GeneralTreeRight)
 }
 `
@@ -599,10 +598,6 @@ func (generalTreeRight *GeneralTreeRight) SetLeafThird(leafThird []bool) {
 }
 `
 			middleNestedFirstSecondImplementation := ``
-
-			sort.Strings(interfaces)
-			sort.Strings(structs)
-			sort.Strings(implementations)
 
 			expectedInterfaces := []string{
 				baseObjectInterface,
@@ -633,9 +628,8 @@ func (generalTreeRight *GeneralTreeRight) SetLeafThird(leafThird []bool) {
 				onlyDeriveStruct,
 			}
 			expectedImplementations := []string{
-				emptyImplementation,
-				middleNestedFirstSecondImplementation,
 				baseObjectImplementation,
+				emptyImplementation,
 				generalImplementation,
 				generalComplexImplementation,
 				generalTreeImplementation,
@@ -644,9 +638,10 @@ func (generalTreeRight *GeneralTreeRight) SetLeafThird(leafThird []bool) {
 				generalTreeRightImplementation,
 				middleNestedImplementation,
 				middleNestedFirstImplementation,
+				middleNestedFirstSecondImplementation,
 				onlyDeriveImplementation,
 			}
-			Expect(interfaces).To(Equal(expectedInterfaces))
+			Expect(generated).To(Equal(expectedInterfaces))
 			Expect(structs).To(Equal(expectedStructs))
 			Expect(implementations).To(Equal(expectedImplementations))
 		})

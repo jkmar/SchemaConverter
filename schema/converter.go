@@ -56,19 +56,13 @@ func Convert(
 		}
 		jsonObjects.InsertAll(object)
 	}
-	for _, object := range dbObjects {
-		dbObject := object.(*item.Object)
-		generated = append(generated, dbObject.GenerateInterface(interfaceSuffix))
-		interfaces = append(interfaces, dbObject.GenerateMutableInterface(interfaceSuffix, rawSuffix))
-		structs = append(structs, dbObject.GenerateStruct(rawSuffix))
-		implementations = append(implementations, dbObject.GenerateImplementation(interfaceSuffix, rawSuffix))
-	}
-	for _, object := range jsonObjects {
-		jsonObject := object.(*item.Object)
-		generated = append(generated, jsonObject.GenerateInterface(interfaceSuffix))
-		interfaces = append(interfaces, jsonObject.GenerateMutableInterface(interfaceSuffix, rawSuffix))
-		structs = append(structs, jsonObject.GenerateStruct(rawSuffix))
-		implementations = append(implementations, jsonObject.GenerateImplementation(interfaceSuffix, rawSuffix))
+	dbObjects.InsertAll(jsonObjects)
+	for _, object := range dbObjects.ToArray() {
+		item := object.(*item.Object)
+		generated = append(generated, item.GenerateInterface(interfaceSuffix))
+		interfaces = append(interfaces, item.GenerateMutableInterface(interfaceSuffix, rawSuffix))
+		structs = append(structs, item.GenerateStruct(rawSuffix))
+		implementations = append(implementations, item.GenerateImplementation(interfaceSuffix, rawSuffix))
 	}
 	return
 }
