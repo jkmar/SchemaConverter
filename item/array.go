@@ -5,6 +5,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Array is an implementation of Item interface
@@ -27,6 +28,11 @@ func (array *Array) Compress(source, destination hash.IHashable) {
 // GetChildren implementation
 func (array *Array) GetChildren() []hash.IHashable {
 	return []hash.IHashable{array.arrayItem}
+}
+
+// ChangeName implementation
+func (array *Array) ChangeName(mark name.Mark) {
+	array.arrayItem.ChangeName(mark)
 }
 
 // ContainsObject implementation
@@ -96,7 +102,7 @@ func (array *Array) CollectProperties(limit, offset int) (set.Set, error) {
 func (array *Array) GenerateGetter(
 	variable,
 	argument,
-	suffix string,
+	interfaceSuffix string,
 	depth int,
 ) string {
 	indent := util.Indent(depth)
@@ -120,7 +126,7 @@ func (array *Array) GenerateGetter(
 		"%s%s make(%s, len(%s))\n%sfor %c := range %s {\n%s\n%s}%s",
 		indent,
 		util.ResultPrefix(argument, depth, true),
-		array.InterfaceType(suffix),
+		array.InterfaceType(interfaceSuffix),
 		variable,
 		indent,
 		util.IndexVariable(depth),
@@ -128,7 +134,7 @@ func (array *Array) GenerateGetter(
 		array.arrayItem.GenerateGetter(
 			variable+index,
 			argument+index,
-			suffix,
+			interfaceSuffix,
 			depth+1,
 		),
 		indent,
@@ -140,7 +146,7 @@ func (array *Array) GenerateGetter(
 func (array *Array) GenerateSetter(
 	variable,
 	argument,
-	suffix string,
+	typeSuffix string,
 	depth int,
 ) string {
 	indent := util.Indent(depth)
@@ -157,7 +163,7 @@ func (array *Array) GenerateSetter(
 		"%s%s = make(%s, len(%s))\n%sfor %c := range %s {\n%s\n%s}",
 		indent,
 		variable,
-		array.Type(suffix),
+		array.Type(typeSuffix),
 		argument,
 		indent,
 		util.IndexVariable(depth),
@@ -165,7 +171,7 @@ func (array *Array) GenerateSetter(
 		array.arrayItem.GenerateSetter(
 			variable+index,
 			argument+index,
-			suffix,
+			typeSuffix,
 			depth+1,
 		),
 		indent,

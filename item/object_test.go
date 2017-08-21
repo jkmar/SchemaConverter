@@ -521,7 +521,7 @@ var _ = Describe("object tests", func() {
 			},
 		}
 
-		It("Should generate correct db struct", func() {
+		It("Should generate a correct db struct", func() {
 			object := &Object{}
 			err := object.Parse("abc_def", 0, true, data)
 			Expect(err).ToNot(HaveOccurred())
@@ -537,7 +537,7 @@ var _ = Describe("object tests", func() {
 			Expect(result).To(Equal(expected))
 		})
 
-		It("Should generate correct json struct", func() {
+		It("Should generate a correct json struct", func() {
 			object := &Object{}
 			err := object.Parse("abc_def", 2, true, data)
 			Expect(err).ToNot(HaveOccurred())
@@ -548,6 +548,23 @@ var _ = Describe("object tests", func() {
 	ID string ` + "`" + `json:"id,omitempty"` + "`" + `
 	IP []int64 ` + "`" + `json:"ip"` + "`" + `
 	Xyz *AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate mutable interface tests", func() {
+		It("Should generate a correct mutable interface", func() {
+			object := &Object{objectType: "test_type"}
+
+			result := object.GenerateMutableInterface(
+				"interface-suffix",
+				"type-suffix",
+			)
+
+			expected := `type ITestTypeTypeSuffix interface {
+	ITestTypeInterfaceSuffix
 }
 `
 			Expect(result).To(Equal(expected))
@@ -661,7 +678,7 @@ var _ = Describe("object tests", func() {
 			err := object.Parse("abc_def", 0, true, data)
 			Expect(err).ToNot(HaveOccurred())
 
-			result := object.GenerateImplementation("suffix")
+			result := object.GenerateImplementation("interface", "suffix")
 
 			expected := fmt.Sprintf(
 				`%sGetA() goext.NullInt {
@@ -688,11 +705,11 @@ var _ = Describe("object tests", func() {
 	%s.IP = ip
 }
 
-%sGetXyz() IAbcDefXyzSuffix {
+%sGetXyz() IAbcDefXyzInterface {
 	return %s.Xyz
 }
 
-%sSetXyz(xyz IAbcDefXyzSuffix) {
+%sSetXyz(xyz IAbcDefXyzInterface) {
 	%s.Xyz = xyz.(*AbcDefXyzSuffix)
 }
 `,
@@ -721,7 +738,7 @@ var _ = Describe("object tests", func() {
 			err := object.Parse("abc_def", 2, true, data)
 			Expect(err).ToNot(HaveOccurred())
 
-			result := object.GenerateImplementation("suffix")
+			result := object.GenerateImplementation("interface", "suffix")
 
 			expected := fmt.Sprintf(
 				`%sGetA() int64 {
@@ -748,11 +765,11 @@ var _ = Describe("object tests", func() {
 	%s.IP = ip
 }
 
-%sGetXyz() IAbcDefXyzSuffix {
+%sGetXyz() IAbcDefXyzInterface {
 	return %s.Xyz
 }
 
-%sSetXyz(xyz IAbcDefXyzSuffix) {
+%sSetXyz(xyz IAbcDefXyzInterface) {
 	%s.Xyz = xyz.(*AbcDefXyzSuffix)
 }
 `,

@@ -6,6 +6,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"strings"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Object is an implementation of Item interface
@@ -39,6 +40,15 @@ func (object *Object) GetChildren() []hash.IHashable {
 		result[i] = property.(hash.IHashable)
 	}
 	return result
+}
+
+// ChangeName implementation
+func (object *Object) ChangeName(mark name.Mark) {
+	if mark.Change(&object.objectType) {
+		for _, property := range object.properties {
+			property.(*Property).ChangeName(mark)
+		}
+	}
 }
 
 // ContainsObject implementation
@@ -193,7 +203,7 @@ func (object *Object) CollectProperties(limit, offset int) (set.Set, error) {
 func (object *Object) GenerateGetter(
 	variable,
 	argument,
-	suffix string,
+	interfaceSuffix string,
 	depth int,
 ) string {
 	return fmt.Sprintf(
@@ -208,7 +218,7 @@ func (object *Object) GenerateGetter(
 func (object *Object) GenerateSetter(
 	variable,
 	argument,
-	suffix string,
+	typeSuffix string,
 	depth int,
 ) string {
 	return fmt.Sprintf(
@@ -216,7 +226,7 @@ func (object *Object) GenerateSetter(
 		util.Indent(depth),
 		variable,
 		argument,
-		object.Type(suffix),
+		object.Type(typeSuffix),
 	)
 }
 
@@ -229,6 +239,20 @@ func (object *Object) GenerateStruct(suffix string) string {
 		code += property.(*Property).GenerateProperty(suffix)
 	}
 	return code + "}\n"
+}
+
+// GenerateMutableInterface creates an interface of an object
+// with suffix added to objects type
+// this interface can be edited
+func (object *Object) GenerateMutableInterface(
+	interfaceSuffix,
+	typeSuffix string,
+) string {
+	return fmt.Sprintf(
+		"type %s interface {\n\t%s\n}\n",
+		object.InterfaceType(typeSuffix),
+		object.InterfaceType(interfaceSuffix),
+	)
 }
 
 // GenerateInterface creates an interface of an object
@@ -248,12 +272,12 @@ func (object *Object) GenerateInterface(suffix string) string {
 
 // GenerateImplementation creates an implementation of an objects
 // getter and setter methods
-func (object *Object) GenerateImplementation(suffix string) string {
-	variable := util.VariableName(util.AddName(object.objectType, suffix))
+func (object *Object) GenerateImplementation(interfaceSuffix, typeSuffix string) string {
+	variable := util.VariableName(util.AddName(object.objectType, typeSuffix))
 	prefix := fmt.Sprintf(
 		"func (%s %s) ",
 		variable,
-		object.Type(suffix),
+		object.Type(typeSuffix),
 	)
 	properties := object.properties.ToArray()
 	code := ""
@@ -261,9 +285,9 @@ func (object *Object) GenerateImplementation(suffix string) string {
 		code += fmt.Sprintf(
 			"%s%s\n\n%s%s\n\n",
 			prefix,
-			property.(*Property).GenerateGetter(variable, suffix),
+			property.(*Property).GenerateGetter(variable, interfaceSuffix),
 			prefix,
-			property.(*Property).GenerateSetter(variable, suffix),
+			property.(*Property).GenerateSetter(variable, interfaceSuffix, typeSuffix),
 		)
 	}
 	return strings.TrimSuffix(code, "\n")

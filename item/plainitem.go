@@ -5,6 +5,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // PlainItem is an implementation of Item interface
@@ -25,6 +26,10 @@ func (plainItem *PlainItem) Compress(hash.IHashable, hash.IHashable) {
 // GetChildren implementation
 func (plainItem *PlainItem) GetChildren() []hash.IHashable {
 	return nil
+}
+
+// ChangeName implementation
+func (plainItem *PlainItem) ChangeName(mark name.Mark) {
 }
 
 // ContainsObject implementation
@@ -98,7 +103,7 @@ func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error
 func (plainItem *PlainItem) GenerateGetter(
 	variable,
 	argument,
-	suffix string,
+	interfaceSuffix string,
 	depth int,
 ) string {
 	return fmt.Sprintf(
@@ -113,7 +118,7 @@ func (plainItem *PlainItem) GenerateGetter(
 func (plainItem *PlainItem) GenerateSetter(
 	variable,
 	argument,
-	suffix string,
+	typeSuffix string,
 	depth int,
 ) string {
 	return fmt.Sprintf(

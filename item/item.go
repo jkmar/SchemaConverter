@@ -4,11 +4,17 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Item is an interface for a type of a variable
 type Item interface {
 	hash.IHashable
+
+	// ChangeName should change the name of an item recursively
+	// args:
+	//   1. name.Mark - mark that changes the items name
+	ChangeName(name.Mark)
 
 	// IsNull checks if an item can be null
 	// return:
