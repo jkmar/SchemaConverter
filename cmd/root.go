@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	packageName string
-	suffix      string
-	output      string
+	packageName,
+	output,
+	rawSuffix,
+	interfaceSuffix string
 )
 
 // RootCmd of application
@@ -28,7 +29,8 @@ var RootCmd = &cobra.Command{
 			args[0],
 			output,
 			packageName,
-			suffix,
+			rawSuffix,
+			interfaceSuffix,
 		)
 		if err != nil {
 			fmt.Println(err)
@@ -53,10 +55,16 @@ func init() {
 		"prefix added to output file",
 	)
 	RootCmd.Flags().StringVar(
-		&suffix,
-		"suffix",
+		&rawSuffix,
+		"raw-suffix",
 		"",
-		"suffix added to struct names",
+		"suffix added to raw struct names",
+	)
+	RootCmd.Flags().StringVar(
+		&interfaceSuffix,
+		"interface-suffix",
+		"gen",
+		"suffix added to generated interface names",
 	)
 }
 

@@ -24,17 +24,32 @@ func writeResult(data []string, packageName, outputPrefix, outputSuffix string) 
 }
 
 // Run application
-func Run(config, output, packageName, suffix string) error {
+func Run(
+	config,
+	output,
+	packageName,
+	rawSuffix,
+	interfaceSuffix string,
+) error {
+	interfaceSuffix = util.AddName(rawSuffix, interfaceSuffix)
 	all, err := readConfig(config, "")
 	if err != nil {
 		return err
 	}
 
-	interfaces, structs, implementations, err := schema.Convert(nil, all, suffix)
+	generated, interfaces, structs, implementations, err := schema.Convert(
+		nil,
+		all,
+		rawSuffix,
+		interfaceSuffix,
+	)
 	if err != nil {
 		return err
 	}
-	if err = writeResult(interfaces, "esi", output, "interface.go"); err != nil {
+	if err = writeResult(generated, packageName, output, "generated_interface.go"); err != nil {
+		return err
+	}
+	if err = writeResult(interfaces, packageName, output, "interface.go"); err != nil {
 		return err
 	}
 	if err = writeResult(structs, packageName, output, "raw.go"); err != nil {

@@ -661,7 +661,7 @@ var _ = Describe("object tests", func() {
 			err := object.Parse("abc_def", 0, true, data)
 			Expect(err).ToNot(HaveOccurred())
 
-			result := object.GenerateImplementation("suffix")
+			result := object.GenerateImplementation("interface", "suffix")
 
 			expected := fmt.Sprintf(
 				`%sGetA() goext.NullInt {
@@ -688,11 +688,11 @@ var _ = Describe("object tests", func() {
 	%s.IP = ip
 }
 
-%sGetXyz() IAbcDefXyzSuffix {
+%sGetXyz() IAbcDefXyzInterface {
 	return %s.Xyz
 }
 
-%sSetXyz(xyz IAbcDefXyzSuffix) {
+%sSetXyz(xyz IAbcDefXyzInterface) {
 	%s.Xyz = xyz.(*AbcDefXyzSuffix)
 }
 `,
@@ -721,7 +721,7 @@ var _ = Describe("object tests", func() {
 			err := object.Parse("abc_def", 2, true, data)
 			Expect(err).ToNot(HaveOccurred())
 
-			result := object.GenerateImplementation("suffix")
+			result := object.GenerateImplementation("interface", "suffix")
 
 			expected := fmt.Sprintf(
 				`%sGetA() int64 {
@@ -748,11 +748,11 @@ var _ = Describe("object tests", func() {
 	%s.IP = ip
 }
 
-%sGetXyz() IAbcDefXyzSuffix {
+%sGetXyz() IAbcDefXyzInterface {
 	return %s.Xyz
 }
 
-%sSetXyz(xyz IAbcDefXyzSuffix) {
+%sSetXyz(xyz IAbcDefXyzInterface) {
 	%s.Xyz = xyz.(*AbcDefXyzSuffix)
 }
 `,

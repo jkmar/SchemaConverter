@@ -481,7 +481,7 @@ var _ = Describe("property tests", func() {
 				&DBKind{},
 			}
 
-			result := property.GenerateSetter("var", "")
+			result := property.GenerateSetter("var", "", "")
 
 			expected := `SetDef(def goext.NullInt) {
 	var.Def = def
@@ -496,7 +496,7 @@ var _ = Describe("property tests", func() {
 				&DBKind{},
 			}
 
-			result := property.GenerateSetter("var", "")
+			result := property.GenerateSetter("var", "", "")
 
 			expected := `SetRange(rangeObject IXyz) {
 	var.Range = rangeObject.(*Xyz)
@@ -511,7 +511,7 @@ var _ = Describe("property tests", func() {
 				&DBKind{},
 			}
 
-			result := property.GenerateSetter("var", "")
+			result := property.GenerateSetter("var", "", "")
 
 			expected := `SetA(a [][]IObject) {
 	var.A = make([][]*Object, len(a))

@@ -98,7 +98,7 @@ func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error
 func (plainItem *PlainItem) GenerateGetter(
 	variable,
 	argument,
-	suffix string,
+	interfaceSuffix string,
 	depth int,
 ) string {
 	return fmt.Sprintf(
@@ -113,7 +113,7 @@ func (plainItem *PlainItem) GenerateGetter(
 func (plainItem *PlainItem) GenerateSetter(
 	variable,
 	argument,
-	suffix string,
+	typeSuffix string,
 	depth int,
 ) string {
 	return fmt.Sprintf(

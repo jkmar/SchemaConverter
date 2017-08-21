@@ -22,8 +22,10 @@ import (
 func Convert(
 	other,
 	toConvert []map[interface{}]interface{},
-	suffix string,
+	rawSuffix,
+	interfaceSuffix string,
 ) (
+	generated,
 	interfaces,
 	structs,
 	implementations []string,
@@ -56,15 +58,17 @@ func Convert(
 	}
 	for _, object := range dbObjects {
 		dbObject := object.(*item.Object)
-		interfaces = append(interfaces, dbObject.GenerateInterface(suffix))
-		structs = append(structs, dbObject.GenerateStruct(suffix))
-		implementations = append(implementations, dbObject.GenerateImplementation(suffix))
+		generated = append(generated, dbObject.GenerateInterface(interfaceSuffix))
+		interfaces = append(interfaces, dbObject.GenerateMutableInterface(interfaceSuffix, rawSuffix))
+		structs = append(structs, dbObject.GenerateStruct(rawSuffix))
+		implementations = append(implementations, dbObject.GenerateImplementation(interfaceSuffix, rawSuffix))
 	}
 	for _, object := range jsonObjects {
 		jsonObject := object.(*item.Object)
-		interfaces = append(interfaces, jsonObject.GenerateInterface(suffix))
-		structs = append(structs, jsonObject.GenerateStruct(suffix))
-		implementations = append(implementations, jsonObject.GenerateImplementation(suffix))
+		generated = append(generated, jsonObject.GenerateInterface(interfaceSuffix))
+		interfaces = append(interfaces, jsonObject.GenerateMutableInterface(interfaceSuffix, rawSuffix))
+		structs = append(structs, jsonObject.GenerateStruct(rawSuffix))
+		implementations = append(implementations, jsonObject.GenerateImplementation(interfaceSuffix, rawSuffix))
 	}
 	return
 }

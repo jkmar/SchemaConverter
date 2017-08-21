@@ -192,12 +192,6 @@ func (property *Property) GenerateGetter(
 	variable,
 	suffix string,
 ) string {
-	//return fmt.Sprintf(
-	//	"%s {\n\treturn %s.%s\n}",
-	//	property.GetterHeader(suffix),
-	//	variable,
-	//	property.goName(),
-	//)
 	return fmt.Sprintf(
 		"%s {\n%s\n}",
 		property.GetterHeader(suffix),
@@ -213,15 +207,16 @@ func (property *Property) GenerateGetter(
 // GenerateSetter returns a setter for a property
 func (property *Property) GenerateSetter(
 	variable,
-	suffix string,
+	interfaceSuffix,
+	typeSuffix string,
 ) string {
 	return fmt.Sprintf(
 		"%s {\n%s\n}",
-		property.SetterHeader(suffix, true),
+		property.SetterHeader(interfaceSuffix, true),
 		property.item.GenerateSetter(
 			variable+"."+property.goName(),
 			util.VariableName(property.Name()),
-			suffix,
+			typeSuffix,
 			1,
 		),
 	)

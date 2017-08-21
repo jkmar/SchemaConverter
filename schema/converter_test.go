@@ -27,14 +27,14 @@ var _ = Describe("converter tess", func() {
 			var expected = fmt.Errorf("schema does not have an id")
 
 			It("Should return error for invalid other schema", func() {
-				_, _, _, err := Convert(validSchema, invalidSchema, "")
+				_, _, _, _, err := Convert(validSchema, invalidSchema, "", "")
 
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError(expected))
 			})
 
 			It("Should return error for invalid other schema", func() {
-				_, _, _, err := Convert(invalidSchema, validSchema, "")
+				_, _, _, _, err := Convert(invalidSchema, validSchema, "", "")
 
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError(expected))
@@ -43,7 +43,7 @@ var _ = Describe("converter tess", func() {
 
 		Describe("collect errors", func() {
 			It("Should return error for multiple schemas with the same name", func() {
-				_, _, _, err := Convert(validSchema, validSchema, "")
+				_, _, _, _, err := Convert(validSchema, validSchema, "", "")
 
 				expected := fmt.Errorf("multiple schemas with the same name")
 				Expect(err).To(HaveOccurred())
@@ -81,7 +81,7 @@ var _ = Describe("converter tess", func() {
 					},
 				}
 
-				_, _, _, err := Convert(nil, schemas, "")
+				_, _, _, _, err := Convert(nil, schemas, "", "")
 
 				expected := fmt.Errorf(
 					"invalid schema %s: multiple objects with the same type at object %s",
@@ -242,7 +242,7 @@ var _ = Describe("converter tess", func() {
 				},
 			}
 
-			interfaces, structs, implementations, err := Convert(other, toConvert, "")
+			interfaces, _, structs, implementations, err := Convert(other, toConvert, "", "")
 			Expect(err).ToNot(HaveOccurred())
 
 			generalInterface := `type IGeneral interface {
