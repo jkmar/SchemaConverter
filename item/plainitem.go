@@ -15,6 +15,12 @@ type PlainItem struct {
 	itemType string
 }
 
+// Copy implementation
+func (plainItem *PlainItem) Copy() Item {
+	newItem := *plainItem
+	return &newItem
+}
+
 // ToString implementation
 func (plainItem *PlainItem) ToString() string {
 	return fmt.Sprintf("#%s,%v", plainItem.itemType, plainItem.IsNull())

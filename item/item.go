@@ -11,6 +11,9 @@ import (
 type Item interface {
 	hash.IHashable
 
+	// Copy should make a copy of an item
+	Copy() Item
+
 	// ChangeName should change the name of an item recursively
 	// args:
 	//   1. name.Mark - mark that changes the items name

@@ -16,6 +16,12 @@ type Object struct {
 	required   map[string]bool
 }
 
+// Copy implementation
+func (object *Object) Copy() Item {
+	newObject := *object
+	return &newObject
+}
+
 // ToString implementation
 func (object *Object) ToString() string {
 	return "#*"
@@ -102,7 +108,10 @@ func (object *Object) AddProperties(properties set.Set, safe bool) error {
 	}
 	for _, property := range properties {
 		if object.required[property.Name()] {
-			property.(*Property).MakeRequired()
+			newProperty := *property.(*Property)
+			if newProperty.MakeRequired() {
+				object.properties.Insert(&newProperty)
+			}
 		}
 	}
 	return nil

@@ -57,8 +57,14 @@ func (property *Property) Name() string {
 }
 
 // MakeRequired makes an item in property required
-func (property *Property) MakeRequired() {
-	property.item.MakeRequired()
+// returns true if property was changed
+func (property *Property) MakeRequired() bool {
+	if property.item.IsNull() {
+		property.item = property.item.Copy()
+		property.item.MakeRequired()
+		return true
+	}
+	return false
 }
 
 // IsObject checks if an item in property is an object

@@ -13,6 +13,12 @@ type Array struct {
 	arrayItem Item
 }
 
+// Copy implementation
+func (array *Array) Copy() Item {
+	newArray := *array
+	return &newArray
+}
+
 // ToString implementation
 func (array *Array) ToString() string {
 	return "#[]"
