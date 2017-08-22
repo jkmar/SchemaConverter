@@ -45,7 +45,7 @@ func (plainItem *PlainItem) IsNull() bool {
 
 // MakeRequired implementation
 func (plainItem *PlainItem) MakeRequired() {
-	plainItem.required = false
+	plainItem.required = true
 }
 
 // Type implementation
