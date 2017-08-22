@@ -7,8 +7,8 @@ import (
 )
 
 var typeMapping = map[string]string{
-	"integer":  "int64",
-	"number":   "int64",
+	"integer":  "int",
+	"number":   "float64",
 	"boolean":  "bool",
 	"abstract": "object",
 }
