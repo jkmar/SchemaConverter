@@ -123,7 +123,10 @@ var _ = Describe("object tests", func() {
 			for _, name := range names {
 				properties.Insert(CreateProperty(name))
 			}
-			object = &Object{"", properties}
+			object = &Object{
+				objectType: "",
+				properties: properties,
+			}
 		})
 
 		It("Should ignore an empty set", func() {

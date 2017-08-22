@@ -3,16 +3,17 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"strings"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Object is an implementation of Item interface
 type Object struct {
 	objectType string
 	properties set.Set
+	required   map[string]bool
 }
 
 // ToString implementation
@@ -61,6 +62,10 @@ func (object *Object) IsNull() bool {
 	return false
 }
 
+// MakeRequired implementation
+func (object *Object) MakeRequired() {
+}
+
 // Name is a function that allows object to be used as a set element
 func (object *Object) Name() string {
 	return object.objectType
@@ -95,6 +100,11 @@ func (object *Object) AddProperties(properties set.Set, safe bool) error {
 		properties.InsertAll(object.properties)
 		object.properties = properties
 	}
+	for _, property := range properties {
+		if object.required[property.Name()] {
+			property.(*Property).MakeRequired()
+		}
+	}
 	return nil
 }
 
@@ -114,6 +124,9 @@ func (object *Object) Parse(
 			prefix,
 			err,
 		)
+	}
+	if level <= 1 {
+		object.required = requiredMap
 	}
 	properties, ok := data["properties"]
 	if !ok {

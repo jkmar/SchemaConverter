@@ -2,9 +2,9 @@ package item
 
 import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Item is an interface for a type of a variable
@@ -20,6 +20,9 @@ type Item interface {
 	// return:
 	//   true iff. item can be null
 	IsNull() bool
+
+	// MakeRequired should not allow item to be null
+	MakeRequired()
 
 	// ContainsObject checks if an item contains an object
 	// return:

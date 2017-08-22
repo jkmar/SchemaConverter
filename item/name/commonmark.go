@@ -4,12 +4,14 @@ import "strings"
 
 const new = "common"
 
+// CommonMark is a mark that changes names to common
 type CommonMark struct {
 	used  bool
 	begin int
 	end   int
 }
 
+// Change implementation
 func (commonMark *CommonMark) Change(string *string) bool {
 	if strings.HasPrefix((*string)[commonMark.begin:], new) {
 		return false
@@ -25,12 +27,14 @@ func (commonMark *CommonMark) Change(string *string) bool {
 	return true
 }
 
+// Update implementation
 func (commonMark *CommonMark) Update(mark Mark) {
 	difference := mark.lengthDifference()
 	commonMark.begin += difference
 	commonMark.end += difference
 }
 
+// lengthDifference implementation
 func (commonMark *CommonMark) lengthDifference() int {
 	if commonMark.used {
 		return len(new) - commonMark.end + commonMark.begin

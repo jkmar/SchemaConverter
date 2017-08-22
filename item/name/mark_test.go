@@ -13,9 +13,9 @@ var _ = Describe("mark tests", func() {
 			result := CreateMark(prefix)
 
 			expected := &CommonMark{
-				used: false,
+				used:  false,
 				begin: len(prefix),
-				end: 0,
+				end:   0,
 			}
 			Expect(result).To(Equal(expected))
 		})
