@@ -5,6 +5,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Array is an implementation of Item interface
@@ -27,6 +28,11 @@ func (array *Array) Compress(source, destination hash.IHashable) {
 // GetChildren implementation
 func (array *Array) GetChildren() []hash.IHashable {
 	return []hash.IHashable{array.arrayItem}
+}
+
+// ChangeName implementation
+func (array *Array) ChangeName(mark name.Mark) {
+	array.arrayItem.ChangeName(mark)
 }
 
 // ContainsObject implementation

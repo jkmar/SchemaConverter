@@ -5,6 +5,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Property is a type for an item with name
@@ -12,6 +13,7 @@ type Property struct {
 	name string
 	item Item
 	kind Kind
+	mark name.Mark
 }
 
 // CreateProperty is a constructor
@@ -28,6 +30,7 @@ func (property *Property) ToString() string {
 func (property *Property) Compress(source, destination hash.IHashable) {
 	if sourceItem, ok := source.(Item); property.item == destination && ok {
 		property.item = sourceItem
+		property.item.ChangeName(property.mark)
 	}
 }
 
@@ -40,6 +43,12 @@ func (property *Property) GetChildren() []hash.IHashable {
 // from an object tree rooted at a property
 func (property *Property) CompressObjects() {
 	hash.Run(property, 2)
+}
+
+// ChangeName should change name of items of a property
+func (property *Property) ChangeName(mark name.Mark) {
+	property.mark.Update(mark)
+	property.item.ChangeName(mark)
 }
 
 // Name gets a name of a property
@@ -70,6 +79,7 @@ func (property *Property) Parse(
 	data map[interface{}]interface{},
 ) (err error) {
 	property.getKindFromLevel(level)
+	property.mark = name.CreateMark(util.AddName(prefix, ""))
 
 	objectType, ok := data["type"]
 	if !ok {

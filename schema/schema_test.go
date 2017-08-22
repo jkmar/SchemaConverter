@@ -498,7 +498,7 @@ var _ = Describe("schema tests", func() {
 			Expect(util.ToGoName(array[0].Name(), "")).To(Equal(names[0]))
 			Expect(util.ToGoName(array[1].Name(), "")).To(Equal(names[0] + names[0]))
 			Expect(util.ToGoName(array[2].Name(), "")).To(Equal(names[0] + names[1]))
-			Expect(util.ToGoName(array[3].Name(), "")).To(Equal(names[0] + names[1] + names[0]))
+			Expect(util.ToGoName(array[3].Name(), "")).To(Equal(names[0] + names[1] + "Common"))
 		})
 	})
 

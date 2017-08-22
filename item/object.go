@@ -6,6 +6,7 @@ import (
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"strings"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Object is an implementation of Item interface
@@ -39,6 +40,15 @@ func (object *Object) GetChildren() []hash.IHashable {
 		result[i] = property.(hash.IHashable)
 	}
 	return result
+}
+
+// ChangeName implementation
+func (object *Object) ChangeName(mark name.Mark) {
+	if mark.Change(&object.objectType) {
+		for _, property := range object.properties {
+			property.(*Property).ChangeName(mark)
+		}
+	}
 }
 
 // ContainsObject implementation

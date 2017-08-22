@@ -388,9 +388,9 @@ var _ = Describe("property tests", func() {
 	Describe("getter header tests", func() {
 		It("Should generate a correct getter header for a plain item", func() {
 			property := &Property{
-				"name",
-				&PlainItem{itemType: "string", null: true},
-				&DBKind{},
+				name: "name",
+				item: &PlainItem{itemType: "string", null: true},
+				kind: &DBKind{},
 			}
 
 			result := property.GetterHeader("suffix")
@@ -401,9 +401,9 @@ var _ = Describe("property tests", func() {
 
 		It("Should generate a correct getter header for an object", func() {
 			property := &Property{
-				"name",
-				&Object{objectType: "test"},
-				&DBKind{},
+				name: "name",
+				item: &Object{objectType: "test"},
+				kind: &DBKind{},
 			}
 
 			result := property.GetterHeader("suffix")
@@ -416,9 +416,9 @@ var _ = Describe("property tests", func() {
 	Describe("setter header tests", func() {
 		It("Should generate a correct setter header for a plain item", func() {
 			property := &Property{
-				"name",
-				&PlainItem{itemType: "string", null: true},
-				&DBKind{},
+				name: "name",
+				item: &PlainItem{itemType: "string", null: true},
+				kind: &DBKind{},
 			}
 
 			result := property.SetterHeader("suffix", true)
@@ -429,9 +429,9 @@ var _ = Describe("property tests", func() {
 
 		It("Should generate a correct setter header for an object", func() {
 			property := &Property{
-				"name",
-				&Object{objectType: "test"},
-				&DBKind{},
+				name: "name",
+				item: &Object{objectType: "test"},
+				kind: &DBKind{},
 			}
 
 			result := property.SetterHeader("suffix", false)
@@ -444,9 +444,9 @@ var _ = Describe("property tests", func() {
 	Describe("generate getter tests", func() {
 		It("Should generate a correct getter for a plain item", func() {
 			property := &Property{
-				"def",
-				&PlainItem{itemType: "int64", null: true},
-				&DBKind{},
+				name: "def",
+				item: &PlainItem{itemType: "int64", null: true},
+				kind: &DBKind{},
 			}
 
 			result := property.GenerateGetter("var", "")
@@ -459,9 +459,9 @@ var _ = Describe("property tests", func() {
 
 		It("Should generate a correct getter for an object", func() {
 			property := &Property{
-				"abc",
-				&Object{objectType: "xyz"},
-				&DBKind{},
+				name: "abc",
+				item: &Object{objectType: "xyz"},
+				kind: &DBKind{},
 			}
 
 			result := property.GenerateGetter("var", "")
@@ -476,9 +476,9 @@ var _ = Describe("property tests", func() {
 	Describe("generate setter tests", func() {
 		It("Should generate a correct setter for a plain item", func() {
 			property := &Property{
-				"def",
-				&PlainItem{itemType: "int64", null: true},
-				&DBKind{},
+				name: "def",
+				item: &PlainItem{itemType: "int64", null: true},
+				kind: &DBKind{},
 			}
 
 			result := property.GenerateSetter("var", "", "")
@@ -491,9 +491,9 @@ var _ = Describe("property tests", func() {
 
 		It("Should generate a correct setter for an object", func() {
 			property := &Property{
-				"range",
-				&Object{objectType: "xyz"},
-				&DBKind{},
+				name: "range",
+				item: &Object{objectType: "xyz"},
+				kind: &DBKind{},
 			}
 
 			result := property.GenerateSetter("var", "", "")
@@ -506,9 +506,9 @@ var _ = Describe("property tests", func() {
 
 		It("Should generate a correct setter for an array", func() {
 			property := &Property{
-				"a",
-				&Array{&Array{&Object{objectType: "object"}}},
-				&DBKind{},
+				name: "a",
+				item: &Array{&Array{&Object{objectType: "object"}}},
+				kind: &DBKind{},
 			}
 
 			result := property.GenerateSetter("var", "", "")

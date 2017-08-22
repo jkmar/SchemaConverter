@@ -241,10 +241,10 @@ var _ = Describe("converter tess", func() {
 				},
 			}
 
-			generated, _, structs, implementations, err := Convert(other, toConvert, "", "Gen")
+			generated, interfaces, structs, implementations, err := Convert(other, toConvert, "", "Gen")
 			Expect(err).ToNot(HaveOccurred())
 
-			generalInterface := `type IGeneralGen interface {
+			generalGenerated := `type IGeneralGen interface {
 	GetArray() [][]int64
 	SetArray([][]int64)
 	GetComplex() [][]IGeneralComplexGen
@@ -265,7 +265,7 @@ var _ = Describe("converter tess", func() {
 	SetTree(IGeneralTreeGen)
 }
 `
-			onlyDeriveInterface := `type IOnlyDeriveGen interface {
+			onlyDeriveGenerated := `type IOnlyDeriveGen interface {
 	GetID() string
 	SetID(string)
 	GetIP() goext.NullInt
@@ -274,58 +274,106 @@ var _ = Describe("converter tess", func() {
 	SetObject(IBaseObjectGen)
 }
 `
-			emptyInterface := `type IEmptyGen interface {
+			emptyGenerated := `type IEmptyGen interface {
 }
 `
-			generalTreeLeftLeafSecondInterface := `type IGeneralTreeLeftLeafSecondGen interface {
+			generalTreeLeftLeafSecondGenerated := `type IGeneralTreeLeftLeafSecondGen interface {
 	GetValue() int64
 	SetValue(int64)
 }
 `
-			middleNestedFirstInterface := `type IMiddleNestedFirstGen interface {
+			middleNestedFirstGenerated := `type IMiddleNestedFirstGen interface {
 	GetSecond() IMiddleNestedFirstSecondGen
 	SetSecond(IMiddleNestedFirstSecondGen)
 }
 `
-			middleNestedInterface := `type IMiddleNestedGen interface {
+			middleNestedGenerated := `type IMiddleNestedGen interface {
 	GetFirst() IMiddleNestedFirstGen
 	SetFirst(IMiddleNestedFirstGen)
 }
 `
-			generalComplexInterface := `type IGeneralComplexGen interface {
+			generalComplexGenerated := `type IGeneralComplexGen interface {
 	GetFor() int64
 	SetFor(int64)
 	GetInt() bool
 	SetInt(bool)
 }
 `
-			generalTreeLeftInterface := `type IGeneralTreeLeftGen interface {
+			generalTreeLeftGenerated := `type IGeneralTreeLeftGen interface {
 	GetLeafFirst() string
 	SetLeafFirst(string)
 	GetLeafSecond() IGeneralTreeLeftLeafSecondGen
 	SetLeafSecond(IGeneralTreeLeftLeafSecondGen)
 }
 `
-			generalTreeInterface := `type IGeneralTreeGen interface {
+			generalTreeGenerated := `type IGeneralTreeGen interface {
 	GetLeft() IGeneralTreeLeftGen
 	SetLeft(IGeneralTreeLeftGen)
 	GetRight() IGeneralTreeRightGen
 	SetRight(IGeneralTreeRightGen)
 }
 `
-			baseObjectInterface := `type IBaseObjectGen interface {
+			baseObjectGenerated := `type IBaseObjectGen interface {
 	GetX() string
 	SetX(string)
 	GetY() string
 	SetY(string)
 }
 `
-			generalTreeRightInterface := `type IGeneralTreeRightGen interface {
+			generalTreeRightGenerated := `type IGeneralTreeRightGen interface {
 	GetLeafThird() []bool
 	SetLeafThird([]bool)
 }
 `
-			middleNestedFirstSecondInterface := `type IMiddleNestedFirstSecondGen interface {
+			middleNestedFirstSecondGenerated := `type IMiddleNestedFirstSecondGen interface {
+}
+`
+			generalInterface := `type IGeneral interface {
+	IGeneralGen
+}
+`
+			onlyDeriveInterface := `type IOnlyDerive interface {
+	IOnlyDeriveGen
+}
+`
+			emptyInterface := `type IEmpty interface {
+	IEmptyGen
+}
+`
+			generalTreeLeftInterface := `type IGeneralTreeLeft interface {
+	IGeneralTreeLeftGen
+}
+`
+			middleNestedFirstInterface := `type IMiddleNestedFirst interface {
+	IMiddleNestedFirstGen
+}
+`
+			middleNestedInterface := `type IMiddleNested interface {
+	IMiddleNestedGen
+}
+`
+			generalComplexInterface := `type IGeneralComplex interface {
+	IGeneralComplexGen
+}
+`
+			generalTreeLeftLeafSecondInterface := `type IGeneralTreeLeftLeafSecond interface {
+	IGeneralTreeLeftLeafSecondGen
+}
+`
+			generalTreeInterface := `type IGeneralTree interface {
+	IGeneralTreeGen
+}
+`
+			generalTreeRightInterface := `type IGeneralTreeRight interface {
+	IGeneralTreeRightGen
+}
+`
+			middleNestedFirstSecondInterface := `type IMiddleNestedFirstSecond interface {
+	IMiddleNestedFirstSecondGen
+}
+`
+			baseObjectInterface := `type IBaseObject interface {
+	IBaseObjectGen
 }
 `
 			generalStruct := `type General struct {
@@ -599,6 +647,20 @@ func (generalTreeRight *GeneralTreeRight) SetLeafThird(leafThird []bool) {
 `
 			middleNestedFirstSecondImplementation := ``
 
+			expectedGenerated := []string{
+				baseObjectGenerated,
+				emptyGenerated,
+				generalGenerated,
+				generalComplexGenerated,
+				generalTreeGenerated,
+				generalTreeLeftGenerated,
+				generalTreeLeftLeafSecondGenerated,
+				generalTreeRightGenerated,
+				middleNestedGenerated,
+				middleNestedFirstGenerated,
+				middleNestedFirstSecondGenerated,
+				onlyDeriveGenerated,
+			}
 			expectedInterfaces := []string{
 				baseObjectInterface,
 				emptyInterface,
@@ -641,7 +703,8 @@ func (generalTreeRight *GeneralTreeRight) SetLeafThird(leafThird []bool) {
 				middleNestedFirstSecondImplementation,
 				onlyDeriveImplementation,
 			}
-			Expect(generated).To(Equal(expectedInterfaces))
+			Expect(generated).To(Equal(expectedGenerated))
+			Expect(interfaces).To(Equal(expectedInterfaces))
 			Expect(structs).To(Equal(expectedStructs))
 			Expect(implementations).To(Equal(expectedImplementations))
 		})
