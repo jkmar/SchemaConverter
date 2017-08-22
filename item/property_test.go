@@ -174,7 +174,7 @@ var _ = Describe("property tests", func() {
 
 	Describe("collect objects tests", func() {
 		It("Should collect object", func() {
-			object := &Object{"abc", nil}
+			object := &Object{objectType: "abc"}
 			property := &Property{
 				name: "",
 				item: object,

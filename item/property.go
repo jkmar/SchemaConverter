@@ -3,9 +3,9 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Property is a type for an item with name
@@ -54,6 +54,11 @@ func (property *Property) ChangeName(mark name.Mark) {
 // Name gets a name of a property
 func (property *Property) Name() string {
 	return property.name
+}
+
+// MakeRequired makes an item in property required
+func (property *Property) MakeRequired() {
+	property.item.MakeRequired()
 }
 
 // IsObject checks if an item in property is an object

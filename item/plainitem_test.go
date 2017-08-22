@@ -11,21 +11,21 @@ var _ = Describe("plain item tests", func() {
 		Describe("to string tests", func() {
 			It("Should return a correct item type", func() {
 				typeOfItem := "int64"
-				plainItem := PlainItem{itemType: typeOfItem, null: false}
+				plainItem := PlainItem{itemType: typeOfItem}
 
 				result := plainItem.ToString()
 
-				expected := "#int64,false"
+				expected := "#int64,true"
 				Expect(result).To(Equal(expected))
 			})
 
 			It("Should return a correct item type for a null item", func() {
 				typeOfItem := "string"
-				plainItem := PlainItem{itemType: typeOfItem, null: true}
+				plainItem := PlainItem{itemType: typeOfItem, required: true}
 
 				result := plainItem.ToString()
 
-				expected := "#string,true"
+				expected := "#string,false"
 				Expect(result).To(Equal(expected))
 			})
 		})
@@ -141,7 +141,7 @@ var _ = Describe("plain item tests", func() {
 			err := plainItem.Parse(prefix, 0, false, data)
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(plainItem.null).To(BeFalse())
+			Expect(plainItem.IsNull()).To(BeFalse())
 		})
 
 		It("Should be null when neither required nor default value is provided", func() {
@@ -150,7 +150,7 @@ var _ = Describe("plain item tests", func() {
 			err := plainItem.Parse(prefix, 0, false, data)
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(plainItem.null).To(BeTrue())
+			Expect(plainItem.IsNull()).To(BeTrue())
 		})
 	})
 

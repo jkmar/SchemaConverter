@@ -6,7 +6,7 @@ import (
 )
 
 var _ = Describe("common mark tests", func() {
-	Describe("lenght difference tests", func() {
+	Describe("length difference tests", func() {
 		It("Should get a positive length difference", func() {
 			commonMark := &CommonMark{
 				used:  true,
@@ -73,9 +73,9 @@ var _ = Describe("common mark tests", func() {
 			string := prefix + "common"
 			old := string
 			mark := &CommonMark{
-				used: false,
+				used:  false,
 				begin: len(prefix),
-				end: len(prefix),
+				end:   len(prefix),
 			}
 
 			result := mark.Change(&string)
@@ -89,9 +89,9 @@ var _ = Describe("common mark tests", func() {
 			prefix := "test"
 			string := prefix + "suffix"
 			mark := &CommonMark{
-				used: false,
+				used:  false,
 				begin: len(prefix),
-				end: len(prefix),
+				end:   len(prefix),
 			}
 
 			result := mark.Change(&string)
@@ -106,9 +106,9 @@ var _ = Describe("common mark tests", func() {
 			suffix := "suffix"
 			string := prefix + suffix
 			mark := &CommonMark{
-				used: true,
+				used:  true,
 				begin: len(prefix),
-				end: len(prefix),
+				end:   len(prefix),
 			}
 
 			result := mark.Change(&string)

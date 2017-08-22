@@ -3,9 +3,9 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // Array is an implementation of Item interface
@@ -43,6 +43,10 @@ func (array *Array) ContainsObject() bool {
 // IsNull implementation
 func (array *Array) IsNull() bool {
 	return false
+}
+
+// MakeRequired implementation
+func (array *Array) MakeRequired() {
 }
 
 // Type implementation

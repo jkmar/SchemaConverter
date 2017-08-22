@@ -3,20 +3,21 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
 )
 
 // PlainItem is an implementation of Item interface
 type PlainItem struct {
+	required bool
 	null     bool
 	itemType string
 }
 
 // ToString implementation
 func (plainItem *PlainItem) ToString() string {
-	return fmt.Sprintf("#%s,%v", plainItem.itemType, plainItem.null)
+	return fmt.Sprintf("#%s,%v", plainItem.itemType, plainItem.IsNull())
 }
 
 // Compress implementation
@@ -39,7 +40,12 @@ func (plainItem *PlainItem) ContainsObject() bool {
 
 // IsNull implementation
 func (plainItem *PlainItem) IsNull() bool {
-	return plainItem.null
+	return plainItem.null || !plainItem.required
+}
+
+// MakeRequired implementation
+func (plainItem *PlainItem) MakeRequired() {
+	plainItem.required = false
 }
 
 // Type implementation
@@ -80,11 +86,14 @@ func (plainItem *PlainItem) Parse(
 		)
 	}
 
-	if !required {
-		if _, ok = data["default"]; !ok {
-			plainItem.null = true
-		}
+	if _, ok = data["default"]; ok || required {
+		plainItem.required = true
 	}
+	//if !required {
+	//	if _, ok = data["default"]; !ok {
+	//		plainItem.required = true
+	//	}
+	//}
 
 	return
 }

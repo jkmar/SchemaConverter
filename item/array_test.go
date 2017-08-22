@@ -189,7 +189,7 @@ var _ = Describe("array tests", func() {
 
 		It("Should return object for an array of objects", func() {
 			name := "Test"
-			array := &Array{&Object{name, nil}}
+			array := &Array{&Object{objectType: name}}
 
 			result, err := array.CollectObjects(1, 0)
 
