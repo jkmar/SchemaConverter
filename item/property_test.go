@@ -58,6 +58,40 @@ var _ = Describe("property tests", func() {
 		})
 	})
 
+	Describe("make required tests", func() {
+		It("Should return false for a property with a non null item", func() {
+			item := &Object{}
+			property := &Property{item: item}
+
+			result := property.MakeRequired()
+
+			Expect(result).To(BeFalse())
+			Expect(property.item).To(BeIdenticalTo(item))
+		})
+
+		It("Should return true for a property with a null item", func() {
+			item := &PlainItem{}
+			property := &Property{item: item}
+
+			result := property.MakeRequired()
+
+			Expect(result).To(BeTrue())
+			Expect(property.item.IsNull()).To(BeFalse())
+			Expect(property.item).ToNot(Equal(item))
+		})
+
+		It("Should copy a property item", func() {
+			item := &PlainItem{null: true, required: true}
+			property := &Property{item: item}
+
+			result := property.MakeRequired()
+
+			Expect(result).To(BeTrue())
+			Expect(property.item.IsNull()).To(BeTrue())
+			Expect(property.item).ToNot(BeIdenticalTo(item))
+		})
+	})
+
 	Describe("creation tests", func() {
 		It("Should create a property with a correct name", func() {
 			name := "name"
@@ -170,6 +204,106 @@ var _ = Describe("property tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(property.item.Type("")).To(Equal(expected))
 		})
+
+		Describe("null item tests", func() {
+			It("Should be null for non required, no default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": "string",
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+
+			It("Should not be null for required, no default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": "string",
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeFalse())
+			})
+			It("Should not be null for non required, default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type":    "string",
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeFalse())
+			})
+			It("Should not be null for required, default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type":    "string",
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeFalse())
+			})
+			It("Should be null for non required, no default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+			It("Should be null for required, no default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+			It("Should be null for non required, default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+			It("Should be null for required, default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+		})
 	})
 
 	Describe("collect objects tests", func() {
@@ -260,7 +394,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID []int64 `%s:\"%s\"`\n",
+					"\tDefID []int `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -353,7 +487,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID []int64 `%s:\"%s\"`\n",
+					"\tDefID []int `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -610,6 +744,84 @@ var _ = Describe("property tests", func() {
 			objects, err := property.CollectObjects(-1, 0)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(objects.Size()).To(Equal(3))
+		})
+
+		It("Should change names of compressed objects", func() {
+			data := map[interface{}]interface{}{
+				"type": "object",
+				"properties": map[interface{}]interface{}{
+					"a": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type":    "string",
+											"default": "test",
+										},
+									},
+								},
+								"b": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "string",
+										},
+									},
+									"required": []interface{}{
+										"a",
+									},
+								},
+							},
+						},
+					},
+					"b": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type":    "string",
+											"default": "test",
+										},
+									},
+								},
+								"b": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "string",
+										},
+									},
+									"required": []interface{}{
+										"a",
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+			property := &Property{name: "test"}
+			err := property.Parse("test", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			property.CompressObjects()
+
+			objects, err := property.CollectObjects(-1, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(objects.Size()).To(Equal(3))
+
+			array := objects.ToArray()
+			Expect(array[0].Name()).To(Equal("test_test"))
+			Expect(array[1].Name()).To(Equal("test_test_common"))
+			Expect(array[2].Name()).To(Equal("test_test_common_common"))
 		})
 	})
 })

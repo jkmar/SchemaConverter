@@ -82,6 +82,28 @@ var _ = Describe("object tests", func() {
 		})
 	})
 
+	Describe("copy tests", func() {
+		It("Should copy an object", func() {
+			object := &Object{}
+
+			copy := object.Copy()
+
+			Expect(copy).ToNot(BeIdenticalTo(object))
+			Expect(copy).To(Equal(object))
+		})
+	})
+
+	Describe("make required tests", func() {
+		It("Should do nothing", func() {
+			object := &Object{}
+			old := object
+
+			object.MakeRequired()
+
+			Expect(object).To(Equal(old))
+		})
+	})
+
 	Describe("contains object tests", func() {
 		It("Should return true", func() {
 			object := &Object{}
@@ -178,6 +200,23 @@ var _ = Describe("object tests", func() {
 
 			array := object.properties.ToArray()
 			Expect(array[1].(*Property).item).To(BeNil())
+		})
+
+		It("Should make new properties if they are required", func() {
+			object.required = map[string]bool{"c": true}
+			newProperty := CreateProperty("c")
+			newProperty.item, _ = CreateItem("string")
+			newProperties := set.New()
+			newProperties.Insert(newProperty)
+
+			err := object.AddProperties(newProperties, false)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(object.properties.Size()).To(Equal(3))
+			Expect(object.properties.Contains(newProperty)).To(BeTrue())
+
+			array := object.properties.ToArray()
+			Expect(array[2]).ToNot(BeIdenticalTo(newProperty))
 		})
 	})
 
@@ -866,7 +905,7 @@ var _ = Describe("object tests", func() {
 			Expect(result).To(Equal(expected))
 		})
 
-		It("Shoud return a correct getter for an object depth >1", func() {
+		It("Should return a correct getter for an object depth >1", func() {
 			result := object.GenerateGetter(variable, argument, "", 2)
 
 			expected := fmt.Sprintf("\t\t%s = %s", argument, variable)

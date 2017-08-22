@@ -3,7 +3,7 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"strings"
@@ -14,6 +14,12 @@ type Object struct {
 	objectType string
 	properties set.Set
 	required   map[string]bool
+}
+
+// Copy implementation
+func (object *Object) Copy() Item {
+	newObject := *object
+	return &newObject
 }
 
 // ToString implementation
@@ -102,7 +108,10 @@ func (object *Object) AddProperties(properties set.Set, safe bool) error {
 	}
 	for _, property := range properties {
 		if object.required[property.Name()] {
-			property.(*Property).MakeRequired()
+			newProperty := *property.(*Property)
+			if newProperty.MakeRequired() {
+				object.properties.Insert(&newProperty)
+			}
 		}
 	}
 	return nil

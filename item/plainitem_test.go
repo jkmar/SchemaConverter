@@ -52,6 +52,27 @@ var _ = Describe("plain item tests", func() {
 		})
 	})
 
+	Describe("copy tests", func() {
+		It("Should copy a plain item", func() {
+			plainItem := &PlainItem{}
+
+			copy := plainItem.Copy()
+
+			Expect(copy).ToNot(BeIdenticalTo(plainItem))
+			Expect(copy).To(Equal(plainItem))
+		})
+	})
+
+	Describe("make required tests", func() {
+		It("Should make an item required", func() {
+			plainItem := &PlainItem{}
+
+			plainItem.MakeRequired()
+
+			Expect(plainItem.required).To(BeTrue())
+		})
+	})
+
 	Describe("contains object tests", func() {
 		It("Should return false", func() {
 			plainItem := &PlainItem{}
@@ -127,7 +148,7 @@ var _ = Describe("plain item tests", func() {
 
 			err := plainItem.Parse(prefix, 0, true, data)
 
-			expected := "int64"
+			expected := "float64"
 			Expect(err).ToNot(HaveOccurred())
 			Expect(plainItem.Type("")).To(Equal(expected))
 		})

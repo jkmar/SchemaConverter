@@ -134,4 +134,81 @@ var _ = Describe("hash tests", func() {
 			Expect(first.value).ToNot(Equal(second.value))
 		})
 	})
+
+	Describe("sorting tests", func() {
+		Describe("len tests", func() {
+			It("Should return a correct length", func() {
+				array := byHash{&treeNode{}, &treeNode{}}
+
+				Expect(array.Len()).To(Equal(len(array)))
+			})
+		})
+
+		Describe("swap tests", func() {
+			It("Should swap items on an array", func() {
+				first := &treeNode{index: 0}
+				second := &treeNode{index: 1}
+				array := byHash{first, second}
+
+				array.Swap(0, 1)
+
+				Expect(array[0]).To(BeIdenticalTo(second))
+				Expect(array[1]).To(BeIdenticalTo(first))
+			})
+		})
+
+		Describe("less tests", func() {
+			var (
+				first  *treeNode
+				second *treeNode
+				array  byHash
+			)
+
+			BeforeEach(func() {
+				first = &treeNode{}
+				second = &treeNode{}
+				array = byHash{first, second}
+			})
+
+			It("Should be less when ancestor of the first is nil", func() {
+				first.ancestor = nil
+
+				Expect(array.Less(0, 1)).To(BeTrue())
+			})
+
+			It("Should be greater when ancestor of the second is nil", func() {
+				first.ancestor = first
+				second.ancestor = nil
+
+				Expect(array.Less(0, 1)).To(BeFalse())
+			})
+
+			It("Should compare by index of an ancestors if hashes are equal", func() {
+				first.ancestor = &treeNode{index: 1}
+				second.ancestor = &treeNode{index: 0}
+				first.value = Node{}
+				second.value = Node{}
+
+				Expect(array.Less(0, 1)).To(BeFalse())
+			})
+
+			It("Should compare by length if values are equal", func() {
+				first.ancestor = first
+				second.ancestor = first
+				first.value = Node{length: 1}
+				second.value = Node{length: 0}
+
+				Expect(array.Less(0, 1)).To(BeFalse())
+			})
+
+			It("Should compare by value", func() {
+				first.ancestor = first
+				second.ancestor = first
+				first.value = Node{value: 0, length: 1}
+				second.value = Node{value: 1, length: 0}
+
+				Expect(array.Less(0, 1)).To(BeTrue())
+			})
+		})
+	})
 })

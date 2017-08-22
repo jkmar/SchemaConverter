@@ -3,7 +3,7 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -11,6 +11,12 @@ import (
 // Array is an implementation of Item interface
 type Array struct {
 	arrayItem Item
+}
+
+// Copy implementation
+func (array *Array) Copy() Item {
+	newArray := *array
+	return &newArray
 }
 
 // ToString implementation

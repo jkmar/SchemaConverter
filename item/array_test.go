@@ -56,6 +56,28 @@ var _ = Describe("array tests", func() {
 		})
 	})
 
+	Describe("copy tests", func() {
+		It("Should copy an array", func() {
+			array := &Array{&Array{&Object{}}}
+
+			copy := array.Copy()
+
+			Expect(copy).ToNot(BeIdenticalTo(array))
+			Expect(copy).To(Equal(array))
+		})
+	})
+
+	Describe("make required tests", func() {
+		It("Should do nothing", func() {
+			array := &Array{&Array{&Object{}}}
+			old := array
+
+			array.MakeRequired()
+
+			Expect(array).To(Equal(old))
+		})
+	})
+
 	Describe("contains object tests", func() {
 		It("Should return true for an array of objects", func() {
 			array := Array{&Object{}}

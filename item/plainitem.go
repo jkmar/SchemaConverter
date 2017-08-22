@@ -3,7 +3,7 @@ package item
 import (
 	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -13,6 +13,12 @@ type PlainItem struct {
 	required bool
 	null     bool
 	itemType string
+}
+
+// Copy implementation
+func (plainItem *PlainItem) Copy() Item {
+	newItem := *plainItem
+	return &newItem
 }
 
 // ToString implementation
@@ -45,7 +51,7 @@ func (plainItem *PlainItem) IsNull() bool {
 
 // MakeRequired implementation
 func (plainItem *PlainItem) MakeRequired() {
-	plainItem.required = false
+	plainItem.required = true
 }
 
 // Type implementation

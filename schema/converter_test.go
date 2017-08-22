@@ -245,14 +245,14 @@ var _ = Describe("converter tess", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			generalGenerated := `type IGeneralGen interface {
-	GetArray() [][]int64
-	SetArray([][]int64)
+	GetArray() [][]float64
+	SetArray([][]float64)
 	GetComplex() [][]IGeneralComplexGen
 	SetComplex([][]IGeneralComplexGen)
 	GetID() string
 	SetID(string)
-	GetIP() goext.NullInt
-	SetIP(goext.NullInt)
+	GetIP() goext.NullFloat
+	SetIP(goext.NullFloat)
 	GetNested() IMiddleNestedGen
 	SetNested(IMiddleNestedGen)
 	GetNull() goext.NullBool
@@ -268,8 +268,8 @@ var _ = Describe("converter tess", func() {
 			onlyDeriveGenerated := `type IOnlyDeriveGen interface {
 	GetID() string
 	SetID(string)
-	GetIP() goext.NullInt
-	SetIP(goext.NullInt)
+	GetIP() goext.NullFloat
+	SetIP(goext.NullFloat)
 	GetObject() IBaseObjectGen
 	SetObject(IBaseObjectGen)
 }
@@ -278,8 +278,8 @@ var _ = Describe("converter tess", func() {
 }
 `
 			generalTreeLeftLeafSecondGenerated := `type IGeneralTreeLeftLeafSecondGen interface {
-	GetValue() int64
-	SetValue(int64)
+	GetValue() float64
+	SetValue(float64)
 }
 `
 			middleNestedFirstGenerated := `type IMiddleNestedFirstGen interface {
@@ -293,8 +293,8 @@ var _ = Describe("converter tess", func() {
 }
 `
 			generalComplexGenerated := `type IGeneralComplexGen interface {
-	GetFor() int64
-	SetFor(int64)
+	GetFor() float64
+	SetFor(float64)
 	GetInt() bool
 	SetInt(bool)
 }
@@ -377,10 +377,10 @@ var _ = Describe("converter tess", func() {
 }
 `
 			generalStruct := `type General struct {
-	Array [][]int64 ` + "`" + `db:"array"` + "`" + `
+	Array [][]float64 ` + "`" + `db:"array"` + "`" + `
 	Complex [][]*GeneralComplex ` + "`" + `db:"complex"` + "`" + `
 	ID string ` + "`" + `db:"id"` + "`" + `
-	IP goext.NullInt ` + "`" + `db:"ip"` + "`" + `
+	IP goext.NullFloat ` + "`" + `db:"ip"` + "`" + `
 	Nested *MiddleNested ` + "`" + `db:"nested"` + "`" + `
 	Null goext.NullBool ` + "`" + `db:"null"` + "`" + `
 	Object *BaseObject ` + "`" + `db:"object"` + "`" + `
@@ -390,7 +390,7 @@ var _ = Describe("converter tess", func() {
 `
 			onlyDeriveStruct := `type OnlyDerive struct {
 	ID string ` + "`" + `db:"id"` + "`" + `
-	IP goext.NullInt ` + "`" + `db:"ip"` + "`" + `
+	IP goext.NullFloat ` + "`" + `db:"ip"` + "`" + `
 	Object *BaseObject ` + "`" + `db:"object"` + "`" + `
 }
 `
@@ -398,7 +398,7 @@ var _ = Describe("converter tess", func() {
 }
 `
 			generalTreeLeftLeafSecondStruct := `type GeneralTreeLeftLeafSecond struct {
-	Value int64 ` + "`" + `json:"value,omitempty"` + "`" + `
+	Value float64 ` + "`" + `json:"value,omitempty"` + "`" + `
 }
 `
 			middleNestedFirstStruct := `type MiddleNestedFirst struct {
@@ -410,7 +410,7 @@ var _ = Describe("converter tess", func() {
 }
 `
 			generalComplexStruct := `type GeneralComplex struct {
-	For int64 ` + "`" + `json:"for,omitempty"` + "`" + `
+	For float64 ` + "`" + `json:"for,omitempty"` + "`" + `
 	Int bool ` + "`" + `json:"int,omitempty"` + "`" + `
 }
 `
@@ -436,12 +436,12 @@ var _ = Describe("converter tess", func() {
 			middleNestedFirstSecondStruct := `type MiddleNestedFirstSecond struct {
 }
 `
-			generalImplementation := `func (general *General) GetArray() [][]int64 {
+			generalImplementation := `func (general *General) GetArray() [][]float64 {
 	return general.Array
 }
 
-func (general *General) SetArray(array [][]int64) {
-	general.Array = make([][]int64, len(array))
+func (general *General) SetArray(array [][]float64) {
+	general.Array = make([][]float64, len(array))
 	for i := range array {
 		general.Array[i] = array[i]
 	}
@@ -476,11 +476,11 @@ func (general *General) SetID(id string) {
 	general.ID = id
 }
 
-func (general *General) GetIP() goext.NullInt {
+func (general *General) GetIP() goext.NullFloat {
 	return general.IP
 }
 
-func (general *General) SetIP(ip goext.NullInt) {
+func (general *General) SetIP(ip goext.NullFloat) {
 	general.IP = ip
 }
 
@@ -532,11 +532,11 @@ func (onlyDerive *OnlyDerive) SetID(id string) {
 	onlyDerive.ID = id
 }
 
-func (onlyDerive *OnlyDerive) GetIP() goext.NullInt {
+func (onlyDerive *OnlyDerive) GetIP() goext.NullFloat {
 	return onlyDerive.IP
 }
 
-func (onlyDerive *OnlyDerive) SetIP(ip goext.NullInt) {
+func (onlyDerive *OnlyDerive) SetIP(ip goext.NullFloat) {
 	onlyDerive.IP = ip
 }
 
@@ -549,11 +549,11 @@ func (onlyDerive *OnlyDerive) SetObject(object IBaseObjectGen) {
 }
 `
 			emptyImplementation := ``
-			generalTreeLeftLeafSecondImplementation := `func (generalTreeLeftLeafSecond *GeneralTreeLeftLeafSecond) GetValue() int64 {
+			generalTreeLeftLeafSecondImplementation := `func (generalTreeLeftLeafSecond *GeneralTreeLeftLeafSecond) GetValue() float64 {
 	return generalTreeLeftLeafSecond.Value
 }
 
-func (generalTreeLeftLeafSecond *GeneralTreeLeftLeafSecond) SetValue(value int64) {
+func (generalTreeLeftLeafSecond *GeneralTreeLeftLeafSecond) SetValue(value float64) {
 	generalTreeLeftLeafSecond.Value = value
 }
 `
@@ -573,11 +573,11 @@ func (middleNested *MiddleNested) SetFirst(first IMiddleNestedFirstGen) {
 	middleNested.First = first.(*MiddleNestedFirst)
 }
 `
-			generalComplexImplementation := `func (generalComplex *GeneralComplex) GetFor() int64 {
+			generalComplexImplementation := `func (generalComplex *GeneralComplex) GetFor() float64 {
 	return generalComplex.For
 }
 
-func (generalComplex *GeneralComplex) SetFor(forObject int64) {
+func (generalComplex *GeneralComplex) SetFor(forObject float64) {
 	generalComplex.For = forObject
 }
 

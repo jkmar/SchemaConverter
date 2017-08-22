@@ -2,7 +2,7 @@ package item
 
 import (
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
-	"github.com/zimnx/YamlSchemaToGoStruct/item/name"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -10,6 +10,9 @@ import (
 // Item is an interface for a type of a variable
 type Item interface {
 	hash.IHashable
+
+	// Copy should make a copy of an item
+	Copy() Item
 
 	// ChangeName should change the name of an item recursively
 	// args:
