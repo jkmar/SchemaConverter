@@ -2,6 +2,8 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
@@ -11,6 +13,7 @@ type Property struct {
 	name string
 	item Item
 	kind Kind
+	mark name.Mark
 }
 
 // CreateProperty is a constructor
@@ -18,9 +21,50 @@ func CreateProperty(name string) *Property {
 	return &Property{name: name}
 }
 
-// Name gets a property name
+// ToString implementation
+func (property *Property) ToString() string {
+	return property.name
+}
+
+// Compress implementation
+func (property *Property) Compress(source, destination hash.IHashable) {
+	if sourceItem, ok := source.(Item); property.item == destination && ok {
+		property.item = sourceItem
+		property.item.ChangeName(property.mark)
+	}
+}
+
+// GetChildren implementation
+func (property *Property) GetChildren() []hash.IHashable {
+	return []hash.IHashable{property.item}
+}
+
+// CompressObjects removes duplicate objects
+// from an object tree rooted at a property
+func (property *Property) CompressObjects() {
+	hash.Run(property, 2)
+}
+
+// ChangeName should change name of items of a property
+func (property *Property) ChangeName(mark name.Mark) {
+	property.mark.Update(mark)
+	property.item.ChangeName(mark)
+}
+
+// Name gets a name of a property
 func (property *Property) Name() string {
 	return property.name
+}
+
+// MakeRequired makes an item in property required
+// returns true if property was changed
+func (property *Property) MakeRequired() bool {
+	if property.item.IsNull() {
+		property.item = property.item.Copy()
+		property.item.MakeRequired()
+		return true
+	}
+	return false
 }
 
 // IsObject checks if an item in property is an object
@@ -46,6 +90,7 @@ func (property *Property) Parse(
 	data map[interface{}]interface{},
 ) (err error) {
 	property.getKindFromLevel(level)
+	property.mark = name.CreateMark(util.AddName(prefix, ""))
 
 	objectType, ok := data["type"]
 	if !ok {
@@ -61,6 +106,9 @@ func (property *Property) Parse(
 			util.AddName(prefix, property.name),
 			err,
 		)
+	}
+	if property.goName() == "ID" {
+		required = true
 	}
 	return property.item.Parse(
 		util.AddName(prefix, property.name),
@@ -133,8 +181,70 @@ func (property *Property) GenerateProperty(suffix string) string {
 		"\t%s %s %s\n",
 		util.ToGoName(property.name, ""),
 		property.kind.Type(suffix, property.item),
-		property.kind.Annotation(property.Name(), property.item),
+		property.kind.Annotation(property.name, property.item),
 	)
+}
+
+// GetterHeader returns a header of a getter for a property
+func (property *Property) GetterHeader(suffix string) string {
+	return fmt.Sprintf(
+		"%s() %s",
+		util.ToGoName("get", property.name),
+		property.kind.InterfaceType(suffix, property.item),
+	)
+}
+
+// SetterHeader returns a header of a setter for a property
+func (property *Property) SetterHeader(suffix string, argument bool) string {
+	var arg string
+	if argument {
+		arg = util.VariableName(property.Name()) + " "
+	}
+	return fmt.Sprintf(
+		"%s(%s%s)",
+		util.ToGoName("set", property.name),
+		arg,
+		property.kind.InterfaceType(suffix, property.item),
+	)
+}
+
+// GenerateGetter returns a getter for a property
+func (property *Property) GenerateGetter(
+	variable,
+	suffix string,
+) string {
+	return fmt.Sprintf(
+		"%s {\n%s\n}",
+		property.GetterHeader(suffix),
+		property.item.GenerateGetter(
+			variable+"."+property.goName(),
+			"result",
+			suffix,
+			1,
+		),
+	)
+}
+
+// GenerateSetter returns a setter for a property
+func (property *Property) GenerateSetter(
+	variable,
+	interfaceSuffix,
+	typeSuffix string,
+) string {
+	return fmt.Sprintf(
+		"%s {\n%s\n}",
+		property.SetterHeader(interfaceSuffix, true),
+		property.item.GenerateSetter(
+			variable+"."+property.goName(),
+			util.VariableName(property.Name()),
+			typeSuffix,
+			1,
+		),
+	)
+}
+
+func (property *Property) goName() string {
+	return util.ToGoName(property.name, "")
 }
 
 func (property *Property) getKindFromLevel(level int) {

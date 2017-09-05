@@ -9,6 +9,89 @@ import (
 )
 
 var _ = Describe("property tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct string representation of a property", func() {
+				name := "name"
+				property := CreateProperty(name)
+
+				result := property.ToString()
+
+				Expect(result).To(Equal(name))
+			})
+		})
+
+		Describe("compress tests", func() {
+			It("Should compress if destination is owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				property := Property{item: destination}
+
+				property.Compress(source, destination)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(property.item).To(BeIdenticalTo(source))
+			})
+
+			It("Should not compress if destination is not owned by the array", func() {
+				source := &PlainItem{itemType: "1"}
+				destination := &PlainItem{itemType: "2"}
+				property := Property{item: destination}
+
+				property.Compress(destination, source)
+
+				Expect(source).ToNot(BeIdenticalTo(destination))
+				Expect(property.item).To(BeIdenticalTo(destination))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return a correct children set", func() {
+				plainItem := &PlainItem{itemType: "test"}
+				property := Property{item: plainItem}
+
+				result := property.GetChildren()
+
+				Expect(len(result)).To(Equal(1))
+				Expect(result[0]).To(BeIdenticalTo(plainItem))
+			})
+		})
+	})
+
+	Describe("make required tests", func() {
+		It("Should return false for a property with a non null item", func() {
+			item := &Object{}
+			property := &Property{item: item}
+
+			result := property.MakeRequired()
+
+			Expect(result).To(BeFalse())
+			Expect(property.item).To(BeIdenticalTo(item))
+		})
+
+		It("Should return true for a property with a null item", func() {
+			item := &PlainItem{}
+			property := &Property{item: item}
+
+			result := property.MakeRequired()
+
+			Expect(result).To(BeTrue())
+			Expect(property.item.IsNull()).To(BeFalse())
+			Expect(property.item).ToNot(Equal(item))
+		})
+
+		It("Should copy a property item", func() {
+			item := &PlainItem{null: true, required: true}
+			property := &Property{item: item}
+
+			result := property.MakeRequired()
+
+			Expect(result).To(BeTrue())
+			Expect(property.item.IsNull()).To(BeTrue())
+			Expect(property.item).ToNot(BeIdenticalTo(item))
+		})
+	})
+
 	Describe("creation tests", func() {
 		It("Should create a property with a correct name", func() {
 			name := "name"
@@ -121,11 +204,111 @@ var _ = Describe("property tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(property.item.Type("")).To(Equal(expected))
 		})
+
+		Describe("null item tests", func() {
+			It("Should be null for non required, no default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": "string",
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+
+			It("Should not be null for required, no default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": "string",
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeFalse())
+			})
+			It("Should not be null for non required, default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type":    "string",
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeFalse())
+			})
+			It("Should not be null for required, default value, no null in type", func() {
+				data = map[interface{}]interface{}{
+					"type":    "string",
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeFalse())
+			})
+			It("Should be null for non required, no default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+			It("Should be null for required, no default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+			It("Should be null for non required, default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, false, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+			It("Should be null for required, default value, null in type", func() {
+				data = map[interface{}]interface{}{
+					"type": []interface{}{
+						"string",
+						"null",
+					},
+					"default": "test",
+				}
+
+				err := property.Parse(prefix, 0, true, data)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.IsNull()).To(BeTrue())
+			})
+		})
 	})
 
 	Describe("collect objects tests", func() {
 		It("Should collect object", func() {
-			object := &Object{"abc", nil}
+			object := &Object{objectType: "abc"}
 			property := &Property{
 				name: "",
 				item: object,
@@ -172,7 +355,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID sql.NullString `%s:\"%s\"`\n",
+					"\tDefID goext.NullString `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -211,7 +394,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID []int64 `%s:\"%s\"`\n",
+					"\tDefID []int `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -234,7 +417,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID AbcDefIDXyz `%s:\"%s\"`\n",
+					"\tDefID *AbcDefIDXyz `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -304,7 +487,7 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID []int64 `%s:\"%s\"`\n",
+					"\tDefID []int `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
@@ -327,12 +510,318 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID AbcDefIDXyz `%s:\"%s\"`\n",
+					"\tDefID *AbcDefIDXyz `%s:\"%s\"`\n",
 					annotation,
 					property.name,
 				)
 				Expect(result).To(Equal(expected))
 			})
+		})
+	})
+
+	Describe("getter header tests", func() {
+		It("Should generate a correct getter header for a plain item", func() {
+			property := &Property{
+				name: "name",
+				item: &PlainItem{itemType: "string", null: true},
+				kind: &DBKind{},
+			}
+
+			result := property.GetterHeader("suffix")
+
+			expected := "GetName() goext.NullString"
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter header for an object", func() {
+			property := &Property{
+				name: "name",
+				item: &Object{objectType: "test"},
+				kind: &DBKind{},
+			}
+
+			result := property.GetterHeader("suffix")
+
+			expected := "GetName() ITestSuffix"
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("setter header tests", func() {
+		It("Should generate a correct setter header for a plain item", func() {
+			property := &Property{
+				name: "name",
+				item: &PlainItem{itemType: "string", null: true},
+				kind: &DBKind{},
+			}
+
+			result := property.SetterHeader("suffix", true)
+
+			expected := "SetName(name goext.NullString)"
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter header for an object", func() {
+			property := &Property{
+				name: "name",
+				item: &Object{objectType: "test"},
+				kind: &DBKind{},
+			}
+
+			result := property.SetterHeader("suffix", false)
+
+			expected := "SetName(ITestSuffix)"
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		It("Should generate a correct getter for a plain item", func() {
+			property := &Property{
+				name: "def",
+				item: &PlainItem{itemType: "int64", null: true},
+				kind: &DBKind{},
+			}
+
+			result := property.GenerateGetter("var", "")
+
+			expected := `GetDef() goext.NullInt {
+	return var.Def
+}`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct getter for an object", func() {
+			property := &Property{
+				name: "abc",
+				item: &Object{objectType: "xyz"},
+				kind: &DBKind{},
+			}
+
+			result := property.GenerateGetter("var", "")
+
+			expected := `GetAbc() IXyz {
+	return var.Abc
+}`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate setter tests", func() {
+		It("Should generate a correct setter for a plain item", func() {
+			property := &Property{
+				name: "def",
+				item: &PlainItem{itemType: "int64", null: true},
+				kind: &DBKind{},
+			}
+
+			result := property.GenerateSetter("var", "", "")
+
+			expected := `SetDef(def goext.NullInt) {
+	var.Def = def
+}`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for an object", func() {
+			property := &Property{
+				name: "range",
+				item: &Object{objectType: "xyz"},
+				kind: &DBKind{},
+			}
+
+			result := property.GenerateSetter("var", "", "")
+
+			expected := `SetRange(rangeObject IXyz) {
+	var.Range = rangeObject.(*Xyz)
+}`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct setter for an array", func() {
+			property := &Property{
+				name: "a",
+				item: &Array{&Array{&Object{objectType: "object"}}},
+				kind: &DBKind{},
+			}
+
+			result := property.GenerateSetter("var", "", "")
+
+			expected := `SetA(a [][]IObject) {
+	var.A = make([][]*Object, len(a))
+	for i := range a {
+		var.A[i] = make([]*Object, len(a[i]))
+		for j := range a[i] {
+			var.A[i][j] = a[i][j].(*Object)
+		}
+	}
+}`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("compression tests", func() {
+		It("Should compress exactly identical objects", func() {
+			data := map[interface{}]interface{}{
+				"type": "object",
+				"properties": map[interface{}]interface{}{
+					"a": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "number",
+								},
+							},
+						},
+					},
+					"b": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "number",
+								},
+							},
+						},
+					},
+					"c": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "number",
+								},
+							},
+						},
+					},
+					"d": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"x": map[interface{}]interface{}{
+									"type": "string",
+								},
+								"y": map[interface{}]interface{}{
+									"type": "string",
+								},
+							},
+						},
+					},
+				},
+			}
+			property := &Property{name: "test"}
+			err := property.Parse("test", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			property.CompressObjects()
+
+			properties := property.item.GetChildren()
+			Expect(len(properties)).To(Equal(4))
+			Expect(properties[0].(*Property).item).To(
+				BeIdenticalTo(properties[1].(*Property).item),
+			)
+			Expect(properties[1].(*Property).item).To(
+				BeIdenticalTo(properties[2].(*Property).item),
+			)
+			Expect(properties[2].(*Property).item).ToNot(
+				BeIdenticalTo(properties[3].(*Property).item),
+			)
+
+			objects, err := property.CollectObjects(-1, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(objects.Size()).To(Equal(3))
+		})
+
+		It("Should change names of compressed objects", func() {
+			data := map[interface{}]interface{}{
+				"type": "object",
+				"properties": map[interface{}]interface{}{
+					"a": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type":    "string",
+											"default": "test",
+										},
+									},
+								},
+								"b": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "string",
+										},
+									},
+									"required": []interface{}{
+										"a",
+									},
+								},
+							},
+						},
+					},
+					"b": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type":    "string",
+											"default": "test",
+										},
+									},
+								},
+								"b": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "string",
+										},
+									},
+									"required": []interface{}{
+										"a",
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+			property := &Property{name: "test"}
+			err := property.Parse("test", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			property.CompressObjects()
+
+			objects, err := property.CollectObjects(-1, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(objects.Size()).To(Equal(3))
+
+			array := objects.ToArray()
+			Expect(array[0].Name()).To(Equal("test_test"))
+			Expect(array[1].Name()).To(Equal("test_test_common"))
+			Expect(array[2].Name()).To(Equal("test_test_common_common"))
 		})
 	})
 })

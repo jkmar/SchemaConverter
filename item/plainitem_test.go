@@ -7,8 +7,82 @@ import (
 )
 
 var _ = Describe("plain item tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct item type", func() {
+				typeOfItem := "int64"
+				plainItem := PlainItem{itemType: typeOfItem}
+
+				result := plainItem.ToString()
+
+				expected := "#int64,true"
+				Expect(result).To(Equal(expected))
+			})
+
+			It("Should return a correct item type for a null item", func() {
+				typeOfItem := "string"
+				plainItem := PlainItem{itemType: typeOfItem, required: true}
+
+				result := plainItem.ToString()
+
+				expected := "#string,false"
+				Expect(result).To(Equal(expected))
+			})
+		})
+
+		Describe("compress tests", func() {
+			It("Should do nothing", func() {
+				plainItem := PlainItem{itemType: "test", null: true}
+				original := plainItem
+
+				plainItem.Compress(&PlainItem{}, &plainItem)
+
+				Expect(plainItem).To(Equal(original))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return an empty children list", func() {
+				plainItem := PlainItem{}
+
+				result := plainItem.GetChildren()
+
+				Expect(result).To(BeNil())
+			})
+		})
+	})
+
+	Describe("copy tests", func() {
+		It("Should copy a plain item", func() {
+			plainItem := &PlainItem{}
+
+			copy := plainItem.Copy()
+
+			Expect(copy).ToNot(BeIdenticalTo(plainItem))
+			Expect(copy).To(Equal(plainItem))
+		})
+	})
+
+	Describe("make required tests", func() {
+		It("Should make an item required", func() {
+			plainItem := &PlainItem{}
+
+			plainItem.MakeRequired()
+
+			Expect(plainItem.required).To(BeTrue())
+		})
+	})
+
+	Describe("contains object tests", func() {
+		It("Should return false", func() {
+			plainItem := &PlainItem{}
+
+			Expect(plainItem.ContainsObject()).To(BeFalse())
+		})
+	})
+
 	Describe("type tests", func() {
-		It("Should return correct item type", func() {
+		It("Should return a correct item type", func() {
 			typeOfItem := "int64"
 			plainItem := PlainItem{itemType: typeOfItem}
 
@@ -74,7 +148,7 @@ var _ = Describe("plain item tests", func() {
 
 			err := plainItem.Parse(prefix, 0, true, data)
 
-			expected := "int64"
+			expected := "float64"
 			Expect(err).ToNot(HaveOccurred())
 			Expect(plainItem.Type("")).To(Equal(expected))
 		})
@@ -88,7 +162,7 @@ var _ = Describe("plain item tests", func() {
 			err := plainItem.Parse(prefix, 0, false, data)
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(plainItem.null).To(BeFalse())
+			Expect(plainItem.IsNull()).To(BeFalse())
 		})
 
 		It("Should be null when neither required nor default value is provided", func() {
@@ -97,7 +171,7 @@ var _ = Describe("plain item tests", func() {
 			err := plainItem.Parse(prefix, 0, false, data)
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(plainItem.null).To(BeTrue())
+			Expect(plainItem.IsNull()).To(BeTrue())
 		})
 	})
 
@@ -114,6 +188,48 @@ var _ = Describe("plain item tests", func() {
 			plainItem := &PlainItem{}
 
 			Expect(plainItem.CollectProperties(1, 0)).To(BeNil())
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		const (
+			name     = "string"
+			variable = "var"
+			argument = "arg"
+		)
+
+		var plainItem *PlainItem
+
+		BeforeEach(func() {
+			plainItem = &PlainItem{itemType: name, null: true}
+		})
+
+		It("Should return a correct getter for a plain item depth 1", func() {
+			result := plainItem.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\treturn %s", variable)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should return a correct getter for a plain item depth >1", func() {
+			result := plainItem.GenerateGetter(variable, argument, "", 2)
+
+			expected := fmt.Sprintf("\t\t%s = %s", argument, variable)
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate setter tests", func() {
+		It("Should return a correct setter for a plain item", func() {
+			variable := "var"
+			argument := "arg"
+
+			plainItem := &PlainItem{}
+
+			result := plainItem.GenerateSetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\t%s = %s", variable, argument)
+			Expect(result).To(Equal(expected))
 		})
 	})
 })

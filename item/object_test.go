@@ -9,6 +9,109 @@ import (
 )
 
 var _ = Describe("object tests", func() {
+	Describe("hash tests", func() {
+		Describe("to string tests", func() {
+			It("Should return a correct string representation of an object", func() {
+				object := Object{objectType: "test"}
+
+				result := object.ToString()
+
+				expected := "#*"
+				Expect(result).To(Equal(expected))
+			})
+		})
+
+		Describe("compress tests", func() {
+			var (
+				properties []*Property
+				object     *Object
+			)
+
+			BeforeEach(func() {
+				properties = []*Property{
+					CreateProperty("a"),
+					CreateProperty("b"),
+				}
+				propertiesSet := set.New()
+				for _, property := range properties {
+					propertiesSet.Insert(property)
+				}
+				object = &Object{properties: propertiesSet}
+				properties = append(properties, CreateProperty("c"))
+			})
+
+			It("Should compress an existing property", func() {
+				object.Compress(properties[2], properties[1])
+
+				sorted := object.properties.ToArray()
+				Expect(len(sorted)).To(Equal(2))
+				Expect(sorted[0]).To(BeIdenticalTo(properties[0]))
+				Expect(sorted[1]).To(BeIdenticalTo(properties[2]))
+			})
+
+			It("Should not compress a non existing property", func() {
+				object.Compress(properties[2], properties[2])
+
+				sorted := object.properties.ToArray()
+				Expect(len(sorted)).To(Equal(2))
+				Expect(sorted[0]).To(BeIdenticalTo(properties[0]))
+				Expect(sorted[1]).To(BeIdenticalTo(properties[1]))
+			})
+		})
+
+		Describe("get children tests", func() {
+			It("Should return a correct set of children", func() {
+				properties := []*Property{
+					CreateProperty("c"),
+					CreateProperty("a"),
+					CreateProperty("b"),
+				}
+				propertiesSet := set.New()
+				for _, property := range properties {
+					propertiesSet.Insert(property)
+				}
+				object := Object{properties: propertiesSet}
+
+				result := object.GetChildren()
+
+				Expect(len(result)).To(Equal(len(properties)))
+				Expect(result[0]).To(BeIdenticalTo(properties[1]))
+				Expect(result[1]).To(BeIdenticalTo(properties[2]))
+				Expect(result[2]).To(BeIdenticalTo(properties[0]))
+			})
+		})
+	})
+
+	Describe("copy tests", func() {
+		It("Should copy an object", func() {
+			object := &Object{}
+
+			copy := object.Copy()
+
+			Expect(copy).ToNot(BeIdenticalTo(object))
+			Expect(copy).To(Equal(object))
+		})
+	})
+
+	Describe("make required tests", func() {
+		It("Should do nothing", func() {
+			object := &Object{}
+			old := object
+
+			object.MakeRequired()
+
+			Expect(object).To(Equal(old))
+		})
+	})
+
+	Describe("contains object tests", func() {
+		It("Should return true", func() {
+			object := &Object{}
+
+			Expect(object.ContainsObject()).To(BeTrue())
+		})
+	})
+
 	Describe("name tests", func() {
 		It("Should return a correct object name", func() {
 			name := "abc_abc"
@@ -25,7 +128,7 @@ var _ = Describe("object tests", func() {
 
 			result := object.Type("")
 
-			expected := util.ToGoName(typeOfItem, "")
+			expected := "*" + util.ToGoName(typeOfItem, "")
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -42,7 +145,10 @@ var _ = Describe("object tests", func() {
 			for _, name := range names {
 				properties.Insert(CreateProperty(name))
 			}
-			object = &Object{"", properties}
+			object = &Object{
+				objectType: "",
+				properties: properties,
+			}
 		})
 
 		It("Should ignore an empty set", func() {
@@ -94,6 +200,23 @@ var _ = Describe("object tests", func() {
 
 			array := object.properties.ToArray()
 			Expect(array[1].(*Property).item).To(BeNil())
+		})
+
+		It("Should make new properties if they are required", func() {
+			object.required = map[string]bool{"c": true}
+			newProperty := CreateProperty("c")
+			newProperty.item, _ = CreateItem("string")
+			newProperties := set.New()
+			newProperties.Insert(newProperty)
+
+			err := object.AddProperties(newProperties, false)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(object.properties.Size()).To(Equal(3))
+			Expect(object.properties.Contains(newProperty)).To(BeTrue())
+
+			array := object.properties.ToArray()
+			Expect(array[2]).ToNot(BeIdenticalTo(newProperty))
 		})
 	})
 
@@ -236,7 +359,7 @@ var _ = Describe("object tests", func() {
 			names := object.properties.ToArray()
 			Expect(names[0].(*Property).item.Type("")).To(Equal("string"))
 			Expect(names[1].(*Property).item.Type("")).To(Equal("[]string"))
-			Expect(names[2].(*Property).item.Type("")).To(Equal("AbcC"))
+			Expect(names[2].(*Property).item.Type("")).To(Equal("*AbcC"))
 			Expect(names[0].(*Property).Name()).To(Equal("a"))
 			Expect(names[1].(*Property).Name()).To(Equal("b"))
 			Expect(names[2].(*Property).Name()).To(Equal("c"))
@@ -440,7 +563,7 @@ var _ = Describe("object tests", func() {
 			},
 		}
 
-		It("Should generate correct db struct", func() {
+		It("Should generate a correct db struct", func() {
 			object := &Object{}
 			err := object.Parse("abc_def", 0, true, data)
 			Expect(err).ToNot(HaveOccurred())
@@ -448,15 +571,15 @@ var _ = Describe("object tests", func() {
 			result := object.GenerateStruct("suffix")
 
 			expected := `type AbcDefSuffix struct {
-	ID sql.NullString ` + "`" + `db:"id"` + "`" + `
+	ID goext.NullString ` + "`" + `db:"id"` + "`" + `
 	IP []int64 ` + "`" + `db:"ip"` + "`" + `
-	Xyz AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
 }
 `
 			Expect(result).To(Equal(expected))
 		})
 
-		It("Should generate correct json struct", func() {
+		It("Should generate a correct json struct", func() {
 			object := &Object{}
 			err := object.Parse("abc_def", 2, true, data)
 			Expect(err).ToNot(HaveOccurred())
@@ -466,9 +589,249 @@ var _ = Describe("object tests", func() {
 			expected := `type AbcDefSuffix struct {
 	ID string ` + "`" + `json:"id,omitempty"` + "`" + `
 	IP []int64 ` + "`" + `json:"ip"` + "`" + `
-	Xyz AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `json:"xyz"` + "`" + `
 }
 `
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate mutable interface tests", func() {
+		It("Should generate a correct mutable interface", func() {
+			object := &Object{objectType: "test_type"}
+
+			result := object.GenerateMutableInterface(
+				"interface-suffix",
+				"type-suffix",
+			)
+
+			expected := `type ITestTypeTypeSuffix interface {
+	ITestTypeInterfaceSuffix
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate interface tests", func() {
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"a": map[interface{}]interface{}{
+					"type": "int64",
+				},
+				"id": map[interface{}]interface{}{
+					"type": "string",
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": "int64",
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
+
+		It("Should generate correct db interface", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateInterface("suffix")
+
+			expected := `type IAbcDefSuffix interface {
+	GetA() goext.NullInt
+	SetA(goext.NullInt)
+	GetID() string
+	SetID(string)
+	GetIP() []int64
+	SetIP([]int64)
+	GetXyz() IAbcDefXyzSuffix
+	SetXyz(IAbcDefXyzSuffix)
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json interface", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateInterface("suffix")
+
+			expected := `type IAbcDefSuffix interface {
+	GetA() int64
+	SetA(int64)
+	GetID() string
+	SetID(string)
+	GetIP() []int64
+	SetIP([]int64)
+	GetXyz() IAbcDefXyzSuffix
+	SetXyz(IAbcDefXyzSuffix)
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate implementation tests", func() {
+		const (
+			header   = "func (abcDefSuffix *AbcDefSuffix) "
+			variable = "abcDefSuffix"
+		)
+
+		var data = map[interface{}]interface{}{
+			"type": "object",
+			"properties": map[interface{}]interface{}{
+				"a": map[interface{}]interface{}{
+					"type": "int64",
+				},
+				"id": map[interface{}]interface{}{
+					"type": "string",
+				},
+				"ip": map[interface{}]interface{}{
+					"type": "array",
+					"items": map[interface{}]interface{}{
+						"type": "int64",
+					},
+				},
+				"xyz": map[interface{}]interface{}{
+					"type": "object",
+					"properties": map[interface{}]interface{}{
+						"noname": map[interface{}]interface{}{
+							"type": "string",
+						},
+					},
+				},
+			},
+		}
+
+		It("Should generate correct db implementation", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 0, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateImplementation("interface", "suffix")
+
+			expected := fmt.Sprintf(
+				`%sGetA() goext.NullInt {
+	return %s.A
+}
+
+%sSetA(a goext.NullInt) {
+	%s.A = a
+}
+
+%sGetID() string {
+	return %s.ID
+}
+
+%sSetID(id string) {
+	%s.ID = id
+}
+
+%sGetIP() []int64 {
+	return %s.IP
+}
+
+%sSetIP(ip []int64) {
+	%s.IP = ip
+}
+
+%sGetXyz() IAbcDefXyzInterface {
+	return %s.Xyz
+}
+
+%sSetXyz(xyz IAbcDefXyzInterface) {
+	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+}
+`,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate correct json implementation", func() {
+			object := &Object{}
+			err := object.Parse("abc_def", 2, true, data)
+			Expect(err).ToNot(HaveOccurred())
+
+			result := object.GenerateImplementation("interface", "suffix")
+
+			expected := fmt.Sprintf(
+				`%sGetA() int64 {
+	return %s.A
+}
+
+%sSetA(a int64) {
+	%s.A = a
+}
+
+%sGetID() string {
+	return %s.ID
+}
+
+%sSetID(id string) {
+	%s.ID = id
+}
+
+%sGetIP() []int64 {
+	return %s.IP
+}
+
+%sSetIP(ip []int64) {
+	%s.IP = ip
+}
+
+%sGetXyz() IAbcDefXyzInterface {
+	return %s.Xyz
+}
+
+%sSetXyz(xyz IAbcDefXyzInterface) {
+	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+}
+`,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+				header,
+				variable,
+			)
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -519,6 +882,49 @@ var _ = Describe("object tests", func() {
 			Expect(result["1"]).To(BeTrue())
 			Expect(result["2"]).To(BeTrue())
 			Expect(result["3"]).To(BeFalse())
+		})
+	})
+
+	Describe("generate getter tests", func() {
+		const (
+			name     = "Type"
+			variable = "var"
+			argument = "arg"
+		)
+
+		var object *Object
+
+		BeforeEach(func() {
+			object = &Object{objectType: name}
+		})
+
+		It("Should return a correct getter for an object depth 1", func() {
+			result := object.GenerateGetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\treturn %s", variable)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should return a correct getter for an object depth >1", func() {
+			result := object.GenerateGetter(variable, argument, "", 2)
+
+			expected := fmt.Sprintf("\t\t%s = %s", argument, variable)
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate setter tests", func() {
+		It("Should return a correct setter for an object", func() {
+			name := "Type"
+			variable := "var"
+			argument := "arg"
+
+			object := &Object{objectType: name}
+
+			result := object.GenerateSetter(variable, argument, "", 1)
+
+			expected := fmt.Sprintf("\t%s = %s.(*%s)", variable, argument, name)
+			Expect(result).To(Equal(expected))
 		})
 	})
 })

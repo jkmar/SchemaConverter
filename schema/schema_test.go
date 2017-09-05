@@ -491,15 +491,14 @@ var _ = Describe("schema tests", func() {
 			result, err := schema.collectObjects(-1, 0)
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(len(result)).To(Equal(5))
+			Expect(len(result)).To(Equal(4))
 
 			array := result.ToArray()
 
 			Expect(util.ToGoName(array[0].Name(), "")).To(Equal(names[0]))
 			Expect(util.ToGoName(array[1].Name(), "")).To(Equal(names[0] + names[0]))
 			Expect(util.ToGoName(array[2].Name(), "")).To(Equal(names[0] + names[1]))
-			Expect(util.ToGoName(array[3].Name(), "")).To(Equal(names[0] + names[1] + names[0]))
-			Expect(util.ToGoName(array[4].Name(), "")).To(Equal(names[0] + names[1] + names[2]))
+			Expect(util.ToGoName(array[3].Name(), "")).To(Equal(names[0] + names[1] + "Common"))
 		})
 	})
 

@@ -1,23 +1,50 @@
 package item
 
 import (
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 // Item is an interface for a type of a variable
 type Item interface {
-	// IsNull checks if item can be null
+	hash.IHashable
+
+	// Copy should make a copy of an item
+	Copy() Item
+
+	// ChangeName should change the name of an item recursively
+	// args:
+	//   1. name.Mark - mark that changes the items name
+	ChangeName(name.Mark)
+
+	// IsNull checks if an item can be null
 	// return:
 	//   true iff. item can be null
 	IsNull() bool
 
-	// Type should return go type of item
+	// MakeRequired should not allow item to be null
+	MakeRequired()
+
+	// ContainsObject checks if an item contains an object
+	// return:
+	//   true iff. item contains an object
+	ContainsObject() bool
+
+	// Type should return a go type of item
 	// args:
 	//   1. string - a suffix added to a type
 	// return:
 	//   type of item with suffix appended
 	Type(string) string
+
+	// InterfaceType should return an interface type of item
+	// args:
+	//   1. string - a suffix added to a type
+	// return:
+	//   interface type of item with suffix appended
+	InterfaceType(string) string
 
 	// AddProperties should add properties to an item
 	// args:
@@ -42,9 +69,10 @@ type Item interface {
 
 	// CollectObjects should return a set of objects contained within an item
 	// args:
-	//   1. int - limit; how deep to search for an object; starting from 0;
+	//   1. int - limit; how deep to search for an object; starting from 1;
 	//            if limit is negative this parameter is ignored.
 	//   2. int - offset; from which level gathering objects should begin;
+	//            starting from 0;
 	// return:
 	//   1. set of collected objects
 	//   2. error during execution
@@ -66,13 +94,34 @@ type Item interface {
 
 	// CollectProperties should return a set properties contained within an item
 	// args:
-	//   1. int - limit; how deep to search for a property; starting from 0;
+	//   1. int - limit; how deep to search for a property; starting from 1;
 	//            if limit is negative this parameter is ignored.
 	//   2. int - offset; from which level gathering properties should begin;
+	//            starting from 0;
 	// return:
 	//   1. set of collected properties
 	//   2. error during execution
 	CollectProperties(int, int) (set.Set, error)
+
+	// GenerateGetter should return a body of a getter function for given item
+	// args:
+	//   1. string - variable; a name of a variable to get
+	//   2. string - argument; a name of a result
+	//   3. string - suffix; a suffix added to items type
+	//   4. int - depth; a width of an indent
+	// return:
+	//   string representing a body of a getter function
+	GenerateGetter(string, string, string, int) string
+
+	// GenerateSetter should return a body of a setter function for given item
+	// args:
+	//   1. string - variable; a name of a variable to set
+	//   2. string - argument; a name of an argument of the function
+	//   3. string - suffix; a suffix added to items type
+	//   4. int - depth; a width of an indent
+	// return:
+	//   string representing a body of a setter function
+	GenerateSetter(string, string, string, int) string
 }
 
 // CreateItem is a factory for items

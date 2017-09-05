@@ -115,6 +115,7 @@ func (schema *Schema) parse(data map[interface{}]interface{}) error {
 			err,
 		)
 	}
+	schema.schema.CompressObjects()
 	return nil
 }
 
@@ -166,9 +167,9 @@ func (schema *Schema) join(edges []*node) error {
 
 func parseAll(schemas []map[interface{}]interface{}) (set.Set, error) {
 	set := set.New()
-	for _, object := range schemas {
+	for _, data := range schemas {
 		newSchema := &Schema{}
-		if err := newSchema.parse(object); err != nil {
+		if err := newSchema.parse(data); err != nil {
 			return nil, err
 		}
 		if err := set.SafeInsert(newSchema); err != nil {

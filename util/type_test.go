@@ -7,6 +7,16 @@ import (
 )
 
 var _ = Describe("type parsing tests", func() {
+	Describe("TryToAddName tests", func() {
+		It("Should return a empty string for an empty prefix", func() {
+			Expect(TryToAddName("", "suffix")).To(BeEmpty())
+		})
+
+		It("Should add names", func() {
+			Expect(TryToAddName("prefix", "suffix")).To(Equal("prefix_suffix"))
+		})
+	})
+
 	Describe("AddName tests", func() {
 		It("Should not add _ to an empty prefix", func() {
 			name := "abc"

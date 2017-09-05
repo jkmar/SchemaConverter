@@ -2,23 +2,65 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/hash"
+	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 // PlainItem is an implementation of Item interface
 type PlainItem struct {
+	required bool
 	null     bool
 	itemType string
 }
 
+// Copy implementation
+func (plainItem *PlainItem) Copy() Item {
+	newItem := *plainItem
+	return &newItem
+}
+
+// ToString implementation
+func (plainItem *PlainItem) ToString() string {
+	return fmt.Sprintf("#%s,%v", plainItem.itemType, plainItem.IsNull())
+}
+
+// Compress implementation
+func (plainItem *PlainItem) Compress(hash.IHashable, hash.IHashable) {
+}
+
+// GetChildren implementation
+func (plainItem *PlainItem) GetChildren() []hash.IHashable {
+	return nil
+}
+
+// ChangeName implementation
+func (plainItem *PlainItem) ChangeName(mark name.Mark) {
+}
+
+// ContainsObject implementation
+func (plainItem *PlainItem) ContainsObject() bool {
+	return false
+}
+
 // IsNull implementation
 func (plainItem *PlainItem) IsNull() bool {
-	return plainItem.null
+	return plainItem.null || !plainItem.required
+}
+
+// MakeRequired implementation
+func (plainItem *PlainItem) MakeRequired() {
+	plainItem.required = true
 }
 
 // Type implementation
 func (plainItem *PlainItem) Type(suffix string) string {
+	return plainItem.itemType
+}
+
+// InterfaceType implementation
+func (plainItem *PlainItem) InterfaceType(suffix string) string {
 	return plainItem.itemType
 }
 
@@ -50,11 +92,14 @@ func (plainItem *PlainItem) Parse(
 		)
 	}
 
-	if !required {
-		if _, ok = data["default"]; !ok {
-			plainItem.null = true
-		}
+	if _, ok = data["default"]; ok || required {
+		plainItem.required = true
 	}
+	//if !required {
+	//	if _, ok = data["default"]; !ok {
+	//		plainItem.required = true
+	//	}
+	//}
 
 	return
 }
@@ -67,4 +112,34 @@ func (plainItem *PlainItem) CollectObjects(limit, offset int) (set.Set, error) {
 // CollectProperties implementation
 func (plainItem *PlainItem) CollectProperties(limit, offset int) (set.Set, error) {
 	return nil, nil
+}
+
+// GenerateGetter implementation
+func (plainItem *PlainItem) GenerateGetter(
+	variable,
+	argument,
+	interfaceSuffix string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s %s",
+		util.Indent(depth),
+		util.ResultPrefix(argument, depth, false),
+		variable,
+	)
+}
+
+// GenerateSetter implementation
+func (plainItem *PlainItem) GenerateSetter(
+	variable,
+	argument,
+	typeSuffix string,
+	depth int,
+) string {
+	return fmt.Sprintf(
+		"%s%s = %s",
+		util.Indent(depth),
+		variable,
+		argument,
+	)
 }

@@ -1,17 +1,11 @@
 package app
 
 import (
-	"fmt"
 	"github.com/zimnx/YamlSchemaToGoStruct/reader"
 	"github.com/zimnx/YamlSchemaToGoStruct/schema"
-	"io/ioutil"
-	"strings"
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
+	"github.com/zimnx/YamlSchemaToGoStruct/writer"
 )
-
-func packageName(input string) string {
-	array := strings.Split(input, "/")
-	return "package " + strings.TrimSuffix(array[len(array)-1], ".yaml")
-}
 
 func readConfig(config, input string) ([]map[interface{}]interface{}, error) {
 	if len(config) == 0 {
@@ -20,31 +14,46 @@ func readConfig(config, input string) ([]map[interface{}]interface{}, error) {
 	return reader.ReadAll(config, input)
 }
 
-func writeResult(structs []string, input, output string) error {
-	result := packageName(input)
-	for _, goStruct := range structs {
-		result = fmt.Sprintf("%s\n\n%s", result, goStruct)
-	}
-	if len(output) == 0 {
-		fmt.Print(result)
+func writeResult(data []string, packageName, outputPrefix, outputSuffix string) error {
+	rawData := util.CollectData(packageName, data)
+	if rawData == "" {
 		return nil
 	}
-	return ioutil.WriteFile(output, []byte(result), 0644)
+	file := writer.CreateWriter(util.TryToAddName(outputPrefix, outputSuffix))
+	return file.Write(rawData)
 }
 
 // Run application
-func Run(input, output, config, suffix string) error {
-	other, err := readConfig(config, input)
+func Run(
+	config,
+	output,
+	packageName,
+	rawSuffix,
+	interfaceSuffix string,
+) error {
+	interfaceSuffix = util.AddName(rawSuffix, interfaceSuffix)
+	all, err := readConfig(config, "")
 	if err != nil {
 		return err
 	}
-	objects, err := reader.ReadSingle(input)
+
+	generated, interfaces, structs, implementations, err := schema.Convert(
+		nil,
+		all,
+		rawSuffix,
+		interfaceSuffix,
+	)
 	if err != nil {
 		return err
 	}
-	result, err := schema.Convert(other, objects, suffix)
-	if err != nil {
+	if err = writeResult(generated, packageName, output, "generated_interface.go"); err != nil {
 		return err
 	}
-	return writeResult(result, input, output)
+	if err = writeResult(interfaces, packageName, output, "interface.go"); err != nil {
+		return err
+	}
+	if err = writeResult(structs, packageName, output, "raw.go"); err != nil {
+		return err
+	}
+	return writeResult(implementations, packageName, output, "implementation.go")
 }
