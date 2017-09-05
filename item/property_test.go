@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
@@ -333,7 +334,8 @@ var _ = Describe("property tests", func() {
 		)
 
 		Describe("db property tests", func() {
-			const annotation = "db"
+			const dbAnnotation = "db"
+			const jsonAnnotation = "json"
 
 			BeforeEach(func() {
 				property = &Property{
@@ -355,9 +357,11 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID goext.NullString `%s:\"%s\"`\n",
-					annotation,
+					"\tDefID goext.NullString `%s:\"%s\" %s:\"%s\"`\n",
+					dbAnnotation,
 					property.name,
+					jsonAnnotation,
+					property.name+",omitempty",
 				)
 				Expect(result).To(Equal(expected))
 			})
@@ -373,8 +377,10 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID bool `%s:\"%s\"`\n",
-					annotation,
+					"\tDefID bool `%s:\"%s\" %s:\"%s\"`\n",
+					dbAnnotation,
+					property.name,
+					jsonAnnotation,
 					property.name,
 				)
 				Expect(result).To(Equal(expected))
@@ -394,8 +400,10 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID []int `%s:\"%s\"`\n",
-					annotation,
+					"\tDefID []int `%s:\"%s\" %s:\"%s\"`\n",
+					dbAnnotation,
+					property.name,
+					jsonAnnotation,
 					property.name,
 				)
 				Expect(result).To(Equal(expected))
@@ -417,8 +425,10 @@ var _ = Describe("property tests", func() {
 				result := property.GenerateProperty(suffix)
 
 				expected := fmt.Sprintf(
-					"\tDefID *AbcDefIDXyz `%s:\"%s\"`\n",
-					annotation,
+					"\tDefID *AbcDefIDXyz `%s:\"%s\" %s:\"%s\"`\n",
+					dbAnnotation,
+					property.name,
+					jsonAnnotation,
 					property.name,
 				)
 				Expect(result).To(Equal(expected))

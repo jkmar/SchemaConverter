@@ -16,15 +16,19 @@ func (jsonKind *JSONKind) InterfaceType(suffix string, item Item) string {
 	return item.InterfaceType(suffix)
 }
 
-// Annotation implementation
-func (jsonKind *JSONKind) Annotation(name string, item Item) string {
+func jsonAnnotation(name string, item Item) string {
 	var annotation string
 	if item.IsNull() {
 		annotation = ",omitempty"
 	}
 	return fmt.Sprintf(
-		"`json:\"%s%s\"`",
+		"json:\"%s%s\"",
 		name,
 		annotation,
 	)
+}
+
+// Annotation implementation
+func (jsonKind *JSONKind) Annotation(name string, item Item) string {
+	return fmt.Sprintf("`%s`", jsonAnnotation(name, item))
 }

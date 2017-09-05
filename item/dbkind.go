@@ -2,8 +2,9 @@ package item
 
 import (
 	"fmt"
-	"github.com/zimnx/YamlSchemaToGoStruct/util"
 	"strings"
+
+	"github.com/zimnx/YamlSchemaToGoStruct/util"
 )
 
 // DBKind is an implementation of Kind interface
@@ -29,10 +30,15 @@ func (dbKind *DBKind) InterfaceType(suffix string, item Item) string {
 	return item.InterfaceType(suffix)
 }
 
+func dbAnnotation(name string, item Item) string {
+	return fmt.Sprintf("db:\"%s\"", name)
+}
+
 // Annotation implementation
 func (dbKind *DBKind) Annotation(name string, item Item) string {
 	return fmt.Sprintf(
-		"`db:\"%s\"`",
-		name,
+		"`%s %s`",
+		dbAnnotation(name, item),
+		jsonAnnotation(name, item),
 	)
 }

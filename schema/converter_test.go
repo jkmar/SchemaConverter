@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -377,21 +378,21 @@ var _ = Describe("converter tess", func() {
 }
 `
 			generalStruct := `type General struct {
-	Array [][]float64 ` + "`" + `db:"array"` + "`" + `
-	Complex [][]*GeneralComplex ` + "`" + `db:"complex"` + "`" + `
-	ID string ` + "`" + `db:"id"` + "`" + `
-	IP goext.NullFloat ` + "`" + `db:"ip"` + "`" + `
-	Nested *MiddleNested ` + "`" + `db:"nested"` + "`" + `
-	Null goext.NullBool ` + "`" + `db:"null"` + "`" + `
-	Object *BaseObject ` + "`" + `db:"object"` + "`" + `
-	ParentID string ` + "`" + `db:"parent_id"` + "`" + `
-	Tree *GeneralTree ` + "`" + `db:"tree"` + "`" + `
+	Array [][]float64 ` + "`" + `db:"array"` + ` json:"array"` + "`" + `
+	Complex [][]*GeneralComplex ` + "`" + `db:"complex"` + ` json:"complex"` + "`" + `
+	ID string ` + "`" + `db:"id"` + ` json:"id"` + "`" + `
+	IP goext.NullFloat ` + "`" + `db:"ip"` + ` json:"ip,omitempty"` + "`" + `
+	Nested *MiddleNested ` + "`" + `db:"nested"` + ` json:"nested"` + "`" + `
+	Null goext.NullBool ` + "`" + `db:"null"` + ` json:"null,omitempty"` + "`" + `
+	Object *BaseObject ` + "`" + `db:"object"` + ` json:"object"` + "`" + `
+	ParentID string ` + "`" + `db:"parent_id"` + ` json:"parent_id"` + "`" + `
+	Tree *GeneralTree ` + "`" + `db:"tree"` + ` json:"tree"` + "`" + `
 }
 `
 			onlyDeriveStruct := `type OnlyDerive struct {
-	ID string ` + "`" + `db:"id"` + "`" + `
-	IP goext.NullFloat ` + "`" + `db:"ip"` + "`" + `
-	Object *BaseObject ` + "`" + `db:"object"` + "`" + `
+	ID string ` + "`" + `db:"id"` + ` json:"id"` + "`" + `
+	IP goext.NullFloat ` + "`" + `db:"ip"` + ` json:"ip,omitempty"` + "`" + `
+	Object *BaseObject ` + "`" + `db:"object"` + ` json:"object"` + "`" + `
 }
 `
 			emptyStruct := `type Empty struct {

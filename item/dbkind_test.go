@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zimnx/YamlSchemaToGoStruct/util"
@@ -110,8 +111,8 @@ var _ = Describe("json kind tests", func() {
 			result := dbKind.Annotation(name, newItem)
 
 			expected := fmt.Sprintf(
-				"`db:\"%s\"`",
-				name,
+				"`db:\"%s\" json:\"%s,omitempty\"`",
+				name, name,
 			)
 			Expect(result).To(Equal(expected))
 		})
@@ -132,8 +133,8 @@ var _ = Describe("json kind tests", func() {
 			result := dbKind.Annotation(name, newItem)
 
 			expected := fmt.Sprintf(
-				"`db:\"%s\"`",
-				name,
+				"`db:\"%s\" json:\"%s\"`",
+				name, name,
 			)
 			Expect(result).To(Equal(expected))
 		})

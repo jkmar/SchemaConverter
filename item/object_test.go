@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
@@ -571,9 +572,9 @@ var _ = Describe("object tests", func() {
 			result := object.GenerateStruct("suffix")
 
 			expected := `type AbcDefSuffix struct {
-	ID goext.NullString ` + "`" + `db:"id"` + "`" + `
-	IP []int64 ` + "`" + `db:"ip"` + "`" + `
-	Xyz *AbcDefXyzSuffix ` + "`" + `db:"xyz"` + "`" + `
+	ID goext.NullString ` + "`" + `db:"id" json:"id,omitempty"` + "`" + `
+	IP []int64 ` + "`" + `db:"ip" json:"ip"` + "`" + `
+	Xyz *AbcDefXyzSuffix ` + "`" + `db:"xyz" json:"xyz"` + "`" + `
 }
 `
 			Expect(result).To(Equal(expected))
