@@ -27,7 +27,8 @@ func writeResult(data []string, packageName, outputPrefix, outputSuffix string) 
 func Run(
 	config,
 	output,
-	packageName,
+	resourcePackage,
+	interfacePackage,
 	rawSuffix,
 	interfaceSuffix string,
 ) error {
@@ -37,7 +38,7 @@ func Run(
 		return err
 	}
 
-	generated, interfaces, structs, implementations, err := schema.Convert(
+	generated, err := schema.Convert(
 		nil,
 		all,
 		rawSuffix,
@@ -46,14 +47,47 @@ func Run(
 	if err != nil {
 		return err
 	}
-	if err = writeResult(generated, packageName, output, "generated_interface.go"); err != nil {
+
+	if err = writeResult(
+		generated.RawInterfaces,
+		interfacePackage,
+		output,
+		"generated_interface.go",
+	); err != nil {
 		return err
 	}
-	if err = writeResult(interfaces, packageName, output, "interface.go"); err != nil {
+
+	if err = writeResult(
+		generated.Interfaces,
+		interfacePackage,
+		output,
+		"interface.go",
+	); err != nil {
 		return err
 	}
-	if err = writeResult(structs, packageName, output, "raw.go"); err != nil {
+
+	if err = writeResult(
+		generated.Structs,
+		resourcePackage,
+		output,
+		"raw.go",
+	); err != nil {
 		return err
 	}
-	return writeResult(implementations, packageName, output, "implementation.go")
+
+	if err = writeResult(
+		generated.Implementations,
+		resourcePackage,
+		output,
+		"implementation.go",
+	); err != nil {
+		return err
+	}
+
+	return writeResult(
+		generated.Constructors,
+		resourcePackage,
+		output,
+		"constructors.go",
+	)
 }

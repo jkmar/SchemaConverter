@@ -150,10 +150,10 @@ var _ = Describe("property tests", func() {
 			data = map[interface{}]interface{}{}
 
 			err := property.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -170,10 +170,10 @@ var _ = Describe("property tests", func() {
 			}
 
 			err := property.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -191,10 +191,10 @@ var _ = Describe("property tests", func() {
 			}
 
 			err := property.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -214,16 +214,68 @@ var _ = Describe("property tests", func() {
 			}
 
 			err := property.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			typeOfItem := data["items"].(map[interface{}]interface{})["type"]
 			expected := "[]" + typeOfItem.(string)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(property.item.Type("")).To(Equal(expected))
+		})
+
+		Describe("default value tests", func() {
+			var data map[interface{}]interface{}
+
+			BeforeEach(func() {
+				data = map[interface{}]interface{}{
+					"type": "string",
+				}
+			})
+
+			It("Should get a default value from context", func() {
+				err := property.Parse(ParseContext{
+					Defaults: "test",
+					Data:     data,
+				})
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.hasDefault).To(BeTrue())
+			})
+
+			It("Should get a default value from data", func() {
+				data["default"] = "test"
+				err := property.Parse(ParseContext{
+					Data: data,
+				})
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.hasDefault).To(BeTrue())
+			})
+
+			It("Should not get a nil default value", func() {
+				data["default"] = nil
+				err := property.Parse(ParseContext{
+					Defaults: nil,
+					Data:     data,
+				})
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.hasDefault).To(BeFalse())
+			})
+
+			It("Should override a default value", func() {
+				data["default"] = 2
+				err := property.Parse(ParseContext{
+					Defaults: 1,
+					Data:     data,
+				})
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(property.item.Default("")).To(Equal("2"))
+			})
 		})
 
 		Describe("null item tests", func() {
@@ -233,10 +285,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: false,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: false,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -249,10 +301,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -265,10 +317,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: false,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: false,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -281,10 +333,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -299,10 +351,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: false,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: false,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -317,10 +369,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -336,10 +388,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: false,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: false,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -355,10 +407,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 
 				Expect(err).ToNot(HaveOccurred())
@@ -381,6 +433,30 @@ var _ = Describe("property tests", func() {
 
 			expected := objects
 			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate constructor tests", func() {
+		It("Should return empty string for a property with no default value", func() {
+			property := &Property{}
+
+			Expect(property.GenerateConstructor("")).To(BeEmpty())
+		})
+
+		It("Should generate a correct constructor for a property", func() {
+			property := &Property{name: "test"}
+			data := map[interface{}]interface{}{"type": "string"}
+
+			err := property.Parse(ParseContext{
+				Defaults: "",
+				Data:     data,
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			result := property.GenerateConstructor("")
+
+			expected := "Test: goext.MakeNullString(\"\")"
 			Expect(result).To(Equal(expected))
 		})
 	})
@@ -412,10 +488,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -437,10 +513,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -465,10 +541,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -495,10 +571,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 0,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    0,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -533,10 +609,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 2,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    2,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -556,10 +632,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 2,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    2,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -582,10 +658,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 2,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    2,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -610,10 +686,10 @@ var _ = Describe("property tests", func() {
 				}
 
 				err := property.Parse(ParseContext{
-					prefix: prefix,
-					level: 2,
-					required: true,
-					data: data,
+					Prefix:   prefix,
+					Level:    2,
+					Required: true,
+					Data:     data,
 				})
 				Expect(err).ToNot(HaveOccurred())
 
@@ -835,10 +911,10 @@ var _ = Describe("property tests", func() {
 			}
 			property := &Property{name: "test"}
 			err := property.Parse(ParseContext{
-				prefix: "test",
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   "test",
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -925,10 +1001,10 @@ var _ = Describe("property tests", func() {
 			}
 			property := &Property{name: "test"}
 			err := property.Parse(ParseContext{
-				prefix: "test",
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   "test",
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 			Expect(err).ToNot(HaveOccurred())
 

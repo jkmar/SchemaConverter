@@ -27,14 +27,14 @@ var _ = Describe("converter tess", func() {
 			var expected = fmt.Errorf("schema does not have an id")
 
 			It("Should return error for invalid other schema", func() {
-				_, _, _, _, err := Convert(validSchema, invalidSchema, "", "")
+				_, err := Convert(validSchema, invalidSchema, "", "")
 
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError(expected))
 			})
 
 			It("Should return error for invalid other schema", func() {
-				_, _, _, _, err := Convert(invalidSchema, validSchema, "", "")
+				_, err := Convert(invalidSchema, validSchema, "", "")
 
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError(expected))
@@ -43,7 +43,7 @@ var _ = Describe("converter tess", func() {
 
 		Describe("collect errors", func() {
 			It("Should return error for multiple schemas with the same name", func() {
-				_, _, _, _, err := Convert(validSchema, validSchema, "", "")
+				_, err := Convert(validSchema, validSchema, "", "")
 
 				expected := fmt.Errorf("multiple schemas with the same name")
 				Expect(err).To(HaveOccurred())
@@ -81,7 +81,7 @@ var _ = Describe("converter tess", func() {
 					},
 				}
 
-				_, _, _, _, err := Convert(nil, schemas, "", "")
+				_, err := Convert(nil, schemas, "", "")
 
 				expected := fmt.Errorf(
 					"invalid schema %s: multiple objects with the same type at object %s",
@@ -242,7 +242,7 @@ var _ = Describe("converter tess", func() {
 				},
 			}
 
-			generated, interfaces, structs, implementations, err := Convert(other, toConvert, "", "Gen")
+			generated, err := Convert(other, toConvert, "", "Gen")
 			Expect(err).ToNot(HaveOccurred())
 
 			generalGenerated := `type IGeneralGen interface {
@@ -704,10 +704,10 @@ func (generalTreeRight *GeneralTreeRight) SetLeafThird(leafThird []bool) {
 				middleNestedFirstSecondImplementation,
 				onlyDeriveImplementation,
 			}
-			Expect(generated).To(Equal(expectedGenerated))
-			Expect(interfaces).To(Equal(expectedInterfaces))
-			Expect(structs).To(Equal(expectedStructs))
-			Expect(implementations).To(Equal(expectedImplementations))
+			Expect(generated.RawInterfaces).To(Equal(expectedGenerated))
+			Expect(generated.Interfaces).To(Equal(expectedInterfaces))
+			Expect(generated.Structs).To(Equal(expectedStructs))
+			Expect(generated.Implementations).To(Equal(expectedImplementations))
 		})
 	})
 })

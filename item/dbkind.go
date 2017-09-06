@@ -14,10 +14,7 @@ type DBKind struct {
 // Type implementation
 func (dbKind *DBKind) Type(suffix string, item Item) string {
 	if item.IsNull() {
-		return "goext." + util.ToGoName(
-			"Null",
-			strings.TrimSuffix(item.Type(suffix), "64"),
-		)
+		return "goext." + getNullType(suffix, item)
 	}
 	return item.Type(suffix)
 }
@@ -48,9 +45,16 @@ func (dbKind *DBKind) Default(suffix string, item Item) string {
 	if item.IsNull() {
 		return fmt.Sprintf(
 			"goext.Make%s(%s)",
-			dbKind.Type(suffix, item),
+			getNullType(suffix, item),
 			item.Default(suffix),
 		)
 	}
 	return item.Default(suffix)
+}
+
+func getNullType(suffix string, item Item) string {
+	return util.ToGoName(
+		"Null",
+		strings.TrimSuffix(item.Type(suffix), "64"),
+	)
 }

@@ -630,7 +630,12 @@ var _ = Describe("schema tests", func() {
 				"type": "string",
 			}
 			other := &Schema{schema: item.CreateProperty(names[3])}
-			other.schema.Parse("", 0, true, data)
+			other.schema.Parse(item.ParseContext{
+				Prefix:   "",
+				Level:    0,
+				Required: true,
+				Data:     data,
+			})
 
 			err := other.join([]*node{{value: schema}})
 

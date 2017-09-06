@@ -4,6 +4,7 @@ import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/zimnx/YamlSchemaToGoStruct/defaults"
 )
 
 var _ = Describe("plain item tests", func() {
@@ -81,6 +82,14 @@ var _ = Describe("plain item tests", func() {
 		})
 	})
 
+	Describe("default value tests", func() {
+		It("Should return a correct default value", func() {
+			plainItem := PlainItem{defaultValue: defaults.CreatePlainDefaults("test")}
+
+			Expect(plainItem.Default("")).To(Equal(`"test"`))
+		})
+	})
+
 	Describe("type tests", func() {
 		It("Should return a correct item type", func() {
 			typeOfItem := "int64"
@@ -120,10 +129,10 @@ var _ = Describe("plain item tests", func() {
 			data = map[interface{}]interface{}{}
 
 			err := plainItem.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -138,10 +147,10 @@ var _ = Describe("plain item tests", func() {
 			data = map[interface{}]interface{}{"type": 1}
 
 			err := plainItem.Parse(ParseContext{
-				prefix:prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -157,10 +166,10 @@ var _ = Describe("plain item tests", func() {
 			data = map[interface{}]interface{}{"type": "number"}
 
 			err := plainItem.Parse(ParseContext{
-				prefix:prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := "float64"
@@ -175,10 +184,10 @@ var _ = Describe("plain item tests", func() {
 			}
 
 			err := plainItem.Parse(ParseContext{
-				prefix:prefix,
-				level: 0,
-				required: false,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: false,
+				Data:     data,
 			})
 
 			Expect(err).ToNot(HaveOccurred())
@@ -189,14 +198,28 @@ var _ = Describe("plain item tests", func() {
 			data = map[interface{}]interface{}{"type": "string"}
 
 			err := plainItem.Parse(ParseContext{
-				prefix:prefix,
-				level: 0,
-				required: false,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: false,
+				Data:     data,
 			})
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(plainItem.IsNull()).To(BeTrue())
+		})
+
+		It("Should parse a correct default value", func() {
+			value := "name"
+			data = map[interface{}]interface{}{"type": "string"}
+
+			err := plainItem.Parse(ParseContext{
+				Defaults: value,
+				Data:     data,
+			})
+
+			expected := `"` + value + `"`
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plainItem.Default("")).To(Equal(expected))
 		})
 	})
 

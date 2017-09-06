@@ -82,9 +82,9 @@ func (property *Property) IsObject() bool {
 // return:
 //   1. error during execution
 func (property *Property) Parse(context ParseContext) (err error) {
-	level := context.level
-	prefix := context.prefix
-	data := context.data
+	level := context.Level
+	prefix := context.Prefix
+	data := context.Data
 
 	property.getKindFromLevel(level)
 	property.mark = name.CreateMark(util.AddName(prefix, ""))
@@ -106,16 +106,16 @@ func (property *Property) Parse(context ParseContext) (err error) {
 	}
 
 	if property.goName() == "ID" {
-		context.required = true
+		context.Required = true
 	}
 
 	if value, ok := data["default"]; ok {
-		context.defaults = value
+		context.Defaults = value
 	}
-	property.hasDefault = context.defaults != nil
+	property.hasDefault = context.Defaults != nil
 
-	context.prefix = util.AddName(prefix, property.name)
-	context.level++
+	context.Prefix = util.AddName(prefix, property.name)
+	context.Level++
 	return property.item.Parse(context)
 }
 
@@ -180,8 +180,8 @@ func (property *Property) GenerateConstructor(suffix string) string {
 	if !property.hasDefault {
 		return ""
 	}
-	return fmt.Sprint(
-		"\t%s: %s\n",
+	return fmt.Sprintf(
+		"%s: %s",
 		util.ToGoName(property.name, ""),
 		property.kind.Default(suffix, property.item),
 	)

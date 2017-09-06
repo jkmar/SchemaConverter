@@ -1,6 +1,6 @@
 package defaults
 
-// PlainDefault is an interface for default values
+// PlainDefaults is an interface for default values
 type PlainDefaults interface {
 	Write() string
 }

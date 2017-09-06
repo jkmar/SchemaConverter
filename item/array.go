@@ -77,8 +77,8 @@ func (array *Array) AddProperties(set set.Set, safe bool) error {
 
 // Parse implementation
 func (array *Array) Parse(context ParseContext) (err error) {
-	prefix := context.prefix
-	data := context.data
+	prefix := context.Prefix
+	data := context.Data
 
 	next, ok := data["items"].(map[interface{}]interface{})
 	if !ok {
@@ -99,7 +99,7 @@ func (array *Array) Parse(context ParseContext) (err error) {
 		return fmt.Errorf("array %s: %v", prefix, err)
 	}
 
-	context.data = next
+	context.Data = next
 	return array.arrayItem.Parse(context)
 }
 

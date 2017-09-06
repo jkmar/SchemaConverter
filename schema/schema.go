@@ -69,7 +69,12 @@ func (schema *Schema) addParent() error {
 		"type": "string",
 	}
 	property := item.CreateProperty(util.AddName(schema.parent, "id"))
-	property.Parse("", 0, true, data)
+	property.Parse(item.ParseContext{
+		Prefix:   "",
+		Level:    0,
+		Required: true,
+		Data:     data,
+	})
 	set := set.New()
 	set.Insert(property)
 	return schema.schema.AddProperties(set, true)
@@ -95,7 +100,12 @@ func (schema *Schema) parse(data map[interface{}]interface{}) error {
 		)
 	}
 	next = prepareSchema(next)
-	if err := schema.schema.Parse("", 0, true, next); err != nil {
+	if err := schema.schema.Parse(item.ParseContext{
+		Prefix:   "",
+		Level:    0,
+		Required: true,
+		Data:     next,
+	}); err != nil {
 		return fmt.Errorf(
 			"invalid schema %s: %v",
 			schema.Name(),

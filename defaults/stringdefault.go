@@ -7,5 +7,5 @@ type StringDefault struct {
 
 // Write implementation
 func (stringDefault *StringDefault) Write() string {
-	return  `"` + stringDefault.value + `"`
+	return `"` + stringDefault.value + `"`
 }

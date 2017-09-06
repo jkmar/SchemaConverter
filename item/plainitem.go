@@ -78,10 +78,10 @@ func (plainItem *PlainItem) AddProperties(set set.Set, safe bool) error {
 
 // Parse implementation
 func (plainItem *PlainItem) Parse(context ParseContext) (err error) {
-	defaultValue := context.defaults
-	required := context.required
-	prefix := context.prefix
-	data := context.data
+	defaultValue := context.Defaults
+	required := context.Required
+	prefix := context.Prefix
+	data := context.Data
 
 	objectType, ok := data["type"]
 	if !ok {

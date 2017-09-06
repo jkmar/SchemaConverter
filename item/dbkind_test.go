@@ -19,8 +19,8 @@ var _ = Describe("json kind tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			err = newItem.Parse(ParseContext{
-				required: true,
-				data: map[interface{}]interface{}{"type": list},
+				Required: true,
+				Data:     map[interface{}]interface{}{"type": list},
 			})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -36,8 +36,8 @@ var _ = Describe("json kind tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			err = newItem.Parse(ParseContext{
-				required: true,
-				data:     map[interface{}]interface{}{"type": typeOfItem},
+				Required: true,
+				Data:     map[interface{}]interface{}{"type": typeOfItem},
 			})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -54,8 +54,8 @@ var _ = Describe("json kind tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			err = newItem.Parse(ParseContext{
-				required: false,
-				data: map[interface{}]interface{}{"type": "int64"},
+				Required: false,
+				Data:     map[interface{}]interface{}{"type": "int64"},
 			})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -71,9 +71,9 @@ var _ = Describe("json kind tests", func() {
 
 			name := "Test"
 			err = newItem.Parse(ParseContext{
-				prefix: name,
-				required: false,
-				data: map[interface{}]interface{}{
+				Prefix:   name,
+				Required: false,
+				Data: map[interface{}]interface{}{
 					"type":       "object",
 					"properties": map[interface{}]interface{}{},
 				},
@@ -96,8 +96,8 @@ var _ = Describe("json kind tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			err = newItem.Parse(ParseContext{
-				required: true,
-				data: map[interface{}]interface{}{"type": list},
+				Required: true,
+				Data:     map[interface{}]interface{}{"type": list},
 			})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -117,8 +117,8 @@ var _ = Describe("json kind tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			err = newItem.Parse(ParseContext{
-				required: true,
-				data: map[interface{}]interface{}{"type": typeOfItem},
+				Required: true,
+				Data:     map[interface{}]interface{}{"type": typeOfItem},
 			})
 			Expect(err).ToNot(HaveOccurred())
 
@@ -128,6 +128,47 @@ var _ = Describe("json kind tests", func() {
 				"`db:\"%s\" json:\"%s\"`",
 				name, name,
 			)
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("default value tests", func() {
+		It("Should return a correct default value for a null item", func() {
+			value := 1
+			typeOfItem := "int"
+			newItem, err := CreateItem(typeOfItem)
+			Expect(err).ToNot(HaveOccurred())
+
+			err = newItem.Parse(ParseContext{
+				Defaults: value,
+				Data:     map[interface{}]interface{}{"type": typeOfItem},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			result := dbKind.Default("", newItem)
+
+			expected := fmt.Sprintf(
+				"goext.MakeNullInt(%d)",
+				value,
+			)
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should return a correct default value for a not null item", func() {
+			typeOfItem := "int"
+			newItem, err := CreateItem(typeOfItem)
+			Expect(err).ToNot(HaveOccurred())
+
+			err = newItem.Parse(ParseContext{
+				Defaults: 1,
+				Required: true,
+				Data:     map[interface{}]interface{}{"type": typeOfItem},
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			result := dbKind.Default("", newItem)
+
+			expected := "1"
 			Expect(result).To(Equal(expected))
 		})
 	})

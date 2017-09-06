@@ -24,26 +24,21 @@ func Convert(
 	toConvert []map[interface{}]interface{},
 	rawSuffix,
 	interfaceSuffix string,
-) (
-	generated,
-	interfaces,
-	structs,
-	implementations []string,
-	err error,
-) {
-	var otherSet set.Set
-	otherSet, err = parseAll(other)
+) (*Generated, error) {
+	otherSet, err := parseAll(other)
 	if err != nil {
-		return
+		return nil, err
 	}
-	var toConvertSet set.Set
-	toConvertSet, err = parseAll(toConvert)
+
+	toConvertSet, err := parseAll(toConvert)
 	if err != nil {
-		return
+		return nil, err
 	}
+
 	if err = collectSchemas(toConvertSet, otherSet); err != nil {
-		return
+		return nil, err
 	}
+
 	dbObjects := set.New()
 	jsonObjects := set.New()
 	for _, toConvertSchema := range toConvertSet {
@@ -52,17 +47,36 @@ func Convert(
 		var object set.Set
 		object, err = toConvertSchema.(*Schema).collectObjects(-1, 1)
 		if err != nil {
-			return
+			return nil, err
 		}
 		jsonObjects.InsertAll(object)
 	}
+
 	dbObjects.InsertAll(jsonObjects)
+	result := &Generated{}
 	for _, object := range dbObjects.ToArray() {
 		item := object.(*item.Object)
-		generated = append(generated, item.GenerateInterface(interfaceSuffix))
-		interfaces = append(interfaces, item.GenerateMutableInterface(interfaceSuffix, rawSuffix))
-		structs = append(structs, item.GenerateStruct(rawSuffix))
-		implementations = append(implementations, item.GenerateImplementation(interfaceSuffix, rawSuffix))
+		result.RawInterfaces = append(
+			result.RawInterfaces,
+			item.GenerateInterface(interfaceSuffix),
+		)
+		result.Interfaces = append(
+			result.Interfaces,
+			item.GenerateMutableInterface(interfaceSuffix, rawSuffix),
+		)
+		result.Structs = append(
+			result.Structs,
+			item.GenerateStruct(rawSuffix),
+		)
+		result.Implementations = append(
+			result.Implementations,
+			item.GenerateImplementation(interfaceSuffix, rawSuffix),
+		)
+		result.Constructors = append(
+			result.Constructors,
+			item.GenerateConstructor(rawSuffix),
+		)
 	}
-	return
+
+	return result, nil
 }

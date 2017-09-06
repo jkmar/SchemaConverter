@@ -92,6 +92,18 @@ var _ = Describe("array tests", func() {
 		})
 	})
 
+	Describe("default value tests", func() {
+		It("Should return a correct default value", func() {
+			typeOfItem := "string"
+			array := Array{&PlainItem{itemType: typeOfItem}}
+
+			result := array.Default("")
+
+			expected := "[]" + typeOfItem + "{}"
+			Expect(result).To(Equal(expected))
+		})
+	})
+
 	Describe("type tests", func() {
 		It("Should return a correct array type", func() {
 			typeOfItem := "int64"
@@ -142,10 +154,10 @@ var _ = Describe("array tests", func() {
 			data = map[interface{}]interface{}{}
 
 			err := array.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -164,10 +176,10 @@ var _ = Describe("array tests", func() {
 			}
 
 			err := array.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -186,10 +198,10 @@ var _ = Describe("array tests", func() {
 			}
 
 			err := array.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			expected := fmt.Errorf(
@@ -209,10 +221,10 @@ var _ = Describe("array tests", func() {
 			}
 
 			err := array.Parse(ParseContext{
-				prefix: prefix,
-				level: 0,
-				required: true,
-				data: data,
+				Prefix:   prefix,
+				Level:    0,
+				Required: true,
+				Data:     data,
 			})
 
 			typeOfItem := data["items"].(map[interface{}]interface{})["type"]

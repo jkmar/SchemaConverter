@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	packageName,
+	resourcePackage,
+	interfacePackage,
 	output,
 	rawSuffix,
 	interfaceSuffix string
@@ -28,7 +29,8 @@ var RootCmd = &cobra.Command{
 		err := app.Run(
 			args[0],
 			output,
-			packageName,
+			resourcePackage,
+			interfacePackage,
 			rawSuffix,
 			interfaceSuffix,
 		)
@@ -41,11 +43,18 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.Flags().StringVarP(
-		&packageName,
+		&resourcePackage,
 		"package-name",
 		"p",
+		"resources",
+		"package name for raw structs",
+	)
+	RootCmd.Flags().StringVarP(
+		&interfacePackage,
+		"interface-name",
+		"i",
 		"esi",
-		"package name for implementation and raw structs",
+		"package name for interfaces",
 	)
 	RootCmd.Flags().StringVarP(
 		&output,
