@@ -32,3 +32,8 @@ func jsonAnnotation(name string, item Item) string {
 func (jsonKind *JSONKind) Annotation(name string, item Item) string {
 	return fmt.Sprintf("`%s`", jsonAnnotation(name, item))
 }
+
+// Default implementation
+func (jsonKind *JSONKind) Default(suffix string, item Item) string {
+	return item.Default(suffix)
+}

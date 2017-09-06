@@ -26,4 +26,12 @@ type Kind interface {
 	// return:
 	//   go annotation of a property
 	Annotation(string, Item) string
+
+	// Default should return a default value for a property
+	// args:
+	//   1. string - a name of a property
+	//   2. item - an item of a property
+	// return:
+	//   default value of a property as string
+	Default(string, Item) string
 }

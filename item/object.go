@@ -77,6 +77,11 @@ func (object *Object) Name() string {
 	return object.objectType
 }
 
+// Default implementation
+func (object *Object) Default(suffix string) string {
+	return "Make" + object.getType(suffix) + "()"
+}
+
 // Type implementation
 func (object *Object) Type(suffix string) string {
 	return "*" + object.getType(suffix)
@@ -118,12 +123,12 @@ func (object *Object) AddProperties(properties set.Set, safe bool) error {
 }
 
 // Parse implementation
-func (object *Object) Parse(
-	prefix string,
-	level int,
-	required bool,
-	data map[interface{}]interface{},
-) error {
+func (object *Object) Parse(context ParseContext) error {
+	defaultValues, _ := context.defaults.(map[interface{}]interface{})
+	level := context.level
+	prefix := context.prefix
+	data := context.data
+
 	object.objectType = prefix
 	object.properties = set.New()
 	requiredMap, err := parseRequired(data)
@@ -148,6 +153,7 @@ func (object *Object) Parse(
 			prefix,
 		)
 	}
+
 	for property, definition := range next {
 		strProperty, ok := property.(string)
 		if !ok {
@@ -166,12 +172,11 @@ func (object *Object) Parse(
 				strProperty,
 			)
 		}
-		if err := newProperty.Parse(
-			prefix,
-			level,
-			requiredMap[strProperty],
-			definitionMap,
-		); err != nil {
+
+		context.required = requiredMap[strProperty]
+		context.data = definitionMap
+		context.defaults, _ = defaultValues[strProperty]
+		if err := newProperty.Parse(context); err != nil {
 			return err
 		}
 	}
@@ -250,6 +255,16 @@ func (object *Object) GenerateSetter(
 		argument,
 		object.Type(typeSuffix),
 	)
+}
+
+// GenerateConstructor creates a constructor for an object
+func (object *Object) GenerateConstructor(suffix string) string {
+	code := "func Make" + object.getType(suffix) + "() {\n"
+	properties := object.properties.ToArray()
+	for _, property := range properties {
+		code += property.(*Property).GenerateConstructor(suffix)
+	}
+	return code + "}\n"
 }
 
 // GenerateStruct creates a struct of an object

@@ -32,6 +32,13 @@ type Item interface {
 	//   true iff. item contains an object
 	ContainsObject() bool
 
+	// Default should return a default value for an item
+	// args:
+	//   1. string - a suffix added to a type
+	// return:
+	//   default value of an item
+	Default(string) string
+
 	// Type should return a go type of item
 	// args:
 	//   1. string - a suffix added to a type
@@ -59,13 +66,10 @@ type Item interface {
 
 	// Parse should create an item from given map
 	// args:
-	//   1. string - prefix; a prefix added to items type
-	//   2. int - level; length of a path to a root property
-	//   3. bool - required; true iff. item is required
-	//   4. map[interface{}]interface{} - data; map from which an item is created
+	//   1. context - ParseContext; context used for parsing
 	// return:
 	//   1. error during execution
-	Parse(string, int, bool, map[interface{}]interface{}) error
+	Parse(ParseContext) error
 
 	// CollectObjects should return a set of objects contained within an item
 	// args:

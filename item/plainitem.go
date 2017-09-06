@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/defaults"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
@@ -10,9 +11,10 @@ import (
 
 // PlainItem is an implementation of Item interface
 type PlainItem struct {
-	required bool
-	null     bool
-	itemType string
+	required     bool
+	null         bool
+	defaultValue defaults.PlainDefaults
+	itemType     string
 }
 
 // Copy implementation
@@ -54,6 +56,11 @@ func (plainItem *PlainItem) MakeRequired() {
 	plainItem.required = true
 }
 
+// Default implementation
+func (plainItem *PlainItem) Default(suffix string) string {
+	return plainItem.defaultValue.Write()
+}
+
 // Type implementation
 func (plainItem *PlainItem) Type(suffix string) string {
 	return plainItem.itemType
@@ -70,12 +77,12 @@ func (plainItem *PlainItem) AddProperties(set set.Set, safe bool) error {
 }
 
 // Parse implementation
-func (plainItem *PlainItem) Parse(
-	prefix string,
-	level int,
-	required bool,
-	data map[interface{}]interface{},
-) (err error) {
+func (plainItem *PlainItem) Parse(context ParseContext) (err error) {
+	defaultValue := context.defaults
+	required := context.required
+	prefix := context.prefix
+	data := context.data
+
 	objectType, ok := data["type"]
 	if !ok {
 		return fmt.Errorf(
@@ -95,11 +102,8 @@ func (plainItem *PlainItem) Parse(
 	if _, ok = data["default"]; ok || required {
 		plainItem.required = true
 	}
-	//if !required {
-	//	if _, ok = data["default"]; !ok {
-	//		plainItem.required = true
-	//	}
-	//}
+
+	plainItem.defaultValue = defaults.CreatePlainDefaults(defaultValue)
 
 	return
 }

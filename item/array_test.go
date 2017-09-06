@@ -141,7 +141,12 @@ var _ = Describe("array tests", func() {
 		It("Should return an error for an object with no items", func() {
 			data = map[interface{}]interface{}{}
 
-			err := array.Parse(prefix, 0, true, data)
+			err := array.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"array %s does not have items",
@@ -158,7 +163,12 @@ var _ = Describe("array tests", func() {
 				},
 			}
 
-			err := array.Parse(prefix, 0, true, data)
+			err := array.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"items of array %s do not have a type",
@@ -175,7 +185,12 @@ var _ = Describe("array tests", func() {
 				},
 			}
 
-			err := array.Parse(prefix, 0, true, data)
+			err := array.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"array %s: unsupported type: %T",
@@ -193,7 +208,12 @@ var _ = Describe("array tests", func() {
 				},
 			}
 
-			err := array.Parse(prefix, 0, true, data)
+			err := array.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			typeOfItem := data["items"].(map[interface{}]interface{})["type"]
 			expected := "[]" + typeOfItem.(string)

@@ -119,7 +119,12 @@ var _ = Describe("plain item tests", func() {
 		It("Should return an error for an object with no type", func() {
 			data = map[interface{}]interface{}{}
 
-			err := plainItem.Parse(prefix, 0, true, data)
+			err := plainItem.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"item %s does not have a type",
@@ -132,7 +137,12 @@ var _ = Describe("plain item tests", func() {
 		It("Should return an error for an unsupported type", func() {
 			data = map[interface{}]interface{}{"type": 1}
 
-			err := plainItem.Parse(prefix, 0, true, data)
+			err := plainItem.Parse(ParseContext{
+				prefix:prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"item %s: unsupported type: %T",
@@ -146,7 +156,12 @@ var _ = Describe("plain item tests", func() {
 		It("Should parse a valid object", func() {
 			data = map[interface{}]interface{}{"type": "number"}
 
-			err := plainItem.Parse(prefix, 0, true, data)
+			err := plainItem.Parse(ParseContext{
+				prefix:prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := "float64"
 			Expect(err).ToNot(HaveOccurred())
@@ -159,7 +174,12 @@ var _ = Describe("plain item tests", func() {
 				"default": "abc",
 			}
 
-			err := plainItem.Parse(prefix, 0, false, data)
+			err := plainItem.Parse(ParseContext{
+				prefix:prefix,
+				level: 0,
+				required: false,
+				data: data,
+			})
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(plainItem.IsNull()).To(BeFalse())
@@ -168,7 +188,12 @@ var _ = Describe("plain item tests", func() {
 		It("Should be null when neither required nor default value is provided", func() {
 			data = map[interface{}]interface{}{"type": "string"}
 
-			err := plainItem.Parse(prefix, 0, false, data)
+			err := plainItem.Parse(ParseContext{
+				prefix:prefix,
+				level: 0,
+				required: false,
+				data: data,
+			})
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(plainItem.IsNull()).To(BeTrue())

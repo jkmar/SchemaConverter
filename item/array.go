@@ -55,6 +55,11 @@ func (array *Array) IsNull() bool {
 func (array *Array) MakeRequired() {
 }
 
+// Default implementation
+func (array *Array) Default(suffix string) string {
+	return array.Type(suffix) + "{}"
+}
+
 // Type implementation
 func (array *Array) Type(suffix string) string {
 	return "[]" + array.arrayItem.Type(suffix)
@@ -71,12 +76,10 @@ func (array *Array) AddProperties(set set.Set, safe bool) error {
 }
 
 // Parse implementation
-func (array *Array) Parse(
-	prefix string,
-	level int,
-	required bool,
-	data map[interface{}]interface{},
-) (err error) {
+func (array *Array) Parse(context ParseContext) (err error) {
+	prefix := context.prefix
+	data := context.data
+
 	next, ok := data["items"].(map[interface{}]interface{})
 	if !ok {
 		return fmt.Errorf(
@@ -95,7 +98,9 @@ func (array *Array) Parse(
 	if err != nil {
 		return fmt.Errorf("array %s: %v", prefix, err)
 	}
-	return array.arrayItem.Parse(prefix, level, required, next)
+
+	context.data = next
+	return array.arrayItem.Parse(context)
 }
 
 // CollectObjects implementation

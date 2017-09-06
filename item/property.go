@@ -10,10 +10,11 @@ import (
 
 // Property is a type for an item with name
 type Property struct {
-	name string
-	item Item
-	kind Kind
-	mark name.Mark
+	hasDefault bool
+	name       string
+	item       Item
+	kind       Kind
+	mark       name.Mark
 }
 
 // CreateProperty is a constructor
@@ -77,18 +78,14 @@ func (property *Property) IsObject() bool {
 // prefix is used to determine a go type of an item
 // level is used to determine a kind of a property
 // args:
-//   prefix string - a prefix added to items type
-//   level int - length of a path to a root property
-//   required bool - true iff. property is required
-//   data map[interface{}]interface{} - map from which a property is created
+//   context ParseContext - a context used for parsing
 // return:
 //   1. error during execution
-func (property *Property) Parse(
-	prefix string,
-	level int,
-	required bool,
-	data map[interface{}]interface{},
-) (err error) {
+func (property *Property) Parse(context ParseContext) (err error) {
+	level := context.level
+	prefix := context.prefix
+	data := context.data
+
 	property.getKindFromLevel(level)
 	property.mark = name.CreateMark(util.AddName(prefix, ""))
 
@@ -107,15 +104,19 @@ func (property *Property) Parse(
 			err,
 		)
 	}
+
 	if property.goName() == "ID" {
-		required = true
+		context.required = true
 	}
-	return property.item.Parse(
-		util.AddName(prefix, property.name),
-		level+1,
-		required,
-		data,
-	)
+
+	if value, ok := data["default"]; ok {
+		context.defaults = value
+	}
+	property.hasDefault = context.defaults != nil
+
+	context.prefix = util.AddName(prefix, property.name)
+	context.level++
+	return property.item.Parse(context)
 }
 
 // AddProperties adds properties to items of given property
@@ -172,6 +173,18 @@ func (property *Property) CollectProperties(limit, offset int) (set.Set, error) 
 		}
 	}
 	return result, nil
+}
+
+// GenerateConstructor creates a constructor for a property
+func (property *Property) GenerateConstructor(suffix string) string {
+	if !property.hasDefault {
+		return ""
+	}
+	return fmt.Sprint(
+		"\t%s: %s\n",
+		util.ToGoName(property.name, ""),
+		property.kind.Default(suffix, property.item),
+	)
 }
 
 // GenerateProperty creates a property of a go struct from given property

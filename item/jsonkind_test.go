@@ -16,12 +16,11 @@ var _ = Describe("json kind tests", func() {
 			newItem, err := CreateItem(list)
 			Expect(err).ToNot(HaveOccurred())
 
-			newItem.Parse(
-				"",
-				0,
-				true,
-				map[interface{}]interface{}{"type": list},
-			)
+			err = newItem.Parse(ParseContext{
+				required: true,
+				data: map[interface{}]interface{}{"type": list},
+			})
+			Expect(err).ToNot(HaveOccurred())
 
 			result := jsonKind.Type("", newItem)
 
@@ -34,12 +33,11 @@ var _ = Describe("json kind tests", func() {
 			newItem, err := CreateItem(typeOfItem)
 			Expect(err).ToNot(HaveOccurred())
 
-			newItem.Parse(
-				"",
-				0,
-				true,
-				map[interface{}]interface{}{"type": typeOfItem},
-			)
+			err = newItem.Parse(ParseContext{
+				required: true,
+				data:     map[interface{}]interface{}{"type": typeOfItem},
+			})
+			Expect(err).ToNot(HaveOccurred())
 
 			result := jsonKind.Type("", newItem)
 
@@ -54,15 +52,14 @@ var _ = Describe("json kind tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			name := "Test"
-			err = newItem.Parse(
-				name,
-				0,
-				false,
-				map[interface{}]interface{}{
+			err = newItem.Parse(ParseContext{
+				prefix: name,
+				required: false,
+				data: map[interface{}]interface{}{
 					"type":       "object",
 					"properties": map[interface{}]interface{}{},
 				},
-			)
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := jsonKind.InterfaceType("", newItem)
@@ -80,12 +77,11 @@ var _ = Describe("json kind tests", func() {
 			newItem, err := CreateItem(list)
 			Expect(err).ToNot(HaveOccurred())
 
-			newItem.Parse(
-				"",
-				0,
-				true,
-				map[interface{}]interface{}{"type": list},
-			)
+			err = newItem.Parse(ParseContext{
+				required: true,
+				data: map[interface{}]interface{}{"type": list},
+			})
+			Expect(err).ToNot(HaveOccurred())
 
 			result := jsonKind.Annotation(name, newItem)
 
@@ -102,12 +98,11 @@ var _ = Describe("json kind tests", func() {
 			newItem, err := CreateItem(typeOfItem)
 			Expect(err).ToNot(HaveOccurred())
 
-			newItem.Parse(
-				"",
-				0,
-				true,
-				map[interface{}]interface{}{"type": typeOfItem},
-			)
+			err = newItem.Parse(ParseContext{
+				required: true,
+				data: map[interface{}]interface{}{"type": typeOfItem},
+			})
+			Expect(err).ToNot(HaveOccurred())
 
 			result := jsonKind.Annotation(name, newItem)
 

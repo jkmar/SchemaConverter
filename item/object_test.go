@@ -237,7 +237,12 @@ var _ = Describe("object tests", func() {
 				"required": 1,
 			}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"object %s: required should be a list of strings",
@@ -252,7 +257,12 @@ var _ = Describe("object tests", func() {
 				"properties": "string",
 			}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"object %s has invalid properties",
@@ -265,7 +275,12 @@ var _ = Describe("object tests", func() {
 		It("Should return an empty object for an object with no properties", func() {
 			data = map[interface{}]interface{}{}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(object.properties.Empty()).To(BeTrue())
@@ -279,7 +294,12 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"object %s has property which name is not a string",
@@ -296,7 +316,12 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"object %s has invalid property a",
@@ -315,7 +340,12 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"property %s does not have a type",
@@ -351,7 +381,12 @@ var _ = Describe("object tests", func() {
 				},
 			}
 
-			err := object.Parse(prefix, 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(object.objectType).To(Equal(prefix))
@@ -566,7 +601,12 @@ var _ = Describe("object tests", func() {
 
 		It("Should generate a correct db struct", func() {
 			object := &Object{}
-			err := object.Parse("abc_def", 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: "abc_def",
+				level: 0,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := object.GenerateStruct("suffix")
@@ -582,7 +622,12 @@ var _ = Describe("object tests", func() {
 
 		It("Should generate a correct json struct", func() {
 			object := &Object{}
-			err := object.Parse("abc_def", 2, true, data)
+			err := object.Parse(ParseContext{
+				prefix: "abc_def",
+				level: 2,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := object.GenerateStruct("suffix")
@@ -643,7 +688,12 @@ var _ = Describe("object tests", func() {
 
 		It("Should generate correct db interface", func() {
 			object := &Object{}
-			err := object.Parse("abc_def", 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: "abc_def",
+				level: 0,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := object.GenerateInterface("suffix")
@@ -664,7 +714,12 @@ var _ = Describe("object tests", func() {
 
 		It("Should generate correct json interface", func() {
 			object := &Object{}
-			err := object.Parse("abc_def", 2, true, data)
+			err := object.Parse(ParseContext{
+				prefix: "abc_def",
+				level: 2,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := object.GenerateInterface("suffix")
@@ -718,7 +773,12 @@ var _ = Describe("object tests", func() {
 
 		It("Should generate correct db implementation", func() {
 			object := &Object{}
-			err := object.Parse("abc_def", 0, true, data)
+			err := object.Parse(ParseContext{
+				prefix: "abc_def",
+				level: 0,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := object.GenerateImplementation("interface", "suffix")
@@ -778,7 +838,12 @@ var _ = Describe("object tests", func() {
 
 		It("Should generate correct json implementation", func() {
 			object := &Object{}
-			err := object.Parse("abc_def", 2, true, data)
+			err := object.Parse(ParseContext{
+				prefix: "abc_def",
+				level: 2,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			result := object.GenerateImplementation("interface", "suffix")

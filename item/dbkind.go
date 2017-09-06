@@ -42,3 +42,15 @@ func (dbKind *DBKind) Annotation(name string, item Item) string {
 		jsonAnnotation(name, item),
 	)
 }
+
+// Default implementation
+func (dbKind *DBKind) Default(suffix string, item Item) string {
+	if item.IsNull() {
+		return fmt.Sprintf(
+			"goext.Make%s(%s)",
+			dbKind.Type(suffix, item),
+			item.Default(suffix),
+		)
+	}
+	return item.Default(suffix)
+}

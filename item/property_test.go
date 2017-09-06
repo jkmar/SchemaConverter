@@ -149,7 +149,12 @@ var _ = Describe("property tests", func() {
 		It("Should return an error for an object with no items", func() {
 			data = map[interface{}]interface{}{}
 
-			err := property.Parse(prefix, 0, true, data)
+			err := property.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"property %s does not have a type",
@@ -164,7 +169,12 @@ var _ = Describe("property tests", func() {
 				"type": 1,
 			}
 
-			err := property.Parse(prefix, 0, true, data)
+			err := property.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"property %s: unsupported type: %T",
@@ -180,7 +190,12 @@ var _ = Describe("property tests", func() {
 				"type": "array",
 			}
 
-			err := property.Parse(prefix, 0, true, data)
+			err := property.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			expected := fmt.Errorf(
 				"array %s does not have items",
@@ -198,7 +213,12 @@ var _ = Describe("property tests", func() {
 				},
 			}
 
-			err := property.Parse(prefix, 0, true, data)
+			err := property.Parse(ParseContext{
+				prefix: prefix,
+				level: 0,
+				required: true,
+				data: data,
+			})
 
 			typeOfItem := data["items"].(map[interface{}]interface{})["type"]
 			expected := "[]" + typeOfItem.(string)
@@ -212,7 +232,12 @@ var _ = Describe("property tests", func() {
 					"type": "string",
 				}
 
-				err := property.Parse(prefix, 0, false, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: false,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeTrue())
@@ -223,7 +248,12 @@ var _ = Describe("property tests", func() {
 					"type": "string",
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeFalse())
@@ -234,7 +264,12 @@ var _ = Describe("property tests", func() {
 					"default": "test",
 				}
 
-				err := property.Parse(prefix, 0, false, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: false,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeFalse())
@@ -245,7 +280,12 @@ var _ = Describe("property tests", func() {
 					"default": "test",
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeFalse())
@@ -258,7 +298,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 0, false, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: false,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeTrue())
@@ -271,7 +316,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeTrue())
@@ -285,7 +335,12 @@ var _ = Describe("property tests", func() {
 					"default": "test",
 				}
 
-				err := property.Parse(prefix, 0, false, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: false,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeTrue())
@@ -299,7 +354,12 @@ var _ = Describe("property tests", func() {
 					"default": "test",
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(property.item.IsNull()).To(BeTrue())
@@ -351,7 +411,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -371,7 +436,12 @@ var _ = Describe("property tests", func() {
 					"type": "boolean",
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -394,7 +464,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -419,7 +494,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 0, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 0,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -452,7 +532,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 2, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 2,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -470,7 +555,12 @@ var _ = Describe("property tests", func() {
 					"type": "boolean",
 				}
 
-				err := property.Parse(prefix, 2, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 2,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -491,7 +581,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 2, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 2,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -514,7 +609,12 @@ var _ = Describe("property tests", func() {
 					},
 				}
 
-				err := property.Parse(prefix, 2, true, data)
+				err := property.Parse(ParseContext{
+					prefix: prefix,
+					level: 2,
+					required: true,
+					data: data,
+				})
 				Expect(err).ToNot(HaveOccurred())
 
 				result := property.GenerateProperty(suffix)
@@ -734,7 +834,12 @@ var _ = Describe("property tests", func() {
 				},
 			}
 			property := &Property{name: "test"}
-			err := property.Parse("test", 0, true, data)
+			err := property.Parse(ParseContext{
+				prefix: "test",
+				level: 0,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			property.CompressObjects()
@@ -819,7 +924,12 @@ var _ = Describe("property tests", func() {
 				},
 			}
 			property := &Property{name: "test"}
-			err := property.Parse("test", 0, true, data)
+			err := property.Parse(ParseContext{
+				prefix: "test",
+				level: 0,
+				required: true,
+				data: data,
+			})
 			Expect(err).ToNot(HaveOccurred())
 
 			property.CompressObjects()
