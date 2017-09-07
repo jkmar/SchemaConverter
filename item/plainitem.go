@@ -25,7 +25,16 @@ func (plainItem *PlainItem) Copy() Item {
 
 // ToString implementation
 func (plainItem *PlainItem) ToString() string {
-	return fmt.Sprintf("#%s,%v", plainItem.itemType, plainItem.IsNull())
+	defaultValue := ""
+	if plainItem.defaultValue != nil {
+		defaultValue = plainItem.defaultValue.Write()
+	}
+	return fmt.Sprintf(
+		"#%s,%v,%s",
+		plainItem.itemType,
+		plainItem.IsNull(),
+		defaultValue,
+	)
 }
 
 // Compress implementation
