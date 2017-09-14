@@ -8,6 +8,8 @@ import (
 )
 
 var (
+	goextPackage,
+	goodiesPackage,
 	resourcePackage,
 	interfacePackage,
 	output,
@@ -29,6 +31,8 @@ var RootCmd = &cobra.Command{
 		err := app.Run(
 			args[0],
 			output,
+			goextPackage,
+			goodiesPackage,
 			resourcePackage,
 			interfacePackage,
 			rawSuffix,
@@ -42,6 +46,18 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
+	RootCmd.Flags().StringVar(
+		&goextPackage,
+		"goext",
+		"goext",
+		"package name for golang extension interfaces",
+	)
+	RootCmd.Flags().StringVar(
+		&goodiesPackage,
+		"goodies",
+		"goodies",
+		"package name for crud packages",
+	)
 	RootCmd.Flags().StringVarP(
 		&resourcePackage,
 		"package-name",

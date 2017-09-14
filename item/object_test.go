@@ -1063,4 +1063,102 @@ var _ = Describe("object tests", func() {
 			Expect(result).To(Equal(expected))
 		})
 	})
+
+	Describe("generate fetch tests", func() {
+		It("Should generate a correct fetch for an interface", func() {
+			name := "Type"
+			object := &Object{objectType: name}
+
+			result := object.GenerateFetch("goext", "", "", false)
+
+			expected := `func FetchType(` +
+				`schema goext.ISchema, ` +
+				`id string, ` +
+				`context goext.Context` +
+				`) (IType, error) {
+	result, err := schema.Fetch(id, context)
+	if err != nil {
+		return nil, err
+	}
+	return result.(IType), nil
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct fetch for a raw type", func() {
+			name := "Type"
+			object := &Object{objectType: name}
+
+			result := object.GenerateFetch("goext", "", "", true)
+
+			expected := `func FetchRawType(` +
+				`schema goext.ISchema, ` +
+				`id string, ` +
+				`context goext.Context` +
+				`) (*Type, error) {
+	result, err := schema.FetchRaw(id, context)
+	if err != nil {
+		return nil, err
+	}
+	return result.(*Type), nil
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
+
+	Describe("generate list tests", func() {
+		It("Should generate a correct list for an interface", func() {
+			name := "Type"
+			object := &Object{objectType: name}
+
+			result := object.GenerateList("goext", "", "", false)
+
+			expected := `func ListType(` +
+				`schema goext.ISchema, ` +
+				`filter goext.Filter, ` +
+				`paginator *goext.Paginator, ` +
+				`context goext.Context` +
+				`) ([]IType, error) {
+	list, err := schema.List(filter, paginator, context)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]IType, len(list))
+	for i, object := range list {
+		result[i] = object.(IType)
+	}
+	return result, nil
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+
+		It("Should generate a correct list for a raw type", func() {
+			name := "Type"
+			object := &Object{objectType: name}
+
+			result := object.GenerateList("goext", "", "", true)
+
+			expected := `func ListRawType(` +
+				`schema goext.ISchema, ` +
+				`filter goext.Filter, ` +
+				`paginator *goext.Paginator, ` +
+				`context goext.Context` +
+				`) ([]*Type, error) {
+	list, err := schema.ListRaw(filter, paginator, context)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*Type, len(list))
+	for i, object := range list {
+		result[i] = object.(*Type)
+	}
+	return result, nil
+}
+`
+			Expect(result).To(Equal(expected))
+		})
+	})
 })

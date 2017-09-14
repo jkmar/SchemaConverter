@@ -27,6 +27,8 @@ func writeResult(data []string, packageName, outputPrefix, outputSuffix string) 
 func Run(
 	config,
 	output,
+	goextPackage,
+	goodiesPackage,
 	resourcePackage,
 	interfacePackage,
 	rawSuffix,
@@ -43,6 +45,7 @@ func Run(
 		all,
 		rawSuffix,
 		interfaceSuffix,
+		goextPackage,
 	)
 	if err != nil {
 		return err
@@ -84,10 +87,28 @@ func Run(
 		return err
 	}
 
-	return writeResult(
+	if err = writeResult(
 		generated.Constructors,
 		resourcePackage,
 		output,
 		"constructors.go",
+	); err != nil {
+		return err
+	}
+
+	if err = writeResult(
+		generated.Crud,
+		goodiesPackage,
+		output,
+		"crud.go",
+	); err != nil {
+		return err
+	}
+
+	return writeResult(
+		generated.RawCrud,
+		goodiesPackage,
+		output,
+		"raw_crud.go",
 	)
 }

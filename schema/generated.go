@@ -6,5 +6,7 @@ type Generated struct {
 	Interfaces,
 	Structs,
 	Constructors,
-	Implementations []string
+	Implementations,
+	RawCrud,
+	Crud []string
 }

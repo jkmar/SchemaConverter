@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"github.com/zimnx/YamlSchemaToGoStruct/crud"
 	"github.com/zimnx/YamlSchemaToGoStruct/hash"
 	"github.com/zimnx/YamlSchemaToGoStruct/name"
 	"github.com/zimnx/YamlSchemaToGoStruct/set"
@@ -340,6 +341,58 @@ func (object *Object) GenerateImplementation(interfaceSuffix, typeSuffix string)
 		)
 	}
 	return strings.TrimSuffix(code, "\n")
+}
+
+//GenerateFetch generates a fetch function for an object
+func (object *Object) GenerateFetch(
+	packageName,
+	fetchPrefix,
+	suffix string,
+	raw bool,
+) string {
+	var (
+		fetchSuffix,
+		typeName string
+	)
+	if raw {
+		fetchSuffix = "Raw"
+		typeName = object.Type(suffix)
+	} else {
+		typeName = object.InterfaceType(suffix)
+	}
+	return crud.GenerateFetch(
+		packageName,
+		object.getType(suffix),
+		typeName,
+		fetchPrefix,
+		fetchSuffix,
+	)
+}
+
+//GenerateList generates a list function for an object
+func (object *Object) GenerateList(
+	packageName,
+	fetchPrefix,
+	suffix string,
+	raw bool,
+) string {
+	var (
+		fetchSuffix,
+		typeName string
+	)
+	if raw {
+		fetchSuffix = "Raw"
+		typeName = object.Type(suffix)
+	} else {
+		typeName = object.InterfaceType(suffix)
+	}
+	return crud.GenerateList(
+		packageName,
+		object.getType(suffix),
+		typeName,
+		fetchPrefix,
+		fetchSuffix,
+	)
 }
 
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {

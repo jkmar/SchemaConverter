@@ -23,7 +23,8 @@ func Convert(
 	other,
 	toConvert []map[interface{}]interface{},
 	rawSuffix,
-	interfaceSuffix string,
+	interfaceSuffix,
+	packageName string,
 ) (*Generated, error) {
 	otherSet, err := parseAll(other)
 	if err != nil {
@@ -75,6 +76,21 @@ func Convert(
 		result.Constructors = append(
 			result.Constructors,
 			item.GenerateConstructor(rawSuffix),
+		)
+		result.RawCrud = append(
+			result.RawCrud,
+			item.GenerateFetch(packageName, "", rawSuffix, true),
+			item.GenerateFetch(packageName, "Lock", rawSuffix, true),
+			item.GenerateList(packageName, "", rawSuffix, true),
+			item.GenerateList(packageName, "Lock", rawSuffix, true),
+		)
+
+		result.Crud = append(
+			result.Crud,
+			item.GenerateFetch(packageName, "", rawSuffix, false),
+			item.GenerateFetch(packageName, "Lock", rawSuffix, false),
+			item.GenerateList(packageName, "", rawSuffix, false),
+			item.GenerateList(packageName, "Lock", rawSuffix, false),
 		)
 	}
 

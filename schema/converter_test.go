@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("converter tess", func() {
+var _ = Describe("converter tests", func() {
 	Describe("error tests", func() {
 		var (
 			validSchema = []map[interface{}]interface{}{
@@ -27,14 +27,14 @@ var _ = Describe("converter tess", func() {
 			var expected = fmt.Errorf("schema does not have an id")
 
 			It("Should return error for invalid other schema", func() {
-				_, err := Convert(validSchema, invalidSchema, "", "")
+				_, err := Convert(validSchema, invalidSchema, "", "", "")
 
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError(expected))
 			})
 
 			It("Should return error for invalid other schema", func() {
-				_, err := Convert(invalidSchema, validSchema, "", "")
+				_, err := Convert(invalidSchema, validSchema, "", "", "")
 
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError(expected))
@@ -43,7 +43,7 @@ var _ = Describe("converter tess", func() {
 
 		Describe("collect errors", func() {
 			It("Should return error for multiple schemas with the same name", func() {
-				_, err := Convert(validSchema, validSchema, "", "")
+				_, err := Convert(validSchema, validSchema, "", "", "")
 
 				expected := fmt.Errorf("multiple schemas with the same name")
 				Expect(err).To(HaveOccurred())
@@ -81,7 +81,7 @@ var _ = Describe("converter tess", func() {
 					},
 				}
 
-				_, err := Convert(nil, schemas, "", "")
+				_, err := Convert(nil, schemas, "", "", "")
 
 				expected := fmt.Errorf(
 					"invalid schema %s: multiple objects with the same type at object %s",
@@ -242,7 +242,7 @@ var _ = Describe("converter tess", func() {
 				},
 			}
 
-			generated, err := Convert(other, toConvert, "", "Gen")
+			generated, err := Convert(other, toConvert, "", "Gen", "goext")
 			Expect(err).ToNot(HaveOccurred())
 
 			generalGenerated := `type IGeneralGen interface {
