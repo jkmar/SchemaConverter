@@ -346,53 +346,40 @@ func (object *Object) GenerateImplementation(interfaceSuffix, typeSuffix string)
 //GenerateFetch generates a fetch function for an object
 func (object *Object) GenerateFetch(
 	packageName,
-	fetchPrefix,
 	suffix string,
+	lock,
 	raw bool,
 ) string {
-	var (
-		fetchSuffix,
-		typeName string
-	)
-	if raw {
-		fetchSuffix = "Raw"
-		typeName = object.Type(suffix)
-	} else {
-		typeName = object.InterfaceType(suffix)
-	}
 	return crud.GenerateFetch(
 		packageName,
 		object.getType(suffix),
-		typeName,
-		fetchPrefix,
-		fetchSuffix,
+		object.getTypeName(raw, suffix),
+		lock,
+		raw,
 	)
 }
 
 //GenerateList generates a list function for an object
 func (object *Object) GenerateList(
 	packageName,
-	fetchPrefix,
 	suffix string,
+	lock,
 	raw bool,
 ) string {
-	var (
-		fetchSuffix,
-		typeName string
-	)
-	if raw {
-		fetchSuffix = "Raw"
-		typeName = object.Type(suffix)
-	} else {
-		typeName = object.InterfaceType(suffix)
-	}
 	return crud.GenerateList(
 		packageName,
 		object.getType(suffix),
-		typeName,
-		fetchPrefix,
-		fetchSuffix,
+		object.getTypeName(raw, suffix),
+		lock,
+		raw,
 	)
+}
+
+func (object *Object) getTypeName(raw bool, suffix string) string {
+	if raw {
+		return object.Type(suffix)
+	}
+	return object.InterfaceType(suffix)
 }
 
 func parseRequired(data map[interface{}]interface{}) (map[string]bool, error) {

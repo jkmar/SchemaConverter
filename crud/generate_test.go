@@ -24,8 +24,8 @@ var _ = Describe("generate tests", func() {
 				"goext",
 				"A",
 				"esi.IA",
-				"",
-				"",
+				false,
+				false,
 			)
 
 			Expect(result).To(Equal(expected))
@@ -35,9 +35,10 @@ var _ = Describe("generate tests", func() {
 			expected := `func LockFetchRawB(` +
 				`schema goext.ISchema, ` +
 				`id string, ` +
-				`context goext.Context` +
+				`context goext.Context, ` +
+				`policy goext.LockPolicy` +
 				`) (*resources.B, error) {
-	result, err := schema.LockFetchRaw(id, context)
+	result, err := schema.LockFetchRaw(id, context, policy)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +49,8 @@ var _ = Describe("generate tests", func() {
 				"goext",
 				"B",
 				"*resources.B",
-				"Lock",
-				"Raw",
+				true,
+				true,
 			)
 
 			Expect(result).To(Equal(expected))
@@ -79,8 +80,8 @@ var _ = Describe("generate tests", func() {
 				"goext",
 				"A",
 				"esi.IA",
-				"",
-				"",
+				false,
+				false,
 			)
 			Expect(result).To(Equal(expected))
 		})
@@ -90,9 +91,10 @@ var _ = Describe("generate tests", func() {
 				`schema goext.ISchema, ` +
 				`filter goext.Filter, ` +
 				`paginator *goext.Paginator, ` +
-				`context goext.Context` +
+				`context goext.Context, ` +
+				`policy goext.LockPolicy` +
 				`) ([]*resources.B, error) {
-	list, err := schema.LockListRaw(filter, paginator, context)
+	list, err := schema.LockListRaw(filter, paginator, context, policy)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +109,8 @@ var _ = Describe("generate tests", func() {
 				"goext",
 				"B",
 				"*resources.B",
-				"Lock",
-				"Raw",
+				true,
+				true,
 			)
 			Expect(result).To(Equal(expected))
 		})

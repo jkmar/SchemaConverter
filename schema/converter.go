@@ -79,18 +79,18 @@ func Convert(
 		)
 		result.RawCrud = append(
 			result.RawCrud,
-			item.GenerateFetch(packageName, "", rawSuffix, true),
-			item.GenerateFetch(packageName, "Lock", rawSuffix, true),
-			item.GenerateList(packageName, "", rawSuffix, true),
-			item.GenerateList(packageName, "Lock", rawSuffix, true),
+			item.GenerateFetch(packageName, rawSuffix, false, true),
+			item.GenerateFetch(packageName, rawSuffix, true, true),
+			item.GenerateList(packageName, rawSuffix, false, true),
+			item.GenerateList(packageName, rawSuffix, true, true),
 		)
 
 		result.Crud = append(
 			result.Crud,
-			item.GenerateFetch(packageName, "", rawSuffix, false),
-			item.GenerateFetch(packageName, "Lock", rawSuffix, false),
-			item.GenerateList(packageName, "", rawSuffix, false),
-			item.GenerateList(packageName, "Lock", rawSuffix, false),
+			item.GenerateFetch(packageName, rawSuffix, false, false),
+			item.GenerateFetch(packageName, rawSuffix, true, false),
+			item.GenerateList(packageName, rawSuffix, false, false),
+			item.GenerateList(packageName, rawSuffix, true, false),
 		)
 	}
 

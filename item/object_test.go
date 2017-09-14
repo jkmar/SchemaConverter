@@ -1069,7 +1069,7 @@ var _ = Describe("object tests", func() {
 			name := "Type"
 			object := &Object{objectType: name}
 
-			result := object.GenerateFetch("goext", "", "", false)
+			result := object.GenerateFetch("goext", "", false, false)
 
 			expected := `func FetchType(` +
 				`schema goext.ISchema, ` +
@@ -1090,14 +1090,15 @@ var _ = Describe("object tests", func() {
 			name := "Type"
 			object := &Object{objectType: name}
 
-			result := object.GenerateFetch("goext", "", "", true)
+			result := object.GenerateFetch("goext", "", true, true)
 
-			expected := `func FetchRawType(` +
+			expected := `func LockFetchRawType(` +
 				`schema goext.ISchema, ` +
 				`id string, ` +
-				`context goext.Context` +
+				`context goext.Context, ` +
+				`policy goext.LockPolicy` +
 				`) (*Type, error) {
-	result, err := schema.FetchRaw(id, context)
+	result, err := schema.LockFetchRaw(id, context, policy)
 	if err != nil {
 		return nil, err
 	}
@@ -1113,7 +1114,7 @@ var _ = Describe("object tests", func() {
 			name := "Type"
 			object := &Object{objectType: name}
 
-			result := object.GenerateList("goext", "", "", false)
+			result := object.GenerateList("goext", "", false, false)
 
 			expected := `func ListType(` +
 				`schema goext.ISchema, ` +
@@ -1139,15 +1140,16 @@ var _ = Describe("object tests", func() {
 			name := "Type"
 			object := &Object{objectType: name}
 
-			result := object.GenerateList("goext", "", "", true)
+			result := object.GenerateList("goext", "", true, true)
 
-			expected := `func ListRawType(` +
+			expected := `func LockListRawType(` +
 				`schema goext.ISchema, ` +
 				`filter goext.Filter, ` +
 				`paginator *goext.Paginator, ` +
-				`context goext.Context` +
+				`context goext.Context, ` +
+				`policy goext.LockPolicy` +
 				`) ([]*Type, error) {
-	list, err := schema.ListRaw(filter, paginator, context)
+	list, err := schema.LockListRaw(filter, paginator, context, policy)
 	if err != nil {
 		return nil, err
 	}
