@@ -16,7 +16,7 @@ var _ = Describe("plain item tests", func() {
 
 				result := plainItem.ToString()
 
-				expected := "#int64,true"
+				expected := "#int64,true,"
 				Expect(result).To(Equal(expected))
 			})
 
@@ -26,7 +26,21 @@ var _ = Describe("plain item tests", func() {
 
 				result := plainItem.ToString()
 
-				expected := "#string,false"
+				expected := "#string,false,"
+				Expect(result).To(Equal(expected))
+			})
+
+			It("Should return a correct item type for an item with default value", func() {
+				typeOfItem := "string"
+				plainItem := PlainItem{
+					itemType:     typeOfItem,
+					required:     true,
+					defaultValue: defaults.CreatePlainDefaults("test"),
+				}
+
+				result := plainItem.ToString()
+
+				expected := `#string,false,"test"`
 				Expect(result).To(Equal(expected))
 			})
 		})

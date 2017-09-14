@@ -883,7 +883,7 @@ var _ = Describe("object tests", func() {
 }
 
 %sSetXyz(xyz IAbcDefXyzInterface) {
-	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+	%s.Xyz, _ = xyz.(*AbcDefXyzSuffix)
 }
 `,
 				header,
@@ -948,7 +948,7 @@ var _ = Describe("object tests", func() {
 }
 
 %sSetXyz(xyz IAbcDefXyzInterface) {
-	%s.Xyz = xyz.(*AbcDefXyzSuffix)
+	%s.Xyz, _ = xyz.(*AbcDefXyzSuffix)
 }
 `,
 				header,
@@ -1059,7 +1059,7 @@ var _ = Describe("object tests", func() {
 
 			result := object.GenerateSetter(variable, argument, "", 1)
 
-			expected := fmt.Sprintf("\t%s = %s.(*%s)", variable, argument, name)
+			expected := fmt.Sprintf("\t%s, _ = %s.(*%s)", variable, argument, name)
 			Expect(result).To(Equal(expected))
 		})
 	})

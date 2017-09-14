@@ -249,7 +249,7 @@ func (object *Object) GenerateSetter(
 	depth int,
 ) string {
 	return fmt.Sprintf(
-		"%s%s = %s.(%s)",
+		"%s%s, _ = %s.(%s)",
 		util.Indent(depth),
 		variable,
 		argument,

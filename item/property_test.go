@@ -819,7 +819,7 @@ var _ = Describe("property tests", func() {
 			result := property.GenerateSetter("var", "", "")
 
 			expected := `SetRange(rangeObject IXyz) {
-	var.Range = rangeObject.(*Xyz)
+	var.Range, _ = rangeObject.(*Xyz)
 }`
 			Expect(result).To(Equal(expected))
 		})
@@ -838,7 +838,7 @@ var _ = Describe("property tests", func() {
 	for i := range a {
 		var.A[i] = make([]*Object, len(a[i]))
 		for j := range a[i] {
-			var.A[i][j] = a[i][j].(*Object)
+			var.A[i][j], _ = a[i][j].(*Object)
 		}
 	}
 }`
@@ -937,7 +937,7 @@ var _ = Describe("property tests", func() {
 			Expect(objects.Size()).To(Equal(3))
 		})
 
-		It("Should change names of compressed objects", func() {
+		It("Should not compress objects with different defaults", func() {
 			data := map[interface{}]interface{}{
 				"type": "object",
 				"properties": map[interface{}]interface{}{
@@ -959,11 +959,9 @@ var _ = Describe("property tests", func() {
 									"type": "object",
 									"properties": map[interface{}]interface{}{
 										"a": map[interface{}]interface{}{
-											"type": "string",
+											"type":    "string",
+											"default": "test2",
 										},
-									},
-									"required": []interface{}{
-										"a",
 									},
 								},
 							},
@@ -987,7 +985,96 @@ var _ = Describe("property tests", func() {
 									"type": "object",
 									"properties": map[interface{}]interface{}{
 										"a": map[interface{}]interface{}{
+											"type":    "string",
+											"default": "test2",
+										},
+									},
+									"required": []interface{}{
+										"a",
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+			property := &Property{name: "test"}
+			err := property.Parse(ParseContext{
+				Prefix:   "test",
+				Level:    0,
+				Required: true,
+				Data:     data,
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			property.CompressObjects()
+
+			objects, err := property.CollectObjects(-1, 0)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(objects.Size()).To(Equal(4))
+
+			array := objects.ToArray()
+			Expect(array[0].Name()).To(Equal("test_test"))
+			Expect(array[1].Name()).To(Equal("test_test_common"))
+			Expect(array[2].Name()).To(Equal("test_test_common_a"))
+			Expect(array[3].Name()).To(Equal("test_test_common_b"))
+		})
+
+		It("Should change names of compressed objects", func() {
+			data := map[interface{}]interface{}{
+				"type": "object",
+				"properties": map[interface{}]interface{}{
+					"a": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
 											"type": "string",
+										},
+									},
+								},
+								"b": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": []interface{}{
+												"string",
+												"null",
+											},
+										},
+									},
+									"required": []interface{}{
+										"a",
+									},
+								},
+							},
+						},
+					},
+					"b": map[interface{}]interface{}{
+						"type": "array",
+						"items": map[interface{}]interface{}{
+							"type": "object",
+							"properties": map[interface{}]interface{}{
+								"a": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": "string",
+										},
+									},
+								},
+								"b": map[interface{}]interface{}{
+									"type": "object",
+									"properties": map[interface{}]interface{}{
+										"a": map[interface{}]interface{}{
+											"type": []interface{}{
+												"string",
+												"null",
+											},
 										},
 									},
 									"required": []interface{}{

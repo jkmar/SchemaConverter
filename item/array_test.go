@@ -377,7 +377,7 @@ var _ = Describe("array tests", func() {
 			expected := fmt.Sprintf(
 				`	%s = make([]*%s, len(%s))
 	for i := range %s {
-		%s[i] = %s[i].(*%s)
+		%s[i], _ = %s[i].(*%s)
 	}`,
 				variable,
 				name,
@@ -422,7 +422,7 @@ var _ = Describe("array tests", func() {
 	for i := range %s {
 		%s[i] = make([]*%s, len(%s[i]))
 		for j := range %s[i] {
-			%s[i][j] = %s[i][j].(*%s)
+			%s[i][j], _ = %s[i][j].(*%s)
 		}
 	}`,
 				variable,

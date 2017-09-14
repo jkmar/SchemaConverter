@@ -464,7 +464,7 @@ func (general *General) SetComplex(complex [][]IGeneralComplexGen) {
 	for i := range complex {
 		general.Complex[i] = make([]*GeneralComplex, len(complex[i]))
 		for j := range complex[i] {
-			general.Complex[i][j] = complex[i][j].(*GeneralComplex)
+			general.Complex[i][j], _ = complex[i][j].(*GeneralComplex)
 		}
 	}
 }
@@ -490,7 +490,7 @@ func (general *General) GetNested() IMiddleNestedGen {
 }
 
 func (general *General) SetNested(nested IMiddleNestedGen) {
-	general.Nested = nested.(*MiddleNested)
+	general.Nested, _ = nested.(*MiddleNested)
 }
 
 func (general *General) GetNull() goext.NullBool {
@@ -506,7 +506,7 @@ func (general *General) GetObject() IBaseObjectGen {
 }
 
 func (general *General) SetObject(object IBaseObjectGen) {
-	general.Object = object.(*BaseObject)
+	general.Object, _ = object.(*BaseObject)
 }
 
 func (general *General) GetParentID() string {
@@ -522,7 +522,7 @@ func (general *General) GetTree() IGeneralTreeGen {
 }
 
 func (general *General) SetTree(tree IGeneralTreeGen) {
-	general.Tree = tree.(*GeneralTree)
+	general.Tree, _ = tree.(*GeneralTree)
 }
 `
 			onlyDeriveImplementation := `func (onlyDerive *OnlyDerive) GetID() string {
@@ -546,7 +546,7 @@ func (onlyDerive *OnlyDerive) GetObject() IBaseObjectGen {
 }
 
 func (onlyDerive *OnlyDerive) SetObject(object IBaseObjectGen) {
-	onlyDerive.Object = object.(*BaseObject)
+	onlyDerive.Object, _ = object.(*BaseObject)
 }
 `
 			emptyImplementation := ``
@@ -563,7 +563,7 @@ func (generalTreeLeftLeafSecond *GeneralTreeLeftLeafSecond) SetValue(value float
 }
 
 func (middleNestedFirst *MiddleNestedFirst) SetSecond(second IMiddleNestedFirstSecondGen) {
-	middleNestedFirst.Second = second.(*MiddleNestedFirstSecond)
+	middleNestedFirst.Second, _ = second.(*MiddleNestedFirstSecond)
 }
 `
 			middleNestedImplementation := `func (middleNested *MiddleNested) GetFirst() IMiddleNestedFirstGen {
@@ -571,7 +571,7 @@ func (middleNestedFirst *MiddleNestedFirst) SetSecond(second IMiddleNestedFirstS
 }
 
 func (middleNested *MiddleNested) SetFirst(first IMiddleNestedFirstGen) {
-	middleNested.First = first.(*MiddleNestedFirst)
+	middleNested.First, _ = first.(*MiddleNestedFirst)
 }
 `
 			generalComplexImplementation := `func (generalComplex *GeneralComplex) GetFor() float64 {
@@ -603,7 +603,7 @@ func (generalTreeLeft *GeneralTreeLeft) GetLeafSecond() IGeneralTreeLeftLeafSeco
 }
 
 func (generalTreeLeft *GeneralTreeLeft) SetLeafSecond(leafSecond IGeneralTreeLeftLeafSecondGen) {
-	generalTreeLeft.LeafSecond = leafSecond.(*GeneralTreeLeftLeafSecond)
+	generalTreeLeft.LeafSecond, _ = leafSecond.(*GeneralTreeLeftLeafSecond)
 }
 `
 			generalTreeImplementation := `func (generalTree *GeneralTree) GetLeft() IGeneralTreeLeftGen {
@@ -611,7 +611,7 @@ func (generalTreeLeft *GeneralTreeLeft) SetLeafSecond(leafSecond IGeneralTreeLef
 }
 
 func (generalTree *GeneralTree) SetLeft(left IGeneralTreeLeftGen) {
-	generalTree.Left = left.(*GeneralTreeLeft)
+	generalTree.Left, _ = left.(*GeneralTreeLeft)
 }
 
 func (generalTree *GeneralTree) GetRight() IGeneralTreeRightGen {
@@ -619,7 +619,7 @@ func (generalTree *GeneralTree) GetRight() IGeneralTreeRightGen {
 }
 
 func (generalTree *GeneralTree) SetRight(right IGeneralTreeRightGen) {
-	generalTree.Right = right.(*GeneralTreeRight)
+	generalTree.Right, _ = right.(*GeneralTreeRight)
 }
 `
 			baseObjectImplementation := `func (baseObject *BaseObject) GetX() string {
