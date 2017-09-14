@@ -53,8 +53,26 @@ func Convert(
 		jsonObjects.InsertAll(object)
 	}
 
-	dbObjects.InsertAll(jsonObjects)
 	result := &Generated{}
+	for _, object := range dbObjects.ToArray() {
+		item := object.(*item.Object)
+		result.RawCrud = append(
+			result.RawCrud,
+			item.GenerateFetch(packageName, rawSuffix, false, true),
+			item.GenerateFetch(packageName, rawSuffix, true, true),
+			item.GenerateList(packageName, rawSuffix, false, true),
+			item.GenerateList(packageName, rawSuffix, true, true),
+		)
+
+		result.Crud = append(
+			result.Crud,
+			item.GenerateFetch(packageName, rawSuffix, false, false),
+			item.GenerateFetch(packageName, rawSuffix, true, false),
+			item.GenerateList(packageName, rawSuffix, false, false),
+			item.GenerateList(packageName, rawSuffix, true, false),
+		)
+	}
+	dbObjects.InsertAll(jsonObjects)
 	for _, object := range dbObjects.ToArray() {
 		item := object.(*item.Object)
 		result.RawInterfaces = append(
@@ -76,21 +94,6 @@ func Convert(
 		result.Constructors = append(
 			result.Constructors,
 			item.GenerateConstructor(rawSuffix),
-		)
-		result.RawCrud = append(
-			result.RawCrud,
-			item.GenerateFetch(packageName, rawSuffix, false, true),
-			item.GenerateFetch(packageName, rawSuffix, true, true),
-			item.GenerateList(packageName, rawSuffix, false, true),
-			item.GenerateList(packageName, rawSuffix, true, true),
-		)
-
-		result.Crud = append(
-			result.Crud,
-			item.GenerateFetch(packageName, rawSuffix, false, false),
-			item.GenerateFetch(packageName, rawSuffix, true, false),
-			item.GenerateList(packageName, rawSuffix, false, false),
-			item.GenerateList(packageName, rawSuffix, true, false),
 		)
 	}
 
